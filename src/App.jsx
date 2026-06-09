@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react'
-import { profile, socials, skills, projects, experience } from './data.js'
+import { profile, socials, skills, experience, education, certifications, languages, ui } from './data.js'
+import { LangContext, useLang } from './lang.js'
 import ChatWidget from './ChatWidget.jsx'
+import Connect from './Connect.jsx'
+import Blog from './Blog.jsx'
 
-const NAV = [
-  { id: 'about', label: 'About' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'experience', label: 'Experience' },
-  { id: 'contact', label: 'Contact' },
-]
+const NAV_IDS = ['about', 'skills', 'experience', 'education', 'certifications', 'connect', 'blog', 'contact']
 
 function Navbar() {
+  const { lang, setLang } = useLang()
+  const t = ui[lang]
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -23,19 +22,23 @@ function Navbar() {
   return (
     <header className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
       <div className="container nav__inner">
-        <a href="#top" className="nav__brand">{profile.name.split(' ')[0]}<span>.</span></a>
-        <button
-          className="nav__toggle"
-          aria-label="Toggle menu"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
+        <a href="#top" className="nav__brand">
+          <img src={profile.logo} alt={profile.name} className="nav__logo" />
+        </a>
+        <button className="nav__toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
           <span /><span /><span />
         </button>
         <nav className={`nav__links ${open ? 'is-open' : ''}`}>
-          {NAV.map((n) => (
-            <a key={n.id} href={`#${n.id}`} onClick={() => setOpen(false)}>{n.label}</a>
+          {NAV_IDS.map((id) => (
+            <a key={id} href={`#${id}`} onClick={() => setOpen(false)}>{t.nav[id]}</a>
           ))}
+          <button
+            className="lang-toggle"
+            onClick={() => setLang(lang === 'en' ? 'de' : 'en')}
+            aria-label="Switch language"
+          >
+            {t.switchTo}
+          </button>
         </nav>
       </div>
     </header>
@@ -43,18 +46,20 @@ function Navbar() {
 }
 
 function Hero() {
+  const { lang } = useLang()
+  const t = ui[lang]
   return (
     <section id="top" className="hero">
       <div className="container hero__inner">
-        <p className="hero__eyebrow">Hi, my name is</p>
+        <p className="hero__eyebrow">{t.hero.eyebrow}</p>
         <h1 className="hero__name">{profile.name}</h1>
-        <h2 className="hero__role">{profile.role}</h2>
-        <p className="hero__tagline">{profile.tagline}</p>
+        <h2 className="hero__role">{profile.role[lang]}</h2>
+        <p className="hero__tagline">{profile.tagline[lang]}</p>
         <div className="hero__cta">
-          <a href="#projects" className="btn btn--primary">View my work</a>
-          <a href="#contact" className="btn btn--ghost">Get in touch</a>
+          <a href="#experience" className="btn btn--primary">{t.hero.viewWork}</a>
+          <a href="#contact" className="btn btn--ghost">{t.hero.getInTouch}</a>
           {profile.resumeUrl && (
-            <a href={profile.resumeUrl} className="btn btn--ghost" target="_blank" rel="noreferrer">Résumé</a>
+            <a href={profile.resumeUrl} className="btn btn--ghost" target="_blank" rel="noreferrer">{t.hero.resume}</a>
           )}
         </div>
         <div className="hero__socials">
@@ -79,12 +84,14 @@ function Section({ id, title, children }) {
 }
 
 function About() {
+  const { lang } = useLang()
+  const t = ui[lang]
   return (
-    <Section id="about" title="About">
+    <Section id="about" title={t.titles.about}>
       <div className="about">
         <div className="about__text">
-          {profile.about.map((p, i) => <p key={i}>{p}</p>)}
-          <p className="about__meta">📍 {profile.location}</p>
+          {profile.about[lang].map((p, i) => <p key={i}>{p}</p>)}
+          <p className="about__meta">📍 {profile.location[lang]}</p>
         </div>
       </div>
     </Section>
@@ -92,41 +99,16 @@ function About() {
 }
 
 function Skills() {
+  const { lang } = useLang()
+  const t = ui[lang]
   return (
-    <Section id="skills" title="Skills">
+    <Section id="skills" title={t.titles.skills}>
       <div className="skills">
         {skills.map((g) => (
-          <div key={g.group} className="skills__group">
-            <h3>{g.group}</h3>
-            <ul>
-              {g.items.map((it) => <li key={it}>{it}</li>)}
-            </ul>
+          <div key={g.group.en} className="skills__group">
+            <h3>{g.group[lang]}</h3>
+            <ul>{g.items.map((it) => <li key={it}>{it}</li>)}</ul>
           </div>
-        ))}
-      </div>
-    </Section>
-  )
-}
-
-function Projects() {
-  return (
-    <Section id="projects" title="Projects">
-      <div className="projects">
-        {projects.map((p) => (
-          <article key={p.title} className="card">
-            <div className="card__top">
-              <span className="card__icon">{'</>'}</span>
-              <div className="card__links">
-                {p.codeUrl && <a href={p.codeUrl} target="_blank" rel="noreferrer">Code</a>}
-                {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noreferrer">Live</a>}
-              </div>
-            </div>
-            <h3 className="card__title">{p.title}</h3>
-            <p className="card__desc">{p.description}</p>
-            <ul className="card__tech">
-              {p.tech.map((t) => <li key={t}>{t}</li>)}
-            </ul>
-          </article>
         ))}
       </div>
     </Section>
@@ -134,18 +116,18 @@ function Projects() {
 }
 
 function Experience() {
+  const { lang } = useLang()
+  const t = ui[lang]
   return (
-    <Section id="experience" title="Experience">
+    <Section id="experience" title={t.titles.experience}>
       <div className="timeline">
-        {experience.map((e, i) => (
+        {experience[lang].map((e, i) => (
           <div key={i} className="timeline__item">
             <div className="timeline__dot" />
             <div className="timeline__body">
               <h3>{e.role} <span className="timeline__company">@ {e.company}</span></h3>
-              <p className="timeline__period">{e.period}</p>
-              <ul>
-                {e.points.map((pt, j) => <li key={j}>{pt}</li>)}
-              </ul>
+              <p className="timeline__period">{e.location} · {e.period}</p>
+              <ul>{e.points.map((pt, j) => <li key={j}>{pt}</li>)}</ul>
             </div>
           </div>
         ))}
@@ -154,12 +136,98 @@ function Experience() {
   )
 }
 
-function Contact() {
+function Education() {
+  const { lang } = useLang()
+  const t = ui[lang]
   return (
-    <Section id="contact" title="Contact">
+    <Section id="education" title={t.titles.education}>
+      <div className="timeline">
+        {education[lang].map((e, i) => (
+          <div key={i} className="timeline__item">
+            <div className="timeline__dot" />
+            <div className="timeline__body">
+              <h3>{e.degree}</h3>
+              <p className="timeline__period">{e.period}</p>
+              <p className="edu__school">{e.school}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Section>
+  )
+}
+
+function Certifications() {
+  const { lang } = useLang()
+  const t = ui[lang]
+
+  // ISTQB certificate badge logo
+  const ISTQBLogo = () => (
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      {/* Outer dark circle (certificate base) */}
+      <circle cx="50" cy="50" r="48" fill="#1a3a52" opacity="0.9" />
+
+      {/* Gold/brass border ring (premium certificate look) */}
+      <circle cx="50" cy="50" r="48" fill="none" stroke="#d4a574" strokeWidth="2.5" />
+      <circle cx="50" cy="50" r="45" fill="none" stroke="#d4a574" strokeWidth="0.8" opacity="0.6" />
+
+      {/* White center circle (certificate paper) */}
+      <circle cx="50" cy="50" r="42" fill="#fafafa" />
+
+      {/* Subtle star/seal mark at top */}
+      <circle cx="50" cy="25" r="3.5" fill="#d4a574" />
+
+      {/* ISTQB text - main */}
+      <text x="50" y="47" fontSize="13" fontWeight="bold" fill="#0052cc" textAnchor="middle" fontFamily="Arial, sans-serif">ISTQB</text>
+
+      {/* Decorative line */}
+      <line x1="35" y1="55" x2="65" y2="55" stroke="#d4a574" strokeWidth="0.8" opacity="0.5" />
+
+      {/* Certificate text */}
+      <text x="50" y="68" fontSize="5" fill="#666" textAnchor="middle" fontFamily="Arial, sans-serif">CERTIFIED</text>
+    </svg>
+  )
+
+  return (
+    <Section id="certifications" title={t.titles.certifications}>
+      <div className="certs">
+        {certifications[lang].map((c, i) => (
+          <div key={i} className="cert-card">
+            <div className="cert-card__logo">
+              <ISTQBLogo />
+            </div>
+            <div className="cert-card__content">
+              <h3>{c.name}</h3>
+              <p>{c.year}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="langs">
+        <h3 className="langs__title">{t.titles.languages}</h3>
+        <ul>
+          {languages[lang].map((l) => (
+            <li key={l.name}><strong>{l.name}</strong> — {l.level}</li>
+          ))}
+        </ul>
+      </div>
+    </Section>
+  )
+}
+
+function Contact() {
+  const { lang } = useLang()
+  const t = ui[lang]
+  return (
+    <Section id="contact" title={t.titles.contact}>
       <div className="contact">
-        <p>Have a question or want to work together? My inbox is always open.</p>
-        <a href={`mailto:${profile.email}`} className="btn btn--primary">Say hello</a>
+        <p>{t.contact.blurb}</p>
+        <a href={`mailto:${profile.email}`} className="btn btn--primary">{t.contact.sayHello}</a>
+        <div className="contact__details">
+          <span>📧 {profile.email}</span>
+          <span>📞 {profile.phone}</span>
+          <span>📍 {profile.location[lang]}</span>
+        </div>
         <div className="contact__socials">
           {socials.map((s) => (
             <a key={s.label} href={s.url} target="_blank" rel="noreferrer">{s.label}</a>
@@ -171,29 +239,42 @@ function Contact() {
 }
 
 function Footer() {
+  const { lang } = useLang()
   return (
     <footer className="footer">
       <div className="container">
-        <p>© {new Date().getFullYear()} {profile.name}. Built with React + Vite.</p>
+        <p>© {new Date().getFullYear()} {profile.name}. {ui[lang].footerBuilt}</p>
       </div>
     </footer>
   )
 }
 
 export default function App() {
+  const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'en')
+
+  useEffect(() => {
+    localStorage.setItem('lang', lang)
+    document.documentElement.lang = lang
+  }, [lang])
+
   return (
-    <>
+    <LangContext.Provider value={{ lang, setLang }}>
       <Navbar />
       <main>
         <Hero />
         <About />
         <Skills />
-        <Projects />
-        <Experience />
+        <div className="exp-edu-grid">
+          <Experience />
+          <Education />
+        </div>
+        <Certifications />
+        <Connect />
+        <Blog />
         <Contact />
       </main>
       <Footer />
       <ChatWidget />
-    </>
+    </LangContext.Provider>
   )
 }
