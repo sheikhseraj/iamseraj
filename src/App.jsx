@@ -161,13 +161,15 @@ function Certifications() {
   const { lang } = useLang()
   const t = ui[lang]
 
-  // ISTQB logo SVG
+  // ISTQB logo SVG - official branding colors (blue text, red accent)
   const ISTQBLogo = () => (
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      {/* Blue background */}
-      <rect width="100" height="100" fill="none" />
-      {/* ISTQB text-like badge */}
-      <text x="50" y="60" fontSize="48" fontWeight="bold" fill="#fff" textAnchor="middle" fontFamily="Arial, sans-serif">★</text>
+      {/* Red curved accent */}
+      <path d="M 70 10 Q 85 15 90 30" stroke="#d92c3a" strokeWidth="6" fill="none" strokeLinecap="round" />
+      {/* Blue text background */}
+      <rect x="5" y="35" width="90" height="50" fill="none" />
+      {/* ISTQB simplified text */}
+      <text x="50" y="72" fontSize="32" fontWeight="bold" fill="#0052cc" textAnchor="middle" fontFamily="Arial, sans-serif">ISTQB</text>
     </svg>
   )
 
