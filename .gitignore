@@ -3,6 +3,10 @@ dist
 dist-ssr
 .claude
 *.local
+
+# Local helper folders (not part of the project)
+Upload to GitHub/
+DO NOT Upload to GitHub/
 .env
 .env.*
 !.env.example
