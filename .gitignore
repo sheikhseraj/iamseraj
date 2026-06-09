@@ -7,6 +7,10 @@ dist-ssr
 # Local helper folders (not part of the project)
 Upload to GitHub/
 DO NOT Upload to GitHub/
+
+# Source material (CV/cover-letter originals) — not needed by the app.
+# The optimized logo + favicon already live in /public.
+data/
 .env
 .env.*
 !.env.example

@@ -5,6 +5,7 @@ import express from 'express'
 import cors from 'cors'
 import { initDb, isReady, findAnswer, saveAnswer } from './db.js'
 import { streamAnswer, hasKey } from './ai.js'
+import adminRouter from './admin.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distPath = path.join(__dirname, '..', 'dist')
@@ -26,7 +27,8 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.post('/api/chat', async (req, res) => {
-  const { messages } = req.body || {}
+  const { messages, lang } = req.body || {}
+  const language = lang === 'de' ? 'de' : 'en'
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'Expected a non-empty "messages" array.' })
   }
@@ -66,7 +68,7 @@ app.post('/api/chat', async (req, res) => {
     await streamAnswer(clean, (delta) => {
       full += delta
       res.write(delta)
-    })
+    }, language)
     res.end()
 
     // 3) Save the new Q&A for next time (fire-and-forget).
@@ -81,6 +83,9 @@ app.post('/api/chat', async (req, res) => {
     else res.end()
   }
 })
+
+// Mount admin API routes
+app.use('/api/admin', adminRouter)
 
 // Serve the built React site (production). In dev, Vite serves it on :5173.
 app.use(express.static(distPath))
