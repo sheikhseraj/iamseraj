@@ -1,112 +1,296 @@
 // ============================================================
-//  EDIT THIS FILE to make the portfolio yours.
-//  Everything the site displays comes from here.
+//  All website content — EDIT HERE. Bilingual: English + German.
+//  Shared values (name, email, skills tech names) are language-neutral.
 // ============================================================
 
 export const profile = {
-  name: 'Seraj',
-  role: 'Test Manager & Test Automation Engineer',
-  tagline:
-    'I lead QA strategy and build robust test automation — now powered by AI agents.',
-  location: 'Your City, Country',
+  name: 'Seraj Ahmad Siddiqui',
   email: 'herrsiddiqui@gmail.com',
-  resumeUrl: '', // e.g. '/resume.pdf' (place the file in /public)
-  about: [
-    'I\'m a Test Manager and Test Automation Engineer who turns quality into a ' +
-      'competitive advantage. I design test strategies, lead QA teams, and build ' +
-      'automation frameworks that catch issues early and ship with confidence.',
-    'Lately I\'ve been bringing AI agents into the testing loop — using LLMs to ' +
-      'generate test cases, triage failures, and self-heal flaky tests. I also ' +
-      'write code, so I bridge the gap between QA and engineering.',
-  ],
+  phone: '+49 176 5524 1842',
+  logo: '/logo.png',
+  // Your profile photo for the cards. Put an image in /public (e.g. photo.jpg)
+  // and set it here, e.g. '/photo.jpg'. If empty, falls back to the GitHub avatar.
+  photo: '',
+  resumeUrl: '', // optional: put a PDF in /public and set e.g. '/cv.pdf'
+
+  role: {
+    en: 'Test Manager & Test Automation Engineer',
+    de: 'Testmanager & Testautomatisierungs-Ingenieur',
+  },
+  tagline: {
+    en: 'ISTQB Advanced Level certified Test Manager — I build quality in through clear test strategy, automation, and AI-driven testing.',
+    de: 'ISTQB Advanced Level zertifizierter Testmanager — ich sichere Qualität durch klare Teststrategie, Automatisierung und KI-gestütztes Testen.',
+  },
+  location: {
+    en: 'Magdeburg, Germany',
+    de: 'Magdeburg, Deutschland',
+  },
+  about: {
+    en: [
+      "I'm an ISTQB Advanced Level certified Test Manager with 3+ years of experience in test management and quality assurance for complex IT systems. I specialize in test strategy, test automation (Playwright, Selenium, Python/JavaScript), and CI/CD integration (Jenkins, Azure DevOps).",
+      'I work in agile teams (Scrum/Kanban), lead international cross-functional teams, and act as the link between development, business units, and management. I speak fluent German and English (C1 each).',
+      "Right now I'm deepening my expertise in AI-driven test automation with Playwright MCP and Claude Code — because I believe the future of quality assurance lies in combining automation with AI.",
+    ],
+    de: [
+      'Ich bin ein ISTQB Advanced Level zertifizierter Testmanager mit über 3 Jahren Erfahrung im Testmanagement und in der Qualitätssicherung komplexer IT-Systeme. Mein Schwerpunkt liegt auf Teststrategie, Testautomatisierung (Playwright, Selenium, Python/JavaScript) und CI/CD-Integration (Jenkins, Azure DevOps).',
+      'Ich arbeite in agilen Teams (Scrum/Kanban), führe internationale, cross-funktionale Teams und bin das verbindende Element zwischen Entwicklung, Fachbereichen und Management. Ich spreche fließend Deutsch und Englisch (je C1).',
+      'Aktuell vertiefe ich mein Wissen in KI-gestützter Testautomatisierung mit Playwright MCP und Claude Code — denn ich bin überzeugt, dass die Zukunft der Qualitätssicherung in der Verbindung von Automatisierung und KI liegt.',
+    ],
+  },
 }
 
+// LinkedIn profile URL is language-aware (English vs. German locale).
+const LINKEDIN = {
+  en: 'https://www.linkedin.com/in/sheikh-seraj/',
+  de: 'https://www.linkedin.com/in/sheikh-seraj/?locale=de_DE',
+}
+const XING = 'https://www.xing.com/profile/SerajAhmad_Siddiqui/web_profiles'
+const GITHUB_URL = 'https://github.com/sheikhseraj'
+
 export const socials = [
-  { label: 'GitHub', url: 'https://github.com/yourusername' },
-  { label: 'LinkedIn', url: 'https://linkedin.com/in/yourusername' },
+  { label: 'LinkedIn', url: LINKEDIN },
+  { label: 'Xing', url: XING },
+  { label: 'GitHub', url: GITHUB_URL },
   { label: 'Email', url: 'mailto:herrsiddiqui@gmail.com' },
 ]
 
+// Branded "Connect" cards. (url may be a string or { en, de } for per-language links.)
+export const connect = [
+  { key: 'linkedin', name: 'LinkedIn', handle: 'Seraj Ahmad Siddiqui', url: LINKEDIN, color: '#0A66C2', photo: '/photo-linkedin.jpg' },
+  { key: 'xing', name: 'Xing', handle: 'Seraj Ahmad Siddiqui', url: XING, color: '#0698A0', photo: '/photo-xing.jpg' },
+  { key: 'github', name: 'GitHub', handle: '@sheikhseraj', url: GITHUB_URL, color: '#9aa4b8' }, // avatar from GitHub
+]
+
+// Live GitHub stats use this username.
+export const github = { username: 'sheikhseraj' }
+
+// Headline and tagline for the connect cards.
+export const profileCard = {
+  headline: {
+    en: 'Test Manager & Test Automation Engineer · ISTQB CTAL-TM',
+    de: 'Testmanager & Testautomatisierungs-Ingenieur · ISTQB CTAL-TM',
+  },
+  githubTagline: {
+    en: 'Software Quality & Automation',
+    de: 'Softwarequalität & Automatisierung',
+  },
+}
+
+// Blog posts (add your blogs here)
+export const blogs = {
+  en: [
+    {
+      id: 1,
+      title: 'Getting Started with Test Automation',
+      excerpt: 'Learn the fundamentals of test automation and best practices...',
+      date: '2026-06-09',
+      category: 'Testing',
+      content: 'Full blog content here...',
+    },
+  ],
+  de: [
+    {
+      id: 1,
+      title: 'Erste Schritte mit Testautomatisierung',
+      excerpt: 'Erfahren Sie die Grundlagen der Testautomatisierung...',
+      date: '2026-06-09',
+      category: 'Testing',
+      content: 'Vollständiger Blog-Inhalt hier...',
+    },
+  ],
+}
+
+// Tech names are the same in both languages; only the group label is translated.
 export const skills = [
-  {
-    group: 'Test Management',
-    items: ['Test Strategy', 'Test Planning', 'Risk-Based Testing', 'Team Leadership', 'Agile / Scrum', 'Jira / Xray'],
-  },
-  {
-    group: 'Test Automation',
-    items: ['Selenium', 'Playwright', 'Cypress', 'Appium', 'REST Assured', 'TestNG / JUnit', 'Postman'],
-  },
-  {
-    group: 'AI & Agents',
-    items: ['LLM Test Generation', 'AI Failure Triage', 'Self-Healing Tests', 'Prompt Engineering', 'OpenAI / Claude APIs'],
-  },
-  {
-    group: 'Development & DevOps',
-    items: ['Java', 'Python', 'JavaScript', 'SQL', 'Git', 'CI/CD', 'Jenkins', 'GitHub Actions', 'Docker'],
-  },
+  { group: { en: 'Test Management', de: 'Testmanagement' }, items: ['Jira', 'Xray', 'Confluence', 'TestRail', 'MS Azure Test Plans'] },
+  { group: { en: 'Test Automation', de: 'Testautomatisierung' }, items: ['Playwright', 'Selenium WebDriver', 'Pytest', 'TestNG'] },
+  { group: { en: 'API Testing', de: 'API-Testing' }, items: ['Postman', 'REST API', 'Swagger'] },
+  { group: { en: 'Programming', de: 'Programmierung' }, items: ['Python', 'JavaScript', 'C++'] },
+  { group: { en: 'DevOps & CI/CD', de: 'DevOps & CI/CD' }, items: ['Jenkins', 'Git', 'GitHub', 'Azure DevOps', 'Docker'] },
+  { group: { en: 'Methods & Process', de: 'Methoden & Prozesse' }, items: ['Agile (Scrum/Kanban)', 'SDLC', 'V-Model', 'ISTQB'] },
 ]
 
-export const projects = [
-  {
-    title: 'AI-Powered Test Automation Framework',
-    description:
-      'A Playwright + AI agent framework that auto-generates test cases from ' +
-      'user stories, self-heals broken selectors, and triages failures using an ' +
-      'LLM — cutting test maintenance effort significantly.',
-    tech: ['Playwright', 'TypeScript', 'OpenAI API', 'CI/CD'],
-    liveUrl: '',
-    codeUrl: '',
-  },
-  {
-    title: 'End-to-End Automation Suite',
-    description:
-      'A scalable UI + API automation suite covering critical business flows, ' +
-      'integrated into the CI/CD pipeline with parallel execution and rich ' +
-      'reporting for fast feedback on every commit.',
-    tech: ['Selenium', 'Java', 'TestNG', 'Jenkins'],
-    liveUrl: '',
-    codeUrl: '',
-  },
-  {
-    title: 'QA Strategy & Test Management',
-    description:
-      'Defined and rolled out a company-wide test strategy: test planning, ' +
-      'risk-based prioritization, defect governance, and quality metrics ' +
-      'dashboards that gave leadership clear release-readiness signals.',
-    tech: ['Jira', 'Xray', 'Agile', 'Reporting'],
-    liveUrl: '',
-    codeUrl: '',
-  },
-  {
-    title: 'AI Test Assistant Agent',
-    description:
-      'A chat-based AI agent that helps QA engineers write, review, and run ' +
-      'tests in natural language — bridging manual testers and automation code.',
-    tech: ['Python', 'Claude API', 'LangChain'],
-    liveUrl: '',
-    codeUrl: '',
-  },
-]
+export const experience = {
+  en: [
+    {
+      role: 'Test Manager',
+      company: 'Akkodis GmbH',
+      location: 'Magdeburg',
+      period: 'Oct 2023 – Oct 2025',
+      points: [
+        'Overall responsibility for test management and test coordination in international client projects.',
+        'Built and operated test automation frameworks with Playwright & Selenium (Python/JavaScript) and integrated automated tests into CI/CD pipelines (Jenkins, Azure DevOps).',
+        'Developed test strategies, test concepts, test cases and regression suites; planned and ran integration, system and regression testing.',
+        'Established structured defect management with Jira & Xray and reported risks and quality metrics to stakeholders.',
+        'Built 50+ automated test cases reaching 70% coverage → 30% less manual test time; reduced the defect rate and cut documentation effort by 20%.',
+      ],
+    },
+    {
+      role: 'Test Engineer',
+      company: 'EDAG GmbH',
+      location: 'Ingolstadt',
+      period: 'Mar 2023 – Aug 2023',
+      points: [
+        'Created test cases for functional requirements and ran manual system & integration tests.',
+        'Developed first Python/Selenium automation scripts and analyzed defects together with developers.',
+      ],
+    },
+    {
+      role: 'Project Manager',
+      company: 'Alaska Group',
+      location: 'Dubai',
+      period: 'Mar 2015 – Aug 2017',
+      points: [
+        'Resource and budget planning, process optimization and stakeholder communication.',
+        'Achieved customer satisfaction above 98%.',
+      ],
+    },
+  ],
+  de: [
+    {
+      role: 'Testmanager',
+      company: 'Akkodis GmbH',
+      location: 'Magdeburg',
+      period: '10/2023 – 10/2025',
+      points: [
+        'Gesamtverantwortung für Testmanagement und Teststeuerung in internationalen Kundenprojekten.',
+        'Aufbau und Betrieb von Testautomatisierungs-Frameworks mit Playwright & Selenium (Python/JavaScript) und Integration automatisierter Tests in CI/CD-Pipelines (Jenkins, Azure DevOps).',
+        'Entwicklung von Teststrategien, Testkonzepten, Testfällen und Regressionstestsuiten; Planung und Durchführung von Integrations-, System- und Regressionstests.',
+        'Etablierung strukturierter Defektmanagement-Prozesse mit Jira & Xray sowie Reporting von Risiken und Qualitätskennzahlen an Stakeholder.',
+        'Aufbau von 50+ automatisierten Testfällen mit 70 % Abdeckung → 30 % weniger manuelle Testzeit; Reduktion der Defektrate und 20 % weniger Dokumentationsaufwand.',
+      ],
+    },
+    {
+      role: 'Testingenieur',
+      company: 'EDAG GmbH',
+      location: 'Ingolstadt',
+      period: '03/2023 – 08/2023',
+      points: [
+        'Erstellung von Testfällen für funktionale Anforderungen; manuelle System- und Integrationstests.',
+        'Entwicklung erster Python/Selenium-Automatisierungsskripte und Defektanalyse gemeinsam mit Entwicklern.',
+      ],
+    },
+    {
+      role: 'Projektmanager',
+      company: 'Alaska Group',
+      location: 'Dubai',
+      period: '03/2015 – 08/2017',
+      points: [
+        'Ressourcen- und Budgetplanung, Prozessoptimierung und Stakeholder-Kommunikation.',
+        'Kundenzufriedenheit von über 98 % erreicht.',
+      ],
+    },
+  ],
+}
 
-export const experience = [
-  {
-    role: 'Test Manager',
-    company: 'Company Name',
-    period: '2023 — Present',
-    points: [
-      'Lead a QA team and own the end-to-end test strategy across multiple products.',
-      'Introduced AI-assisted testing, reducing test maintenance and triage time.',
-      'Established quality metrics and release-readiness reporting for stakeholders.',
-    ],
+export const education = {
+  en: [
+    {
+      degree: 'Test Automation with AI — professional training',
+      school: 'AI-driven test automation: Playwright MCP & Claude Code, CI/CD testing, automated reporting',
+      period: '2026',
+    },
+    {
+      degree: 'M.Sc. Mechanical Engineering — focus on Digitalization',
+      school: 'TH Nürnberg · Master thesis: nanostructure pressure sensor (HEIG-VD, Switzerland). Completed entirely in German.',
+      period: '2020 – 2022',
+    },
+    {
+      degree: 'German language courses A1–C1',
+      school: 'UNS Sprachschule, Hamburg',
+      period: '2018 – 2019',
+    },
+    {
+      degree: 'B.Tech. Mechanical Engineering',
+      school: 'Uttar Pradesh Technical University, India',
+      period: '2010 – 2014',
+    },
+  ],
+  de: [
+    {
+      degree: 'Testautomatisierung mit KI — praxisorientierte Weiterbildung',
+      school: 'KI-gestützte Testautomatisierung: Playwright MCP & Claude Code, CI/CD-Testing, automatisiertes Reporting',
+      period: '2026',
+    },
+    {
+      degree: 'M.Sc. Maschinenbau — Schwerpunkt Digitalisierung',
+      school: 'TH Nürnberg · Masterarbeit: Nanostruktur-Drucksensor (HEIG-VD, Schweiz). Vollständig auf Deutsch absolviert.',
+      period: '2020 – 2022',
+    },
+    {
+      degree: 'Deutsch-Sprachkurse A1–C1',
+      school: 'UNS Sprachschule, Hamburg',
+      period: '2018 – 2019',
+    },
+    {
+      degree: 'B.Tech. Maschinenbau',
+      school: 'Uttar Pradesh Technical University, Indien',
+      period: '2010 – 2014',
+    },
+  ],
+}
+
+export const certifications = {
+  en: [
+    { name: 'ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM)', year: '2024' },
+    { name: 'ISTQB® Certified Tester — Foundation Level v4.0', year: '2024' },
+  ],
+  de: [
+    { name: 'ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM)', year: '2024' },
+    { name: 'ISTQB® Certified Tester — Foundation Level v4.0', year: '2024' },
+  ],
+}
+
+export const languages = {
+  en: [
+    { name: 'German', level: 'C1 — fluent' },
+    { name: 'English', level: 'C1 — fluent' },
+  ],
+  de: [
+    { name: 'Deutsch', level: 'C1 — verhandlungssicher' },
+    { name: 'Englisch', level: 'C1 — verhandlungssicher' },
+  ],
+}
+
+
+// UI labels, buttons, section titles, and chat strings per language.
+export const ui = {
+  en: {
+    nav: { about: 'About', skills: 'Skills', experience: 'Experience', education: 'Education', certifications: 'Certifications', connect: 'Connect', blog: 'Blog', contact: 'Contact' },
+    hero: { eyebrow: 'Hi, my name is', viewWork: 'View my experience', getInTouch: 'Get in touch', resume: 'Résumé' },
+    titles: { about: 'About', skills: 'Skills', experience: 'Experience', education: 'Education', certifications: 'Certifications', connect: 'Connect', blog: 'Blog', contact: 'Contact', languages: 'Languages' },
+    connectUI: { findMe: 'Find me online', githubActivity: 'Live GitHub activity', viewProfile: 'View profile', optionA: 'Option 1 — Branded cards', optionB: 'Option 2 — Live add-ons (GitHub stats + LinkedIn-style card)' },
+    contact: {
+      blurb: 'Have a role or project in mind? My inbox is always open — in German or English.',
+      sayHello: 'Say hello', email: 'Email', phone: 'Phone', location: 'Location',
+    },
+    footerBuilt: 'Built with React.',
+    switchTo: 'DE',
+    chat: {
+      title: "Ask Seraj's AI",
+      greeting: "Hi! I'm Seraj's AI assistant. Ask me anything about Seraj's experience, skills, or background.",
+      placeholder: 'Type your question…',
+      send: 'Send',
+      suggestions: ['What do you do?', 'Tell me about your test automation experience', 'What certifications do you have?'],
+    },
   },
-  {
-    role: 'Test Automation Engineer',
-    company: 'Previous Company',
-    period: '2020 — 2023',
-    points: [
-      'Built and maintained UI and API automation frameworks integrated with CI/CD.',
-      'Increased automation coverage and reduced regression cycle time.',
-      'Mentored manual testers in moving toward automation.',
-    ],
+  de: {
+    nav: { about: 'Über mich', skills: 'Kenntnisse', experience: 'Berufserfahrung', education: 'Ausbildung', certifications: 'Zertifizierungen', connect: 'Profile', blog: 'Blog', contact: 'Kontakt' },
+    hero: { eyebrow: 'Hallo, mein Name ist', viewWork: 'Meine Erfahrung ansehen', getInTouch: 'Kontakt aufnehmen', resume: 'Lebenslauf' },
+    titles: { about: 'Über mich', skills: 'Kenntnisse', experience: 'Berufserfahrung', education: 'Ausbildung', certifications: 'Zertifizierungen', connect: 'Profile', blog: 'Blog', contact: 'Kontakt', languages: 'Sprachen' },
+    connectUI: { findMe: 'Finden Sie mich online', githubActivity: 'Live GitHub-Aktivität', viewProfile: 'Profil ansehen', optionA: 'Option 1 — Branding-Karten', optionB: 'Option 2 — Live-Erweiterungen (GitHub-Statistiken + LinkedIn-Karte)' },
+    contact: {
+      blurb: 'Sie haben eine Position oder ein Projekt im Kopf? Schreiben Sie mir gern — auf Deutsch oder Englisch.',
+      sayHello: 'Hallo sagen', email: 'E-Mail', phone: 'Telefon', location: 'Ort',
+    },
+    footerBuilt: 'Erstellt mit React.',
+    switchTo: 'EN',
+    chat: {
+      title: 'Fragen Sie Serajs KI',
+      greeting: 'Hallo! Ich bin Serajs KI-Assistent. Fragen Sie mich alles über Serajs Erfahrung, Kenntnisse oder Werdegang.',
+      placeholder: 'Stellen Sie Ihre Frage…',
+      send: 'Senden',
+      suggestions: ['Was machst du beruflich?', 'Erzähl mir von deiner Testautomatisierungs-Erfahrung', 'Welche Zertifizierungen hast du?'],
+    },
   },
-]
+}
