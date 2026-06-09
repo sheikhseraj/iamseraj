@@ -1,7 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { profile, skills, projects, experience } from '../src/data.js'
 
-const client = new Anthropic() // reads ANTHROPIC_API_KEY from the environment
+// Lazily create the client so a missing key never crashes the server at
+// startup — it only matters when we actually need to call the AI.
+let _client = null
+function getClient() {
+  if (!_client) _client = new Anthropic() // reads ANTHROPIC_API_KEY from env
+  return _client
+}
 
 // Build a persona system prompt from the portfolio/CV data so Claude
 // answers as Seraj, grounded only in this information.
@@ -45,7 +51,7 @@ export function hasKey() {
 // Stream Claude's answer. Calls onText(delta) for each chunk and resolves
 // with the full accumulated text (so the caller can cache it).
 export async function streamAnswer(messages, onText) {
-  const stream = client.messages.stream({
+  const stream = getClient().messages.stream({
     model: 'claude-opus-4-8',
     max_tokens: 1024,
     system: SYSTEM_PROMPT,
@@ -61,7 +67,7 @@ export async function streamAnswer(messages, onText) {
 
 // Non-streaming single answer (used by the seed script).
 export async function generateAnswer(question) {
-  const msg = await client.messages.create({
+  const msg = await getClient().messages.create({
     model: 'claude-opus-4-8',
     max_tokens: 1024,
     system: SYSTEM_PROMPT,

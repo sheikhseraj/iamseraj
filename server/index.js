@@ -10,8 +10,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distPath = path.join(__dirname, '..', 'dist')
 const PORT = process.env.PORT || 3001
 
-await initDb()
-
 if (!hasKey()) {
   console.warn(
     '\n⚠️  ANTHROPIC_API_KEY is not set — the AI fallback will error.\n' +
@@ -95,6 +93,10 @@ app.use((req, res, next) => {
   next()
 })
 
+// Start listening immediately; connect to MySQL in the background so a DB
+// problem can never stop the site from serving.
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`)
+  console.log(`✅ Server running on port ${PORT}`)
 })
+
+initDb().catch((e) => console.error('DB init error:', e.message))
