@@ -161,15 +161,30 @@ function Certifications() {
   const { lang } = useLang()
   const t = ui[lang]
 
-  // ISTQB logo SVG - official branding colors (blue text, red accent)
+  // ISTQB certificate badge logo
   const ISTQBLogo = () => (
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      {/* Red curved accent */}
-      <path d="M 70 10 Q 85 15 90 30" stroke="#d92c3a" strokeWidth="6" fill="none" strokeLinecap="round" />
-      {/* Blue text background */}
-      <rect x="5" y="35" width="90" height="50" fill="none" />
-      {/* ISTQB simplified text */}
-      <text x="50" y="72" fontSize="32" fontWeight="bold" fill="#0052cc" textAnchor="middle" fontFamily="Arial, sans-serif">ISTQB</text>
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      {/* Outer dark circle (certificate base) */}
+      <circle cx="50" cy="50" r="48" fill="#1a3a52" opacity="0.9" />
+
+      {/* Gold/brass border ring (premium certificate look) */}
+      <circle cx="50" cy="50" r="48" fill="none" stroke="#d4a574" strokeWidth="2.5" />
+      <circle cx="50" cy="50" r="45" fill="none" stroke="#d4a574" strokeWidth="0.8" opacity="0.6" />
+
+      {/* White center circle (certificate paper) */}
+      <circle cx="50" cy="50" r="42" fill="#fafafa" />
+
+      {/* Subtle star/seal mark at top */}
+      <circle cx="50" cy="25" r="3.5" fill="#d4a574" />
+
+      {/* ISTQB text - main */}
+      <text x="50" y="47" fontSize="13" fontWeight="bold" fill="#0052cc" textAnchor="middle" fontFamily="Arial, sans-serif">ISTQB</text>
+
+      {/* Decorative line */}
+      <line x1="35" y1="55" x2="65" y2="55" stroke="#d4a574" strokeWidth="0.8" opacity="0.5" />
+
+      {/* Certificate text */}
+      <text x="50" y="68" fontSize="5" fill="#666" textAnchor="middle" fontFamily="Arial, sans-serif">CERTIFIED</text>
     </svg>
   )
 
