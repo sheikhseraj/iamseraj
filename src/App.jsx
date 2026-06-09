@@ -160,14 +160,29 @@ function Education() {
 function Certifications() {
   const { lang } = useLang()
   const t = ui[lang]
+
+  // ISTQB logo SVG
+  const ISTQBLogo = () => (
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      {/* Blue background */}
+      <rect width="100" height="100" fill="none" />
+      {/* ISTQB text-like badge */}
+      <text x="50" y="60" fontSize="48" fontWeight="bold" fill="#fff" textAnchor="middle" fontFamily="Arial, sans-serif">★</text>
+    </svg>
+  )
+
   return (
     <Section id="certifications" title={t.titles.certifications}>
       <div className="certs">
         {certifications[lang].map((c, i) => (
           <div key={i} className="cert-card">
-            <div className="cert-card__logo">★</div>
-            <h3>{c.name}</h3>
-            <p>{c.year}</p>
+            <div className="cert-card__logo">
+              <ISTQBLogo />
+            </div>
+            <div className="cert-card__content">
+              <h3>{c.name}</h3>
+              <p>{c.year}</p>
+            </div>
           </div>
         ))}
       </div>
