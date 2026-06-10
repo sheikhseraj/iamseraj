@@ -165,6 +165,16 @@
 
   <script>
     let jwtToken = null;
+    const dailyTopics = {
+      0: 'Tool review: Testing tools and comparisons',
+      1: 'Testing tips: QA best practices',
+      2: 'Automation tip: Test automation strategies',
+      3: 'AI in testing: How AI helps QA',
+      4: 'ISTQB lesson: Certification concepts',
+      5: 'Bug story: Real bugs and lessons learned',
+      6: 'Career lesson: QA career growth'
+    };
+
     const hashtagMap = {
       0: '#Testing #Tools #QA',
       1: '#QA #Testing #ISTQB',
@@ -179,7 +189,13 @@
       checkAuth();
       getToken();
       loadDashboard();
+      autoPopulateTopic();
     });
+
+    function autoPopulateTopic() {
+      const today = new Date().getDay();
+      document.getElementById('topic').value = dailyTopics[today];
+    }
 
     function checkAuth() {
       fetch('/admin/api/check-auth').then(r => r.json()).then(d => {
@@ -281,6 +297,7 @@
           if (data[section.key]) {
             const text = data[section.key];
             const fullText = section.platform !== 'Blog' ? `${text}\n\n${hashtags}` : text;
+            const textForBtn = fullText.replace(/'/g, "\\'").replace(/"/g, '\\"');
 
             html += `<div class="content-block">
               <h4>${section.emoji} ${section.title}</h4>
@@ -290,11 +307,16 @@
                 <button class="btn btn-secondary" onclick="copyText(\`${fullText.replace(/`/g, '\\`')}\`)">📋 Copy</button>`;
 
             if (section.platform === 'LinkedIn') {
-              html += `<button class="btn btn-success" onclick="postTo('${section.platform}'); recordPost('${section.platform}');">📱 Posted</button>`;
+              html += `<button class="btn btn-success" onclick="postToLinkedIn('${textForBtn}')">📱 Post to LinkedIn</button>
+                       <button class="btn btn-secondary" onclick="recordPost('LinkedIn')">✅ Mark Posted</button>`;
             } else if (section.platform === 'XING') {
-              html += `<button class="btn btn-success" onclick="postTo('${section.platform}'); recordPost('${section.platform}');">🇩🇪 Posted</button>`;
+              html += `<button class="btn btn-success" onclick="postToXing('${textForBtn}')">🇩🇪 Post to XING</button>
+                       <button class="btn btn-secondary" onclick="recordPost('XING')">✅ Mark Posted</button>`;
             } else if (section.platform === 'Blog') {
-              html += `<button class="btn btn-success" onclick="recordPost('${section.platform}');">💾 Posted</button>`;
+              html += `<button class="btn btn-success" onclick="saveToBlog('${textForBtn}')">💾 Save to Blog</button>
+                       <button class="btn btn-secondary" onclick="recordPost('Blog')">✅ Mark Posted</button>`;
+            } else {
+              html += `<button class="btn btn-secondary" onclick="recordPost('${section.platform}')">✅ Mark Done</button>`;
             }
 
             html += `</div></div>`;
@@ -311,8 +333,24 @@
       }
     }
 
-    function postTo(platform) {
-      alert(`✅ Marked as posted to ${platform}!`);
+    function postToLinkedIn(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        window.open('https://www.linkedin.com/feed/', '_blank');
+        alert('✅ Content copied! Paste in LinkedIn and post. Then click "Mark Posted".');
+      });
+    }
+
+    function postToXing(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        window.open('https://www.xing.com', '_blank');
+        alert('✅ Content copied! Paste in XING and post. Then click "Mark Posted".');
+      });
+    }
+
+    function saveToBlog(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Content copied! Navigate to your blog to add it. Then click "Mark Posted".');
+      });
     }
 
     function copyText(text) {
