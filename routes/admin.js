@@ -284,90 +284,117 @@ Be specific and accurate.`
 
 // Helper: Search job portals (returns mock data - in production would use Apify)
 async function searchJobPortals(searchPlan, searchInput) {
-  try {
-    const { Anthropic } = await import('@anthropic-ai/sdk')
-    const client = new Anthropic()
+  const apiToken = process.env.APIFY_API_TOKEN
+  if (!apiToken) {
+    console.warn('⚠️ APIFY_API_TOKEN not set - using mock jobs')
+    return getMockJobs()
+  }
 
-    // Comprehensive German job market prompt using Claude + Apify
-    const prompt = `You are my Career Agent specializing in German job market.
+  const allJobs = []
+  const keyword = searchPlan.keywords[0] || searchPlan.targetRoles[0]
 
-PROFILE:
-- Target Roles: ${searchPlan.targetRoles.join(', ')}
-- Skills: ${searchPlan.coreSkills.join(', ')}
-- Seniority: ${searchPlan.seniority}
-- Location: Germany (Remote/Hybrid welcome)
-- Keywords: ${searchPlan.keywords.join(', ')}
-
-YOUR MISSION - Use Apify to scrape REAL job postings from these 6 German job portals:
-1. LinkedIn (Germany, last 48h)
-2. XING (German jobs, last 48h)
-3. Indeed.de (Germany, last 48h)
-4. StepStone.de (Germany, last 48h)
-5. Agentur für Arbeit / Arbeitsagentur.de (Germany, last 48h)
-6. Glassdoor.de (Germany, last 48h)
-
-SCORING - For each job, calculate score 0-100:
-• Skills match: 40% (your skills vs job requirements)
-• Experience fit: 25% (seniority alignment)
-• Role alignment: 20% (target roles match)
-• Location fit: 15% (Germany/Remote/Hybrid get full marks)
-
-OUTPUT - Return ONLY valid JSON (no markdown, no explanation):
-{
-  "jobs": [
-    {
-      "rank": 1,
-      "score": 88,
-      "title": "Job Title",
-      "company": "Company Name",
-      "location": "City, Country",
-      "posted": "1 day ago",
-      "source": "LinkedIn|XING|Indeed|StepStone|Arbeitsagentur|Glassdoor",
-      "applyLink": "https://actual-job-posting-url-here",
-      "whyItFits": "Specific reason this matches your profile",
-      "gaps": "Any skill gaps or concerns, or null if perfect match"
-    }
+  const actors = [
+    { id: 'curious_coder/linkedin-jobs-scraper', name: 'LinkedIn', input: { keyword, location: 'Germany', maxResults: 15 } },
+    { id: 'shahidirfan/Xing-Jobs-Scraper', name: 'XING', input: { searchTerm: keyword, location: 'Germany', maxJobs: 12 } },
+    { id: 'borderline/indeed-scraper', name: 'Indeed', input: { keyword, location: 'Germany', maxResults: 15 } },
+    { id: 'easyapi/stepstone-jobs-scraper', name: 'StepStone', input: { keyword, location: 'Germany', maxResults: 12 } },
+    { id: 'fatihtahta/arbeitsagentur-scraper', name: 'Arbeitsagentur', input: { keyword, location: 'Germany', maxResults: 10 } },
+    { id: 'valig/glassdoor-jobs-scraper', name: 'Glassdoor', input: { keyword, location: 'Germany', maxResults: 10 } }
   ]
-}
 
-CRITICAL REQUIREMENTS:
-✅ Fetch MINIMUM 20-30 real jobs across all 6 portals
-✅ Use Apify actors to scrape each portal
-✅ Never invent jobs - ONLY real postings from Apify
-✅ Include actual apply URLs (the real job posting link)
-✅ Focus on: ${searchPlan.keywords.join(', ')}
-✅ Filter for last 48 hours posted
-✅ Score all jobs and rank highest first
-✅ Do NOT ask questions - just run the search`
+  try {
+    console.log(`🔍 Searching ${actors.length} German job portals for: ${keyword}`)
 
-    console.log('🤖 Claude searching all 6 German job portals via Apify...')
+    // Run all actors in parallel
+    const results = await Promise.all(
+      actors.map(actor => runApifyActor(apiToken, actor.id, actor.name, actor.input))
+    )
 
-    const message = await client.messages.create({
-      model: 'claude-opus-4-8',
-      max_tokens: 12000,
-      messages: [{ role: 'user', content: prompt }]
-    })
+    // Combine all results
+    results.forEach(jobs => allJobs.push(...jobs))
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
-    console.log('📝 Claude response received, parsing...')
+    console.log(`✅ Total jobs fetched: ${allJobs.length}`)
 
-    // Parse JSON from response
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-    const jsonStr = jsonMatch ? jsonMatch[0] : responseText
-
-    const result = JSON.parse(jsonStr)
-    console.log(`✅ Claude found ${result.jobs?.length || 0} real jobs via Apify`)
-
-    if (!result.jobs || result.jobs.length === 0) {
-      console.log('⚠️ Claude returned no jobs, using mock jobs')
+    if (allJobs.length === 0) {
+      console.log('⚠️ No jobs found, using mock jobs')
       return getMockJobs()
     }
 
-    return result.jobs
+    // Score jobs and return
+    return allJobs.slice(0, 40)
   } catch (err) {
-    console.error('❌ Error with Claude + Apify search:', err.message)
-    console.log('📋 Falling back to mock jobs')
+    console.error('❌ Error searching job portals:', err.message)
     return getMockJobs()
+  }
+}
+
+// Run Apify Actor and get results
+async function runApifyActor(apiToken, actorId, actorName, input) {
+  try {
+    console.log(`📍 Starting ${actorName} scraper...`)
+
+    // Start the actor run
+    const runResponse = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(input)
+    })
+
+    if (!runResponse.ok) {
+      console.error(`❌ ${actorName} failed to start: ${runResponse.status}`)
+      return []
+    }
+
+    const runData = await runResponse.json()
+    const runId = runData.data.id
+    console.log(`⏳ ${actorName} running (ID: ${runId})`)
+
+    // Wait for completion (max 30 attempts, 2 seconds = 60 seconds total)
+    for (let i = 0; i < 30; i++) {
+      await new Promise(r => setTimeout(r, 2000))
+
+      const statusResp = await fetch(`https://api.apify.com/v2/actor-runs/${runId}`, {
+        headers: { 'Authorization': `Bearer ${apiToken}` }
+      })
+
+      const statusData = await statusResp.json()
+      const status = statusData.data.status
+
+      if (status === 'SUCCEEDED') {
+        // Fetch results
+        const itemsResp = await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items`, {
+          headers: { 'Authorization': `Bearer ${apiToken}` }
+        })
+        const items = await itemsResp.json()
+
+        console.log(`✅ ${actorName} completed: ${items.length} jobs`)
+
+        return items.map((job, idx) => ({
+          id: `${actorName.toLowerCase()}_${idx}`,
+          title: job.positionName || job.jobTitle || job.title || 'Job',
+          company: job.companyName || job.company || 'Company',
+          location: job.location || 'Germany',
+          posted: job.postedDate || job.datePosted || 'Recently',
+          source: actorName,
+          applyLink: job.positionUrl || job.jobUrl || job.url || `https://${actorName.toLowerCase()}.com`,
+          description: job.description || job.jobTitle || job.title || ''
+        }))
+      }
+
+      if (status === 'FAILED') {
+        console.error(`❌ ${actorName} failed: ${statusData.data.statusMessage}`)
+        return []
+      }
+    }
+
+    console.warn(`⏱️ ${actorName} timeout after 60 seconds`)
+    return []
+  } catch (err) {
+    console.error(`Error with ${actorName}:`, err.message)
+    return []
   }
 }
 
