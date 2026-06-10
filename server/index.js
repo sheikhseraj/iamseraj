@@ -111,9 +111,9 @@ Format each section with a header like "===GITHUB IDEAS===" and "===COMMIT MESSA
   return `Generate a complete content pack about: ${topicString}. Tone: ${tone}.
 
 Please provide:
-1. LinkedIn Post - A professional post for LinkedIn (2-3 paragraphs)
-2. Article - A detailed article for blog (500+ words)
-3. Xing German Post - The same post in German for Xing (2-3 paragraphs)
+1. LinkedIn Post - A professional post for LinkedIn
+2. Article - An article for blog
+3. Xing German Post - The same post in German for Xing
 
 Format each section with headers like "===LINKEDIN POST===", "===ARTICLE===", "===XING GERMAN POST==="`
 }
