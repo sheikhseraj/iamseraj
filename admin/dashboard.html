@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Seraj</title>
+  <title>Admin Panel - Portfolio Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -35,18 +35,48 @@
 
     .logout-btn {
       padding: 8px 16px;
-      background: #1f2940;
-      color: #e6e9f0;
-      border: 1px solid #2a3a52;
+      background: #dc2626;
+      color: white;
+      border: none;
       border-radius: 8px;
       cursor: pointer;
       font-family: 'Space Grotesk', sans-serif;
-      font-weight: 500;
+      font-weight: 600;
       transition: all 0.2s;
     }
 
     .logout-btn:hover {
-      background: #2a3a52;
+      background: #b91c1c;
+    }
+
+    .tabs {
+      background: #0f1729;
+      border-bottom: 1px solid #1f2940;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 16px 20px;
+      background: none;
+      border: none;
+      color: #6b7280;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+
+    .tab-btn:hover {
       color: #2563eb;
     }
 
@@ -56,24 +86,87 @@
       padding: 40px 20px;
     }
 
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #e6e9f0;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      background: #0f1729;
+      border: 1px solid #1f2940;
+      border-radius: 8px;
+      color: #e6e9f0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #1f2940;
+      color: #e6e9f0;
+    }
+
+    .btn-secondary:hover {
+      background: #2a3a52;
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      margin-bottom: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
     }
 
     .card {
       background: #0f1729;
       border: 1px solid #1f2940;
       border-radius: 12px;
-      padding: 24px;
-      transition: all 0.2s;
-    }
-
-    .card:hover {
-      border-color: #2563eb;
-      transform: translateY(-4px);
+      padding: 20px;
     }
 
     .card-title {
@@ -81,383 +174,516 @@
       color: #94a0b8;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      margin-bottom: 12px;
-      font-weight: 600;
+      margin-bottom: 10px;
     }
 
     .card-value {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 700;
       color: #2563eb;
-      margin-bottom: 12px;
     }
 
-    .card-meta {
-      font-size: 12px;
-      color: #6b7280;
-    }
-
-    .streak {
-      background: linear-gradient(135deg, #2563eb15, #06b6d415);
-      border: 1px solid #2563eb30;
-    }
-
-    .streak .card-value {
-      color: #60a5fa;
-    }
-
-    .stat-row {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .stat-input {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .stat-input label {
-      font-size: 12px;
-      color: #94a0b8;
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-
-    .stat-input input {
-      padding: 10px 12px;
-      background: #151c2e;
+    .form-section {
+      background: #0f1729;
       border: 1px solid #1f2940;
-      border-radius: 8px;
-      color: #e6e9f0;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 13px;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
     }
 
-    .stat-input input:focus {
-      outline: none;
-      border-color: #2563eb;
-    }
-
-    .section {
-      margin-bottom: 40px;
-    }
-
-    .section-title {
+    .form-section h3 {
+      margin-bottom: 20px;
       font-size: 18px;
-      font-weight: 700;
+    }
+
+    .message {
+      padding: 12px 16px;
+      border-radius: 8px;
       margin-bottom: 20px;
-      color: #e6e9f0;
     }
 
-    .kanban {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
+    .message.success {
+      background: #10b981;
+      color: white;
     }
 
-    .kanban-col h3 {
-      font-size: 13px;
-      color: #94a0b8;
-      margin-bottom: 12px;
-      font-weight: 600;
+    .message.error {
+      background: #dc2626;
+      color: white;
     }
 
-    .kanban-item {
-      background: #151c2e;
-      border: 1px solid #1f2940;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 13px;
-      color: #e6e9f0;
-      margin-bottom: 8px;
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #2563eb;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.6s linear infinite;
     }
 
-    .kanban-item.applied { border-left: 3px solid #60a5fa; }
-    .kanban-item.interview { border-left: 3px solid #fbbf24; }
-    .kanban-item.rejected { border-left: 3px solid #ef4444; }
-    .kanban-item.offer { border-left: 3px solid #34d399; }
-
-    .quick-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .link-btn {
-      padding: 10px 16px;
-      background: #151c2e;
-      border: 1px solid #1f2940;
-      border-radius: 8px;
-      color: #60a5fa;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'Space Grotesk', sans-serif;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-
-    .link-btn:hover {
-      background: #1f2940;
-      border-color: #2563eb;
-    }
-
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-    }
-
-    .day-header {
-      font-size: 12px;
-      color: #94a0b8;
-      text-align: center;
-      font-weight: 600;
-      padding: 8px;
-    }
-
-    .day-cell {
-      aspect-ratio: 1;
-      background: #151c2e;
-      border: 1px solid #1f2940;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .day-cell:hover {
-      background: #1f2940;
-      border-color: #2563eb;
-    }
-
-    .day-cell.active {
-      background: #2563eb;
-      border-color: #2563eb;
-    }
-
-    @media (max-width: 768px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .kanban {
-        grid-template-columns: 1fr;
-      }
-
-      .card-value {
-        font-size: 28px;
-      }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>📊 Analytics Dashboard</h1>
+    <h1>📊 Portfolio Admin</h1>
     <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('analytics')">📈 Analytics</button>
+    <button class="tab-btn" onclick="switchTab('profile')">👤 Profile</button>
+    <button class="tab-btn" onclick="switchTab('skills')">💼 Skills</button>
+    <button class="tab-btn" onclick="switchTab('blogs')">📝 Blogs</button>
+    <button class="tab-btn" onclick="switchTab('experience')">🏢 Experience</button>
+    <button class="tab-btn" onclick="switchTab('education')">🎓 Education</button>
+    <button class="tab-btn" onclick="switchTab('certifications')">🏆 Certifications</button>
+    <button class="tab-btn" onclick="switchTab('content')">🤖 Content Generator</button>
+  </div>
+
   <div class="container">
-    <!-- Stats Overview -->
-    <div class="grid">
-      <div class="card streak">
-        <div class="card-title">Content Streak</div>
-        <div class="card-value" id="streak">0</div>
-        <div class="card-meta">Days in a row</div>
+    <!-- Analytics Tab -->
+    <div id="analytics" class="tab-content active">
+      <h2>Analytics Dashboard</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">Content Streak</div>
+          <div class="card-value" id="streak">0</div>
+          <div class="card-title">Days</div>
+        </div>
+        <div class="card">
+          <div class="card-title">LinkedIn Followers</div>
+          <div class="card-value" id="linkedin">—</div>
+        </div>
+        <div class="card">
+          <div class="card-title">GitHub Followers</div>
+          <div class="card-value" id="github">—</div>
+        </div>
       </div>
-
-      <div class="card">
-        <div class="card-title">LinkedIn Connections</div>
-        <div class="card-value" id="linkedin-connections">-</div>
-        <input type="number" id="linkedin-connections-input" placeholder="Enter count" style="margin-top: 8px; padding: 8px; background: #151c2e; border: 1px solid #1f2940; border-radius: 6px; color: #e6e9f0; font-family: 'Space Grotesk';">
-      </div>
-
-      <div class="card">
-        <div class="card-title">LinkedIn Post Views</div>
-        <div class="card-value" id="linkedin-views">-</div>
-        <input type="number" id="linkedin-views-input" placeholder="Enter count" style="margin-top: 8px; padding: 8px; background: #151c2e; border: 1px solid #1f2940; border-radius: 6px; color: #e6e9f0; font-family: 'Space Grotesk';">
-      </div>
-
-      <div class="card">
-        <div class="card-title">GitHub Commits (Week)</div>
-        <div class="card-value" id="github-commits">Loading...</div>
-        <div class="card-meta">Fetching from GitHub...</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">GitHub Repos</div>
-        <div class="card-value" id="github-repos">Loading...</div>
-        <div class="card-meta">Public repositories</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Xing Network</div>
-        <div class="card-value" id="xing-count">-</div>
-        <input type="number" id="xing-count-input" placeholder="Enter count" style="margin-top: 8px; padding: 8px; background: #151c2e; border: 1px solid #1f2940; border-radius: 6px; color: #e6e9f0; font-family: 'Space Grotesk';">
+      <div class="form-section">
+        <h3>Update Metrics</h3>
+        <div class="form-group">
+          <label>LinkedIn Followers</label>
+          <input type="number" id="linkedinInput" placeholder="Enter count">
+        </div>
+        <div class="form-group">
+          <label>Content Streak (Days)</label>
+          <input type="number" id="streakInput" placeholder="Enter streak count">
+        </div>
+        <button class="btn" onclick="updateMetrics()">Save Metrics</button>
       </div>
     </div>
 
-    <!-- Job Applications Tracker -->
-    <div class="section">
-      <div class="section-title">Job Applications Tracker</div>
-      <div class="kanban">
-        <div class="kanban-col">
-          <h3>📨 Applied</h3>
-          <div class="kanban-item applied">
-            <input type="text" id="applied-input" placeholder="Add job..." style="width: 100%; background: transparent; border: none; color: inherit; font-family: 'Space Grotesk'; font-size: 13px;">
-          </div>
-          <div id="applied-list"></div>
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content">
+      <div class="form-section">
+        <h3>Edit Profile</h3>
+        <div id="profileMessage"></div>
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="profileName" placeholder="Your name">
         </div>
-        <div class="kanban-col">
-          <h3>🎤 Interview</h3>
-          <div class="kanban-item interview">
-            <input type="text" id="interview-input" placeholder="Add job..." style="width: 100%; background: transparent; border: none; color: inherit; font-family: 'Space Grotesk'; font-size: 13px;">
-          </div>
-          <div id="interview-list"></div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="profileEmail" placeholder="your@email.com">
         </div>
-        <div class="kanban-col">
-          <h3>❌ Rejected</h3>
-          <div class="kanban-item rejected">
-            <input type="text" id="rejected-input" placeholder="Add job..." style="width: 100%; background: transparent; border: none; color: inherit; font-family: 'Space Grotesk'; font-size: 13px;">
-          </div>
-          <div id="rejected-list"></div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="profilePhone" placeholder="Your phone">
         </div>
-        <div class="kanban-col">
-          <h3>✅ Offer</h3>
-          <div class="kanban-item offer">
-            <input type="text" id="offer-input" placeholder="Add job..." style="width: 100%; background: transparent; border: none; color: inherit; font-family: 'Space Grotesk'; font-size: 13px;">
-          </div>
-          <div id="offer-list"></div>
+        <div class="form-group">
+          <label>Role (English)</label>
+          <input type="text" id="profileRoleEn" placeholder="e.g. Full Stack Developer">
         </div>
+        <div class="form-group">
+          <label>Role (German)</label>
+          <input type="text" id="profileRoleDe" placeholder="e.g. Vollstack-Entwickler">
+        </div>
+        <div class="form-group">
+          <label>Tagline (English)</label>
+          <input type="text" id="profileTaglineEn" placeholder="Your tagline">
+        </div>
+        <div class="form-group">
+          <label>Tagline (German)</label>
+          <input type="text" id="profileTaglineDe" placeholder="Ihr Tagline">
+        </div>
+        <button class="btn" onclick="saveProfile()">Save Profile</button>
       </div>
     </div>
 
-    <!-- Quick Links -->
-    <div class="section">
-      <div class="section-title">Quick Links</div>
-      <div class="quick-links">
-        <a href="https://linkedin.com/in/sheikh-seraj" target="_blank" class="link-btn">🔗 LinkedIn Profile</a>
-        <a href="https://xing.com/profile/SerajAhmad_Siddiqui" target="_blank" class="link-btn">🔗 Xing Profile</a>
-        <a href="https://github.com/sheikhseraj" target="_blank" class="link-btn">🔗 GitHub Profile</a>
-        <a href="https://langnation.de" target="_blank" class="link-btn">🔗 LangNation</a>
-        <a href="/admin/agent.html" class="link-btn">🤖 Content Agent</a>
+    <!-- Skills Tab -->
+    <div id="skills" class="tab-content">
+      <div class="form-section">
+        <h3>Manage Skills</h3>
+        <div id="skillsMessage"></div>
+        <div id="skillsList"></div>
+        <hr style="border: none; border-top: 1px solid #1f2940; margin: 20px 0;">
+        <h4>Add New Skill Group</h4>
+        <div class="form-group">
+          <label>Group Name (English)</label>
+          <input type="text" id="skillGroupEn" placeholder="e.g. Frontend">
+        </div>
+        <div class="form-group">
+          <label>Group Name (German)</label>
+          <input type="text" id="skillGroupDe" placeholder="e.g. Frontend">
+        </div>
+        <div class="form-group">
+          <label>Items (comma separated)</label>
+          <input type="text" id="skillItems" placeholder="React, Vue, Angular">
+        </div>
+        <button class="btn" onclick="addSkill()">Add Skill Group</button>
       </div>
     </div>
 
-    <!-- Weekly Calendar -->
-    <div class="section">
-      <div class="section-title">Weekly Content Calendar</div>
-      <div style="font-size: 12px; color: #94a0b8; margin-bottom: 12px;">Click days to mark content</div>
-      <div class="calendar" id="calendar"></div>
+    <!-- Blogs Tab -->
+    <div id="blogs" class="tab-content">
+      <div class="form-section">
+        <h3>Manage Blogs</h3>
+        <div id="blogsMessage"></div>
+        <div id="blogsList"></div>
+        <hr style="border: none; border-top: 1px solid #1f2940; margin: 20px 0;">
+        <h4>Add New Blog</h4>
+        <div class="form-group">
+          <label>Language</label>
+          <select id="blogLang">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="blogTitle" placeholder="Blog title">
+        </div>
+        <div class="form-group">
+          <label>Excerpt</label>
+          <textarea id="blogExcerpt" placeholder="Short description"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Content</label>
+          <textarea id="blogContent" placeholder="Full blog content"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <input type="text" id="blogCategory" placeholder="e.g. Technology">
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="blogDate">
+        </div>
+        <button class="btn" onclick="addBlog()">Add Blog</button>
+      </div>
+    </div>
+
+    <!-- Experience Tab -->
+    <div id="experience" class="tab-content">
+      <div class="form-section">
+        <h3>Manage Experience</h3>
+        <div id="experienceMessage"></div>
+        <div id="experienceList"></div>
+        <hr style="border: none; border-top: 1px solid #1f2940; margin: 20px 0;">
+        <h4>Add New Experience</h4>
+        <div class="form-group">
+          <label>Language</label>
+          <select id="expLang">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <input type="text" id="expRole" placeholder="Job title">
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <input type="text" id="expCompany" placeholder="Company name">
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" id="expLocation" placeholder="City, Country">
+        </div>
+        <div class="form-group">
+          <label>Period</label>
+          <input type="text" id="expPeriod" placeholder="Jan 2020 - Dec 2021">
+        </div>
+        <div class="form-group">
+          <label>Key Points (one per line)</label>
+          <textarea id="expPoints" placeholder="- Achievement 1&#10;- Achievement 2&#10;- Achievement 3"></textarea>
+        </div>
+        <button class="btn" onclick="addExperience()">Add Experience</button>
+      </div>
+    </div>
+
+    <!-- Education Tab -->
+    <div id="education" class="tab-content">
+      <div class="form-section">
+        <h3>Manage Education</h3>
+        <div id="educationMessage"></div>
+        <div id="educationList"></div>
+        <hr style="border: none; border-top: 1px solid #1f2940; margin: 20px 0;">
+        <h4>Add New Education</h4>
+        <div class="form-group">
+          <label>Language</label>
+          <select id="eduLang">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Degree</label>
+          <input type="text" id="eduDegree" placeholder="Bachelor of Science">
+        </div>
+        <div class="form-group">
+          <label>School</label>
+          <input type="text" id="eduSchool" placeholder="University name">
+        </div>
+        <div class="form-group">
+          <label>Period</label>
+          <input type="text" id="eduPeriod" placeholder="2018 - 2022">
+        </div>
+        <button class="btn" onclick="addEducation()">Add Education</button>
+      </div>
+    </div>
+
+    <!-- Certifications Tab -->
+    <div id="certifications" class="tab-content">
+      <div class="form-section">
+        <h3>Manage Certifications</h3>
+        <div id="certificationsMessage"></div>
+        <div id="certificationsList"></div>
+        <hr style="border: none; border-top: 1px solid #1f2940; margin: 20px 0;">
+        <h4>Add New Certification</h4>
+        <div class="form-group">
+          <label>Language</label>
+          <select id="certLang">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Certification Name</label>
+          <input type="text" id="certName" placeholder="e.g. AWS Solutions Architect">
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <input type="number" id="certYear" placeholder="2023">
+        </div>
+        <button class="btn" onclick="addCertification()">Add Certification</button>
+      </div>
+    </div>
+
+    <!-- Content Generator Tab -->
+    <div id="content" class="tab-content">
+      <div class="form-section">
+        <h3>🤖 AI Content Generator</h3>
+        <div id="contentMessage"></div>
+
+        <div class="form-group">
+          <label>Mode</label>
+          <select id="contentMode">
+            <option value="full">Full Daily Pack</option>
+            <option value="linkedin">LinkedIn Only</option>
+            <option value="github">GitHub Boost</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Topics (comma separated)</label>
+          <input type="text" id="contentTopics" placeholder="e.g. Web Development, React, JavaScript">
+        </div>
+
+        <div class="form-group">
+          <label>Tone</label>
+          <select id="contentTone">
+            <option value="professional">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="technical">Technical</option>
+            <option value="educational">Educational</option>
+          </select>
+        </div>
+
+        <button class="btn" id="generateBtn" onclick="generateContent()">Generate Content</button>
+
+        <div id="contentOutput" style="margin-top: 30px;"></div>
+      </div>
     </div>
   </div>
 
-  <script src="admin.js"></script>
   <script>
-    // Check auth
-    checkAuth();
-
-    // Fetch GitHub stats
-    async function fetchGitHubStats() {
-      try {
-        const response = await fetch('https://api.github.com/users/sheikhseraj');
-        const data = await response.json();
-        document.getElementById('github-repos').textContent = data.public_repos || 0;
-
-        // Fetch commits from past week
-        const eventsResponse = await fetch('https://api.github.com/users/sheikhseraj/events/public');
-        const events = await eventsResponse.json();
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const recentCommits = events.filter(e =>
-          e.type === 'PushEvent' && new Date(e.created_at) > weekAgo
-        ).length;
-        document.getElementById('github-commits').textContent = recentCommits || 0;
-      } catch (err) {
-        console.error('GitHub fetch error:', err);
-        document.getElementById('github-repos').textContent = '—';
-        document.getElementById('github-commits').textContent = '—';
-      }
-    }
-
-    // Load and save stats
-    function loadStats() {
-      const stats = JSON.parse(localStorage.getItem('dashboardStats') || '{}');
-      document.getElementById('linkedin-connections-input').value = stats.linkedinConnections || '';
-      document.getElementById('linkedin-views-input').value = stats.linkedinViews || '';
-      document.getElementById('xing-count-input').value = stats.xingCount || '';
-      document.getElementById('streak').textContent = stats.streak || 0;
-
-      updateDisplayValues();
-    }
-
-    function saveStats() {
-      const stats = {
-        linkedinConnections: document.getElementById('linkedin-connections-input').value,
-        linkedinViews: document.getElementById('linkedin-views-input').value,
-        xingCount: document.getElementById('xing-count-input').value,
-        streak: document.getElementById('streak').textContent
-      };
-      localStorage.setItem('dashboardStats', JSON.stringify(stats));
-      updateDisplayValues();
-    }
-
-    function updateDisplayValues() {
-      const conn = document.getElementById('linkedin-connections-input').value;
-      const views = document.getElementById('linkedin-views-input').value;
-      const xing = document.getElementById('xing-count-input').value;
-
-      document.getElementById('linkedin-connections').textContent = conn || '—';
-      document.getElementById('linkedin-views').textContent = views || '—';
-      document.getElementById('xing-count').textContent = xing || '—';
-    }
-
-    // Input change listeners
-    ['linkedin-connections-input', 'linkedin-views-input', 'xing-count-input'].forEach(id => {
-      document.getElementById(id).addEventListener('change', saveStats);
-      document.getElementById(id).addEventListener('input', updateDisplayValues);
-    });
-
-    // Calendar
-    function initCalendar() {
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const calendar = document.getElementById('calendar');
-
-      days.forEach(day => {
-        const header = document.createElement('div');
-        header.className = 'day-header';
-        header.textContent = day;
-        calendar.appendChild(header);
-      });
-
-      for (let i = 1; i <= 28; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'day-cell';
-        cell.textContent = i;
-        cell.addEventListener('click', () => {
-          cell.classList.toggle('active');
-        });
-        calendar.appendChild(cell);
-      }
-    }
-
-    // Logout
-    function logout() {
-      fetch('/admin/api/logout', { method: 'POST' })
-        .then(() => window.location.href = '/admin/login.html');
-    }
+    let jwtToken = null;
 
     // Initialize
-    loadStats();
-    fetchGitHubStats();
-    initCalendar();
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      getToken();
+    });
 
-    // Refresh GitHub stats every 5 minutes
-    setInterval(fetchGitHubStats, 5 * 60 * 1000);
+    function checkAuth() {
+      fetch('/admin/api/check-auth').then(r => r.json()).then(d => {
+        if (!d.authenticated) window.location.href = '/admin/login.html';
+      });
+    }
+
+    function getToken() {
+      fetch('/admin/api/get-token', { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+          if (d.token) jwtToken = d.token;
+        });
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function showMessage(elementId, message, type) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.innerHTML = `<div class="message ${type}">${message}</div>`;
+    }
+
+    function apiCall(method, path, body = null) {
+      const options = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      };
+      if (body) options.body = JSON.stringify(body);
+      return fetch(path, options).then(r => r.json());
+    }
+
+    function updateMetrics() {
+      const linkedin = document.getElementById('linkedinInput').value;
+      const streak = document.getElementById('streakInput').value;
+      localStorage.setItem('metrics', JSON.stringify({ linkedin, streak }));
+      showMessage('analyticsMessage', 'Metrics updated!', 'success');
+      document.getElementById('linkedin').textContent = linkedin || '—';
+      document.getElementById('streak').textContent = streak || '0';
+    }
+
+    async function saveProfile() {
+      const data = {
+        name: document.getElementById('profileName').value,
+        email: document.getElementById('profileEmail').value,
+        phone: document.getElementById('profilePhone').value,
+        role_en: document.getElementById('profileRoleEn').value,
+        role_de: document.getElementById('profileRoleDe').value,
+        tagline_en: document.getElementById('profileTaglineEn').value,
+        tagline_de: document.getElementById('profileTaglineDe').value
+      };
+      const result = await apiCall('PUT', '/api/admin/profile', data);
+      showMessage('profileMessage', result.success ? 'Profile saved!' : 'Error saving profile', result.success ? 'success' : 'error');
+    }
+
+    async function addSkill() {
+      const items = document.getElementById('skillItems').value.split(',').map(s => s.trim());
+      const data = {
+        group_en: document.getElementById('skillGroupEn').value,
+        group_de: document.getElementById('skillGroupDe').value,
+        items
+      };
+      const result = await apiCall('POST', '/api/admin/skills', data);
+      showMessage('skillsMessage', result.id ? 'Skill added!' : 'Error adding skill', result.id ? 'success' : 'error');
+    }
+
+    async function addBlog() {
+      const data = {
+        lang: document.getElementById('blogLang').value,
+        title: document.getElementById('blogTitle').value,
+        excerpt: document.getElementById('blogExcerpt').value,
+        content: document.getElementById('blogContent').value,
+        category: document.getElementById('blogCategory').value,
+        date: document.getElementById('blogDate').value,
+        published: true
+      };
+      const result = await apiCall('POST', '/api/admin/blogs', data);
+      showMessage('blogsMessage', result.id ? 'Blog added!' : 'Error adding blog', result.id ? 'success' : 'error');
+    }
+
+    async function addExperience() {
+      const points = document.getElementById('expPoints').value.split('\n').filter(p => p.trim());
+      const data = {
+        lang: document.getElementById('expLang').value,
+        role: document.getElementById('expRole').value,
+        company: document.getElementById('expCompany').value,
+        location: document.getElementById('expLocation').value,
+        period: document.getElementById('expPeriod').value,
+        points
+      };
+      const result = await apiCall('POST', '/api/admin/experience', data);
+      showMessage('experienceMessage', result.id ? 'Experience added!' : 'Error', result.id ? 'success' : 'error');
+    }
+
+    async function addEducation() {
+      const data = {
+        lang: document.getElementById('eduLang').value,
+        degree: document.getElementById('eduDegree').value,
+        school: document.getElementById('eduSchool').value,
+        period: document.getElementById('eduPeriod').value
+      };
+      const result = await apiCall('POST', '/api/admin/education', data);
+      showMessage('educationMessage', result.id ? 'Education added!' : 'Error', result.id ? 'success' : 'error');
+    }
+
+    async function addCertification() {
+      const data = {
+        lang: document.getElementById('certLang').value,
+        name: document.getElementById('certName').value,
+        year: parseInt(document.getElementById('certYear').value)
+      };
+      const result = await apiCall('POST', '/api/admin/certifications', data);
+      showMessage('certificationsMessage', result.id ? 'Certification added!' : 'Error', result.id ? 'success' : 'error');
+    }
+
+    async function generateContent() {
+      const mode = document.getElementById('contentMode').value;
+      const topics = document.getElementById('contentTopics').value.split(',').map(t => t.trim());
+      const tone = document.getElementById('contentTone').value;
+
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading"></span> Generating...';
+
+      try {
+        const result = await apiCall('POST', '/admin/api/generate', { mode, topics, tone });
+
+        let html = '<h4>Generated Content:</h4>';
+        for (const [key, value] of Object.entries(result)) {
+          if (value) {
+            const title = key.replace(/_/g, ' ').toUpperCase();
+            html += `<div style="margin: 20px 0; padding: 15px; background: #1f2940; border-radius: 8px;">
+              <h5 style="margin-bottom: 10px;">${title}</h5>
+              <p style="white-space: pre-wrap;">${value}</p>
+              <button class="btn btn-secondary" onclick="copyToClipboard(\`${value.replace(/`/g, '\\`')}\`)">Copy</button>
+            </div>`;
+          }
+        }
+        document.getElementById('contentOutput').innerHTML = html;
+      } catch (err) {
+        showMessage('contentMessage', 'Error generating content: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Generate Content';
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      alert('Copied to clipboard!');
+    }
+
+    function logout() {
+      fetch('/admin/api/logout', { method: 'POST' }).then(() => {
+        window.location.href = '/admin/login.html';
+      });
+    }
   </script>
 </body>
 </html>
