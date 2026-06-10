@@ -121,21 +121,31 @@ router.post('/api/todays-content', requireAdmin, async (req, res) => {
 
 // Job Search Agent API
 router.post('/api/job-search', requireAdmin, async (req, res) => {
-  const { resume } = req.body
+  const { resume, jobTitle } = req.body
 
-  if (!resume) {
-    return res.status(400).json({ error: 'Resume required' })
+  if (!resume && !jobTitle) {
+    return res.status(400).json({ error: 'Resume or job title required' })
   }
 
   try {
-    // Step 1: Analyze resume with Claude to create search plan
-    const searchPlan = await analyzeResumeWithClaude(resume)
+    let searchPlan
+    let searchInput
+
+    if (resume) {
+      // Step 1: Analyze resume with Claude to create search plan
+      searchPlan = await analyzeResumeWithClaude(resume)
+      searchInput = resume
+    } else {
+      // Create search plan from job title
+      searchPlan = await analyzeJobTitleWithClaude(jobTitle)
+      searchInput = jobTitle
+    }
 
     // Step 2: Search job portals (would use Apify in production)
     const jobs = await searchJobPortals(searchPlan)
 
     // Step 3: Score jobs
-    const scoredJobs = scoreJobs(jobs, resume, searchPlan)
+    const scoredJobs = scoreJobs(jobs, searchInput, searchPlan)
 
     // Get top 3
     const topPicks = scoredJobs.slice(0, 3).map(j => j.id)
@@ -166,6 +176,57 @@ router.get('/dashboard.html', requireAdmin, (req, res) => {
 router.get('/agent.html', requireAdmin, (req, res) => {
   res.sendFile('admin/agent.html', { root: '.' })
 })
+
+// Helper: Analyze job title with Claude to create search plan
+async function analyzeJobTitleWithClaude(jobTitle) {
+  try {
+    const { Anthropic } = await import('@anthropic-ai/sdk')
+    const client = new Anthropic()
+
+    const prompt = `Create a job search plan for the following job title in Germany. Generate relevant search keywords and related roles.
+
+JOB TITLE: ${jobTitle}
+
+Return ONLY valid JSON (no markdown, no code blocks) with this exact structure:
+{
+  "targetRoles": ["Role1", "Role2", "Role3"],
+  "seniority": "Junior/Mid/Senior",
+  "coreSkills": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+}
+
+Guidelines:
+- targetRoles: Generate 2-3 related job titles/roles for this position
+- seniority: Infer seniority level (Junior for entry-level, Mid for mid-level, Senior for senior roles)
+- coreSkills: List 5 technical skills typically required for this role
+- keywords: Create 5 search keywords combining role + typical skills + location
+
+Be specific and relevant to the German job market.`
+
+    const message = await client.messages.create({
+      model: 'claude-opus-4-8',
+      max_tokens: 500,
+      messages: [{ role: 'user', content: prompt }]
+    })
+
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
+    const jsonStr = jsonMatch ? jsonMatch[0] : responseText
+    const searchPlan = JSON.parse(jsonStr)
+
+    console.log('Search Plan from Job Title:', searchPlan)
+    return searchPlan
+  } catch (err) {
+    console.error('Error analyzing job title:', err)
+    // Return default search plan based on job title
+    return {
+      targetRoles: ['Test Automation Engineer', 'QA Engineer', 'SDET'],
+      seniority: 'Mid',
+      coreSkills: ['Test Automation', 'Selenium', 'Java', 'QA', 'Testing'],
+      keywords: ['Test Automation Engineer Germany', 'QA Automation Remote', 'Selenium QA', 'Test Engineer', 'Automation Tester']
+    }
+  }
+}
 
 // Helper: Analyze resume with Claude to create search plan
 async function analyzeResumeWithClaude(resume) {
