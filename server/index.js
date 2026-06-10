@@ -227,11 +227,10 @@ app.use((req, res, next) => {
 
 // Start listening immediately; connect to MySQL in the background so a DB
 // problem can never stop the site from serving.
-app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on ${port}`)
 })
 
 initDb().catch((err) => {
-  console.error('DB connection failed:', err)
-  // Don't exit - app can run without DB
+  console.error('DB connection failed:', err.message)
 })
