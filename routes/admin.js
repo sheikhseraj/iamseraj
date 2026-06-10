@@ -1,5 +1,6 @@
 import express from 'express'
 import { generateToken } from '../server/jwt.js'
+import { getTodaysContent } from '../server/db.js'
 
 const router = express.Router()
 
@@ -89,6 +90,30 @@ router.post('/api/generate', requireAdmin, async (req, res) => {
     console.error('Full error:', err)
     res.status(500).json({
       error: 'Failed to generate content',
+      details: err.message
+    })
+  }
+})
+
+// Get today's generated content (with auth)
+router.post('/api/todays-content', requireAdmin, async (req, res) => {
+  const { topic, tone, length } = req.body
+
+  if (!topic || !tone) {
+    return res.status(400).json({ error: 'Topic and tone required' })
+  }
+
+  try {
+    const content = await getTodaysContent(topic, tone, length || 'medium')
+    if (content) {
+      res.json({ exists: true, content })
+    } else {
+      res.json({ exists: false })
+    }
+  } catch (err) {
+    console.error('Error retrieving todays content:', err.message)
+    res.status(500).json({
+      error: 'Failed to retrieve content',
       details: err.message
     })
   }
