@@ -57,6 +57,7 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('analytics')">📈 Analytics</button>
     <button class="tab-btn" onclick="switchTab('generator')">🤖 Content Generator</button>
+    <button class="tab-btn" onclick="switchTab('job-agent')">🔍 Job Search Agent</button>
     <button class="tab-btn" onclick="switchTab('todays-content')">📅 Today's Content</button>
     <button class="tab-btn" onclick="switchTab('portfolio')">👤 Portfolio</button>
   </div>
@@ -133,6 +134,26 @@
 
         <div id="output" style="margin-top: 30px;"></div>
       </div>
+    </div>
+
+    <!-- Job Search Agent Tab -->
+    <div id="job-agent" class="tab-content">
+      <h2 style="margin-bottom: 30px;">🔍 Job Search Agent - Germany</h2>
+
+      <div class="form-section">
+        <h3>Resume Input</h3>
+        <div id="jobAgentMessage"></div>
+
+        <div class="form-group">
+          <label>Paste your resume / CV (or describe your background):</label>
+          <textarea id="resumeInput" placeholder="Paste your resume here, or describe: I'm a Test Automation Engineer with 5+ years experience in Selenium, Java, etc." style="min-height: 200px;"></textarea>
+        </div>
+
+        <button class="btn" onclick="runJobSearchAgent()" style="width: 100%; margin-top: 20px;">🚀 Search Jobs in Germany</button>
+      </div>
+
+      <div id="searchPlanOutput" style="margin-top: 30px;"></div>
+      <div id="jobResultsOutput" style="margin-top: 30px;"></div>
     </div>
 
     <!-- Today's Content Tab -->
@@ -517,6 +538,199 @@
 
       html += `</div>`;
       displayDiv.innerHTML = html;
+    }
+
+    async function runJobSearchAgent() {
+      const resume = document.getElementById('resumeInput').value.trim();
+
+      if (!resume) {
+        showMessage('jobAgentMessage', '❌ Please paste your resume or background', 'error');
+        return;
+      }
+
+      showMessage('jobAgentMessage', '⏳ Analyzing resume and searching job portals...', 'success');
+      document.getElementById('searchPlanOutput').innerHTML = '<div class="loading"></div> Building search plan...';
+      document.getElementById('jobResultsOutput').innerHTML = '';
+
+      try {
+        const response = await fetch('/api/job-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ resume })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showMessage('jobAgentMessage', '❌ Error: ' + data.error, 'error');
+          document.getElementById('searchPlanOutput').innerHTML = '';
+          return;
+        }
+
+        // Display search plan
+        displaySearchPlan(data.searchPlan);
+
+        // Display job results
+        displayJobResults(data.jobs, data.topPicks);
+
+        showMessage('jobAgentMessage', '✅ Job search complete! ' + data.jobs.length + ' jobs found.', 'success');
+      } catch (err) {
+        console.error('Error:', err);
+        showMessage('jobAgentMessage', '❌ Error: ' + err.message, 'error');
+        document.getElementById('searchPlanOutput').innerHTML = '';
+        document.getElementById('jobResultsOutput').innerHTML = '';
+      }
+    }
+
+    function displaySearchPlan(plan) {
+      const planDiv = document.getElementById('searchPlanOutput');
+      let html = `
+        <div class="form-section" style="border-left: 3px solid #2563eb;">
+          <h3>📋 Search Plan</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+            <div>
+              <p><strong>Target Roles:</strong> ${plan.targetRoles.join(', ')}</p>
+              <p><strong>Seniority:</strong> ${plan.seniority}</p>
+            </div>
+            <div>
+              <p><strong>Core Skills:</strong> ${plan.coreSkills.join(', ')}</p>
+              <p><strong>Search Keywords:</strong> ${plan.keywords.join(', ')}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      planDiv.innerHTML = html;
+    }
+
+    function displayJobResults(jobs, topPicks) {
+      const resultsDiv = document.getElementById('jobResultsOutput');
+      let html = `
+        <div style="margin-top: 30px;">
+          <h3>📊 Job Matches (${jobs.length} found)</h3>
+
+          <div style="margin-top: 20px; margin-bottom: 30px;">
+            <h4 style="color: #10b981; margin-bottom: 15px;">🎯 Top 3 to Apply Today</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+      `;
+
+      // Show top 3 picks first
+      topPicks.forEach((jobId, idx) => {
+        const job = jobs.find(j => j.id === jobId);
+        if (job) {
+          html += createJobCard(job, idx + 1, true);
+        }
+      });
+
+      html += `
+            </div>
+          </div>
+
+          <div style="margin-top: 30px;">
+            <h4 style="margin-bottom: 15px;">All Jobs (Ranked by Score)</h4>
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+              <thead>
+                <tr style="background: #0f1729; border-bottom: 2px solid #1f2940;">
+                  <th style="padding: 12px; text-align: left; color: #2563eb;">Rank</th>
+                  <th style="padding: 12px; text-align: left;">Score</th>
+                  <th style="padding: 12px; text-align: left;">Title</th>
+                  <th style="padding: 12px; text-align: left;">Company</th>
+                  <th style="padding: 12px; text-align: left;">Location</th>
+                  <th style="padding: 12px; text-align: left;">Source</th>
+                  <th style="padding: 12px; text-align: left;">Posted</th>
+                  <th style="padding: 12px; text-align: left;">Link</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+      jobs.forEach((job, idx) => {
+        const scoreColor = job.score >= 85 ? '#10b981' : job.score >= 70 ? '#2563eb' : job.score >= 55 ? '#f59e0b' : '#6b7280';
+        html += `
+          <tr style="border-bottom: 1px solid #1f2940;">
+            <td style="padding: 12px; color: #2563eb; font-weight: 600;">${idx + 1}</td>
+            <td style="padding: 12px;">
+              <span style="display: inline-block; background: ${scoreColor}; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                ${job.score}
+              </span>
+            </td>
+            <td style="padding: 12px;">${job.title}</td>
+            <td style="padding: 12px;">${job.company}</td>
+            <td style="padding: 12px;">${job.location || 'N/A'}</td>
+            <td style="padding: 12px;"><span style="background: #1f2940; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${job.source}</span></td>
+            <td style="padding: 12px;">${job.postedDate || 'N/A'}</td>
+            <td style="padding: 12px;"><a href="${job.applyLink}" target="_blank" style="color: #2563eb; text-decoration: none;">Apply →</a></td>
+          </tr>
+        `;
+      });
+
+      html += `
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 30px;">
+      `;
+
+      // Show all jobs as cards
+      jobs.forEach((job, idx) => {
+        const isTopPick = topPicks.includes(job.id);
+        if (!isTopPick) {
+          html += createJobCard(job, idx + 1, false);
+        }
+      });
+
+      html += `
+          </div>
+        </div>
+      `;
+
+      resultsDiv.innerHTML = html;
+    }
+
+    function createJobCard(job, rank, isTopPick) {
+      const scoreColor = job.score >= 85 ? '#10b981' : job.score >= 70 ? '#2563eb' : job.score >= 55 ? '#f59e0b' : '#6b7280';
+      const scoreLabel = job.score >= 85 ? 'Excellent' : job.score >= 70 ? 'Good' : job.score >= 55 ? 'Fair' : 'Low';
+
+      return `
+        <div style="background: #0f1729; border: 1px solid #1f2940; border-radius: 12px; padding: 20px; position: relative;">
+          ${isTopPick ? '<div style="position: absolute; top: 10px; right: 10px; background: #f59e0b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">🎯 TOP PICK</div>' : ''}
+
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <div style="background: ${scoreColor}; color: white; padding: 10px 15px; border-radius: 8px; font-weight: 700; text-align: center; min-width: 60px;">
+              ${job.score}
+            </div>
+            <div>
+              <p style="color: ${scoreColor}; font-weight: 600; margin: 0;">${scoreLabel} Match</p>
+              <p style="color: #6b7280; font-size: 12px; margin: 0;">Rank #${rank}</p>
+            </div>
+          </div>
+
+          <h4 style="margin: 0 0 5px 0; color: #e6e9f0;">${job.title}</h4>
+          <p style="margin: 0 0 10px 0; color: #2563eb; font-weight: 600; font-size: 13px;">${job.company}</p>
+
+          <div style="background: #1f2940; padding: 10px; border-radius: 6px; margin: 10px 0; font-size: 12px;">
+            <p style="margin: 0 0 5px 0; color: #94a0b8;"><strong>Location:</strong> ${job.location || 'N/A'}</p>
+            <p style="margin: 0 0 5px 0; color: #94a0b8;"><strong>Posted:</strong> ${job.postedDate || 'N/A'}</p>
+            <p style="margin: 0; color: #94a0b8;"><strong>Source:</strong> <span style="background: #0f1729; padding: 2px 6px; border-radius: 3px;">${job.source}</span></p>
+          </div>
+
+          <div style="background: #1f2940; padding: 10px; border-radius: 6px; margin: 10px 0; font-size: 12px;">
+            <p style="margin: 0 0 5px 0; color: #10b981;"><strong>✓ Why it fits:</strong></p>
+            <p style="margin: 0; color: #94a0b8;">${job.whyItFits}</p>
+          </div>
+
+          ${job.gaps ? `
+            <div style="background: #1f2940; padding: 10px; border-radius: 6px; margin: 10px 0; font-size: 12px;">
+              <p style="margin: 0 0 5px 0; color: #f59e0b;"><strong>⚠ Gaps:</strong></p>
+              <p style="margin: 0; color: #94a0b8;">${job.gaps}</p>
+            </div>
+          ` : ''}
+
+          <a href="${job.applyLink}" target="_blank" style="display: block; text-align: center; background: #2563eb; color: white; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 15px; transition: all 0.2s;">
+            Apply Now →
+          </a>
+        </div>
+      `;
     }
 
     function getTodaysHashtags(topic) {
