@@ -1,4 +1,5 @@
 import express from 'express'
+import { generateToken } from '../server/jwt.js'
 
 const router = express.Router()
 
@@ -37,6 +38,17 @@ router.post('/api/logout', (req, res) => {
   req.session.destroy(() => {
     res.json({ success: true })
   })
+})
+
+// Generate JWT token for authenticated session
+router.post('/api/get-token', requireAdmin, (req, res) => {
+  try {
+    const token = generateToken(1, 'admin@portfolio.local')
+    res.json({ token, success: true })
+  } catch (err) {
+    console.error('Token generation error:', err)
+    res.status(500).json({ error: 'Failed to generate token' })
+  }
 })
 
 // Generate content API (calls Anthropic backend)
