@@ -663,10 +663,19 @@
           body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
+        let data;
+        try {
+          data = await response.json();
+        } catch (e) {
+          const text = await response.text();
+          console.error('Response was not JSON:', text);
+          showMessage('jobAgentMessage', '❌ Server error. Check console logs.', 'error');
+          document.getElementById('searchPlanOutput').innerHTML = '';
+          return;
+        }
 
         if (!response.ok) {
-          showMessage('jobAgentMessage', '❌ Error: ' + data.error, 'error');
+          showMessage('jobAgentMessage', '❌ Error: ' + (data.error || 'Unknown error'), 'error');
           document.getElementById('searchPlanOutput').innerHTML = '';
           return;
         }
