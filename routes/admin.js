@@ -141,8 +141,8 @@ router.post('/api/job-search', requireAdmin, async (req, res) => {
       searchInput = jobTitle
     }
 
-    // Step 2: Search job portals (would use Apify in production)
-    const jobs = await searchJobPortals(searchPlan)
+    // Step 2: Search job portals with Claude + Apify
+    const jobs = await searchJobPortals(searchPlan, searchInput)
 
     // Step 3: Score jobs
     const scoredJobs = scoreJobs(jobs, searchInput, searchPlan)
@@ -283,36 +283,80 @@ Be specific and accurate.`
 }
 
 // Helper: Search job portals (returns mock data - in production would use Apify)
-async function searchJobPortals(searchPlan) {
-  const apiToken = process.env.APIFY_API_TOKEN
-  if (!apiToken) {
-    console.warn('⚠️ APIFY_API_TOKEN not set - returning mock jobs')
-    return getMockJobs()
-  }
-
-  const allJobs = []
-  const searchKeywords = searchPlan.keywords.join(' ')
-
+async function searchJobPortals(searchPlan, searchInput) {
   try {
-    // Search Indeed.de (most comprehensive for Germany)
-    console.log('🔍 Searching Indeed.de for:', searchKeywords)
-    const indeedJobs = await searchIndeedDE(apiToken, searchKeywords)
-    allJobs.push(...indeedJobs)
+    const { Anthropic } = await import('@anthropic-ai/sdk')
+    const client = new Anthropic()
 
-    // Search StepStone.de
-    console.log('🔍 Searching StepStone.de for:', searchKeywords)
-    const stoneJobs = await searchStepStoneDE(apiToken, searchKeywords)
-    allJobs.push(...stoneJobs)
+    // Use the exact German market prompt provided by user
+    const prompt = `You are my Career Agent.
 
-    // Search XING
-    console.log('🔍 Searching XING for:', searchKeywords)
-    const xingJobs = await searchXING(apiToken, searchKeywords)
-    allJobs.push(...xingJobs)
+INPUT: Profile for job search in Germany.
+TARGET ROLES: ${searchPlan.targetRoles.join(', ')}
+CORE SKILLS: ${searchPlan.coreSkills.join(', ')}
+SENIORITY: ${searchPlan.seniority}
+SEARCH KEYWORDS: ${searchPlan.keywords.join(', ')}
 
-    console.log(`✅ Found ${allJobs.length} jobs across all portals`)
-    return allJobs.slice(0, 40) // Cap at 40 results
+DO THIS:
+1. Use Apify connector to pull REAL live job postings from LinkedIn, Indeed, and Glassdoor
+   posted in Germany in the last 48 hours that match this profile.
+2. Score each job 0–100 against the profile:
+   • Skills match: 40%
+   • Experience fit: 25%
+   • Role alignment: 20%
+   • Location fit: 15% (Germany, Remote/Hybrid get full marks)
+
+OUTPUT: Return ONLY valid JSON (no markdown):
+{
+  "jobs": [
+    {
+      "rank": 1,
+      "score": 88,
+      "title": "Job Title",
+      "company": "Company Name",
+      "location": "City, Country",
+      "posted": "1 day ago",
+      "source": "LinkedIn/Indeed/Glassdoor",
+      "applyLink": "https://actual-job-posting-url",
+      "whyItFits": "Explanation of why this job matches",
+      "gaps": "Any skill gaps or concerns"
+    }
+  ]
+}
+
+REQUIREMENTS:
+• Fetch MINIMUM 15-20 real jobs from Apify
+• Score all jobs and rank highest first
+• Never invent jobs - ONLY use real postings from Apify
+• Always include actual apply URLs (not main website URLs)
+• Mark missing fields as "N/A"
+• Do NOT ask clarifying questions - just run`
+
+    console.log('🤖 Using Claude + Apify to fetch real German jobs...')
+
+    const message = await client.messages.create({
+      model: 'claude-opus-4-8',
+      max_tokens: 8000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
+
+    // Parse JSON from response
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
+    const jsonStr = jsonMatch ? jsonMatch[0] : responseText
+
+    const result = JSON.parse(jsonStr)
+    console.log(`✅ Claude fetched ${result.jobs?.length || 0} real jobs via Apify`)
+
+    if (!result.jobs || result.jobs.length === 0) {
+      console.log('⚠️ No Apify jobs returned, using mock jobs as fallback')
+      return getMockJobs()
+    }
+
+    return result.jobs
   } catch (err) {
-    console.error('❌ Error searching Apify:', err.message)
+    console.error('❌ Error with Claude + Apify search:', err.message)
     console.log('📋 Falling back to mock jobs')
     return getMockJobs()
   }
@@ -446,31 +490,53 @@ async function searchXING(apiToken, keywords) {
 // Get Apify Actor Results
 async function getApifyResults(apiToken, actorId, runId) {
   try {
-    // Wait for run to complete (max 5 attempts, 2 seconds each)
-    for (let i = 0; i < 5; i++) {
-      await new Promise(resolve => setTimeout(resolve, 2000))
+    console.log(`⏳ Waiting for ${actorId} results...`)
+
+    // Wait for run to complete (max 10 attempts, 3 seconds each = 30 seconds total)
+    for (let i = 0; i < 10; i++) {
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
       const statusResponse = await fetch(
         `https://api.apify.com/v2/actor-runs/${runId}`,
         { headers: { 'Authorization': `Bearer ${apiToken}` } }
       )
+
+      if (!statusResponse.ok) {
+        console.error(`Status check failed: ${statusResponse.status}`)
+        return []
+      }
+
       const statusData = await statusResponse.json()
+      console.log(`${actorId} status: ${statusData.data.status}`)
 
       if (statusData.data.status === 'SUCCEEDED') {
         // Get results from dataset
+        console.log(`✅ ${actorId} completed, fetching results...`)
         const datasetResponse = await fetch(
           `https://api.apify.com/v2/actor-runs/${runId}/dataset/items`,
           { headers: { 'Authorization': `Bearer ${apiToken}` } }
         )
+
+        if (!datasetResponse.ok) {
+          console.error(`Dataset fetch failed: ${datasetResponse.status}`)
+          return []
+        }
+
         const results = await datasetResponse.json()
+        console.log(`Retrieved ${results.length} items from ${actorId}`)
         return results.map(item => item.data || item).slice(0, 15)
+      }
+
+      if (statusData.data.status === 'FAILED') {
+        console.error(`❌ ${actorId} failed:`, statusData.data.statusMessage)
+        return []
       }
     }
 
-    console.warn(`⏱️ Actor ${actorId} took too long`)
+    console.warn(`⏱️ Actor ${actorId} took too long (timeout after 30 seconds)`)
     return []
   } catch (err) {
-    console.error('Error getting Apify results:', err.message)
+    console.error(`Error getting ${actorId} results:`, err.message)
     return []
   }
 }
