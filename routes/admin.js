@@ -295,7 +295,7 @@ async function searchJobPortals(searchPlan, searchInput) {
 
   const actors = [
     { id: 'curious_coder/linkedin-jobs-scraper', name: 'LinkedIn', input: { keyword, location: 'Germany', maxResults: 15 } },
-    { id: 'shahidirfan/Xing-Jobs-Scraper', name: 'XING', input: { searchTerm: keyword, location: 'Germany', maxJobs: 12 } },
+    { id: 'epctex/xing-scraper', name: 'XING', input: { keyword, location: 'Germany', maxResults: 12 } },
     { id: 'borderline/indeed-scraper', name: 'Indeed', input: { keyword, location: 'Germany', maxResults: 15 } },
     { id: 'easyapi/stepstone-jobs-scraper', name: 'StepStone', input: { keyword, location: 'Germany', maxResults: 12 } },
     { id: 'fatihtahta/arbeitsagentur-scraper', name: 'Arbeitsagentur', input: { keyword, location: 'Germany', maxResults: 10 } },
