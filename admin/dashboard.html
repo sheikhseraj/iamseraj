@@ -556,11 +556,26 @@
       btn.innerHTML = '<span class="loading"></span> Generating...';
 
       try {
+        console.log('Calling generate API with:', { mode: 'full', topics: [topics], tone });
+
         const result = await apiCall('POST', '/admin/api/generate', {
           mode: 'full',
           topics: [topics],
           tone
         });
+
+        console.log('API Response:', result);
+
+        if (result.error) {
+          showMessage('generatorMessage', `❌ Error: ${result.error}`, 'error');
+          return;
+        }
+
+        if (!result.linkedin_post && !result.article) {
+          showMessage('generatorMessage', '❌ No content generated. Check your API key configuration.', 'error');
+          console.log('Empty response keys:', Object.keys(result));
+          return;
+        }
 
         const today = new Date().getDay();
         const hashtags = hashtagMap[today];
@@ -575,8 +590,10 @@
           { key: 'checklist', label: '✅ Action Checklist', platform: 'Checklist', emoji: '📋' }
         ];
 
+        let foundContent = false;
         formats.forEach(fmt => {
-          if (result[fmt.key]) {
+          if (result[fmt.key] && result[fmt.key].trim()) {
+            foundContent = true;
             const text = result[fmt.key];
             const fullText = fmt.platform !== 'Blog' ? `${text}\n\n${hashtags}` : text;
 
@@ -585,24 +602,29 @@
               <p>${text}</p>
               <div class="hashtags">${hashtags}</div>
               <div class="button-group">
-                <button class="btn btn-secondary" onclick="copyText('${fullText.replace(/'/g, "\\'")}')">📋 Copy</button>`;
+                <button class="btn btn-secondary" onclick="copyText(\`${fullText.replace(/`/g, '\\`')}\`)">📋 Copy</button>`;
 
             if (fmt.platform === 'LinkedIn') {
-              html += `<button class="btn btn-success" onclick="postToLinkedin('${fullText.replace(/'/g, "\\'")}'); recordPost('${fmt.platform}');">📱 Post to LinkedIn</button>`;
+              html += `<button class="btn btn-success" onclick="postToLinkedin(\`${fullText.replace(/`/g, '\\`')}\`); recordPost('${fmt.platform}');">📱 Post to LinkedIn</button>`;
             } else if (fmt.platform === 'XING') {
-              html += `<button class="btn btn-success" onclick="postToXing('${fullText.replace(/'/g, "\\'")}'); recordPost('${fmt.platform}');">🇩🇪 Post to XING</button>`;
+              html += `<button class="btn btn-success" onclick="postToXing(\`${fullText.replace(/`/g, '\\`')}\`); recordPost('${fmt.platform}');">🇩🇪 Post to XING</button>`;
             } else if (fmt.platform === 'Blog') {
-              html += `<button class="btn btn-success" onclick="saveToBlog('${result.linkedin_post.replace(/'/g, "\\'")}', '${document.getElementById('blogTitle').value.replace(/'/g, "\\'")}'); recordPost('${fmt.platform}');">💾 Save to Blog</button>`;
+              html += `<button class="btn btn-success" onclick="saveToBlog(\`${result.article.replace(/`/g, '\\`')}\`); recordPost('${fmt.platform}');">💾 Save to Blog</button>`;
             }
 
             html += `</div></div>`;
           }
         });
 
+        if (!foundContent) {
+          html += '<p style="color: #dc2626;">❌ No content sections found in response.</p>';
+        }
+
         document.getElementById('contentOutput').innerHTML = html;
-        showMessage('generatorMessage', '✅ Content generated! Review, copy, and post.', 'success');
+        showMessage('generatorMessage', foundContent ? '✅ Content generated! Review, copy, and post.' : '❌ Content generated but sections are empty.', foundContent ? 'success' : 'error');
       } catch (err) {
-        showMessage('generatorMessage', 'Error: ' + err.message, 'error');
+        console.error('Generate error:', err);
+        showMessage('generatorMessage', `❌ Error: ${err.message}`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '✨ Generate Today\'s Content';
