@@ -272,12 +272,12 @@
         return;
       }
 
-      // Modify topic based on post size
-      let finalTopic = topic;
+      // Select mode based on post size
+      let mode = 'full';
       if (postSize === 'short') {
-        finalTopic = `SHORT VERSION (Twitter/LinkedIn comment length, max 280 characters): ${topic}`;
+        mode = 'linkedin'; // LinkedIn mode generates shorter content
       } else if (postSize === 'long') {
-        finalTopic = `LONG VERSION (Detailed article, 800+ words): ${topic}`;
+        mode = 'full'; // Full mode is longest
       }
 
       const btn = document.getElementById('generateBtn');
@@ -288,7 +288,7 @@
         const response = await fetch('/api/generate-content', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: 'full', topics: [finalTopic], tone })
+          body: JSON.stringify({ mode: mode, topics: [topic], tone })
         });
 
         const data = await response.json();
@@ -311,30 +311,31 @@
           { key: 'checklist', title: '✅ Checklist', platform: 'Checklist', emoji: '📋' }
         ];
 
-        sections.forEach(section => {
+        sections.forEach((section, idx) => {
           if (data[section.key]) {
             const text = data[section.key];
             const fullText = section.platform !== 'Blog' ? `${text}\n\n${hashtags}` : text;
-            const textForBtn = fullText.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            const btnId = `copy-${idx}`;
 
             html += `<div class="content-block">
               <h4>${section.emoji} ${section.title}</h4>
               <p>${text}</p>
               <div class="hashtags">${hashtags}</div>
               <div class="button-group">
-                <button class="btn btn-secondary" onclick="copyText(\`${fullText.replace(/`/g, '\\`')}\`)">📋 Copy</button>`;
+                <button class="btn btn-secondary" onclick="copyToClipboard('${btnId}', \`${fullText.replace(/`/g, '\\`')}\`)">📋 Copy</button>
+                <input type="hidden" id="${btnId}" value="${fullText.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}">`;
 
             if (section.platform === 'LinkedIn') {
-              html += `<button class="btn btn-success" onclick="postToLinkedIn('${textForBtn}')">📱 Post to LinkedIn</button>
-                       <button class="btn btn-secondary" onclick="recordPost('LinkedIn')">✅ Mark Posted</button>`;
+              html += `<button class="btn btn-success" onclick="postAndCopy('${btnId}', 'https://www.linkedin.com/feed/', 'LinkedIn')">📱 Post to LinkedIn</button>
+                       <button class="btn btn-secondary" onclick="recordPost('LinkedIn'); this.innerHTML='☑️ Posted'; this.disabled=true;">☐ Mark Posted</button>`;
             } else if (section.platform === 'XING') {
-              html += `<button class="btn btn-success" onclick="postToXing('${textForBtn}')">🇩🇪 Post to XING</button>
-                       <button class="btn btn-secondary" onclick="recordPost('XING')">✅ Mark Posted</button>`;
+              html += `<button class="btn btn-success" onclick="postAndCopy('${btnId}', 'https://www.xing.com', 'XING')">🇩🇪 Post to XING</button>
+                       <button class="btn btn-secondary" onclick="recordPost('XING'); this.innerHTML='☑️ Posted'; this.disabled=true;">☐ Mark Posted</button>`;
             } else if (section.platform === 'Blog') {
-              html += `<button class="btn btn-success" onclick="saveToBlog('${textForBtn}')">💾 Save to Blog</button>
-                       <button class="btn btn-secondary" onclick="recordPost('Blog')">✅ Mark Posted</button>`;
+              html += `<button class="btn btn-success" onclick="postAndCopy('${btnId}', '', 'Blog')">💾 Save to Blog</button>
+                       <button class="btn btn-secondary" onclick="recordPost('Blog'); this.innerHTML='☑️ Posted'; this.disabled=true;">☐ Mark Posted</button>`;
             } else {
-              html += `<button class="btn btn-secondary" onclick="recordPost('${section.platform}')">✅ Mark Done</button>`;
+              html += `<button class="btn btn-secondary" onclick="recordPost('${section.platform}'); this.innerHTML='☑️ Done'; this.disabled=true;">☐ Mark Done</button>`;
             }
 
             html += `</div></div>`;
@@ -351,29 +352,25 @@
       }
     }
 
-    function postToLinkedIn(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        window.open('https://www.linkedin.com/feed/', '_blank');
-        alert('✅ Content copied! Paste in LinkedIn and post. Then click "Mark Posted".');
-      });
-    }
-
-    function postToXing(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        window.open('https://www.xing.com', '_blank');
-        alert('✅ Content copied! Paste in XING and post. Then click "Mark Posted".');
-      });
-    }
-
-    function saveToBlog(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('✅ Content copied! Navigate to your blog to add it. Then click "Mark Posted".');
-      });
-    }
-
-    function copyText(text) {
+    function copyToClipboard(elemId, text) {
       navigator.clipboard.writeText(text).then(() => {
         alert('✅ Copied to clipboard!');
+      }).catch(() => {
+        alert('❌ Copy failed. Try again.');
+      });
+    }
+
+    function postAndCopy(elemId, url, platform) {
+      const text = document.getElementById(elemId).value;
+      navigator.clipboard.writeText(text).then(() => {
+        if (url) {
+          window.open(url, '_blank');
+          alert(`✅ Content copied! Paste in ${platform} and post. Then click "Mark Posted".`);
+        } else {
+          alert('✅ Content copied! Navigate to your blog to add it. Then click "Mark Posted".');
+        }
+      }).catch(() => {
+        alert('❌ Copy failed. Try again.');
       });
     }
 
