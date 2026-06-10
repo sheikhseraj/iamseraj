@@ -141,12 +141,60 @@
       <h2 style="margin-bottom: 30px;">🔍 Job Search Agent - Germany</h2>
 
       <div class="form-section">
-        <h3>Resume Input</h3>
+        <h3>Search Options</h3>
         <div id="jobAgentMessage"></div>
 
-        <div class="form-group">
-          <label>Paste your resume / CV (or describe your background):</label>
-          <textarea id="resumeInput" placeholder="Paste your resume here, or describe: I'm a Test Automation Engineer with 5+ years experience in Selenium, Java, etc." style="min-height: 200px;"></textarea>
+        <!-- Toggle between Resume and Job Title -->
+        <div style="margin-bottom: 30px;">
+          <label style="margin-bottom: 15px; display: block;">Choose search method:</label>
+          <div style="display: flex; gap: 20px;">
+            <label style="display: flex; align-items: center; font-weight: 400; margin: 0;">
+              <input type="radio" name="searchMethod" value="resume" checked style="width: auto; margin-right: 8px;" onchange="toggleSearchMethod()"> 📄 By Resume
+            </label>
+            <label style="display: flex; align-items: center; font-weight: 400; margin: 0;">
+              <input type="radio" name="searchMethod" value="jobtitle" style="width: auto; margin-right: 8px;" onchange="toggleSearchMethod()"> 💼 By Job Title
+            </label>
+          </div>
+        </div>
+
+        <!-- Resume Input Section -->
+        <div id="resumeSection">
+          <div class="form-group">
+            <label>Paste your resume / CV (optional):</label>
+            <textarea id="resumeInput" placeholder="Paste your resume here, or describe: I'm a Test Automation Engineer with 5+ years experience in Selenium, Java, etc." style="min-height: 200px;"></textarea>
+          </div>
+        </div>
+
+        <!-- Job Title Section (hidden by default) -->
+        <div id="jobTitleSection" style="display: none;">
+          <div class="form-group">
+            <label>Select Job Title:</label>
+            <select id="jobTitleDropdown" onchange="handleJobTitleChange()" style="margin-bottom: 15px;">
+              <option value="">-- Select a job title --</option>
+              <option value="Test Automation Engineer">Test Automation Engineer</option>
+              <option value="Test Engineer">Test Engineer</option>
+              <option value="QA Engineer">QA Engineer</option>
+              <option value="Software Tester">Software Tester</option>
+              <option value="SDET (Senior Development Engineer in Test)">SDET (Senior Development Engineer in Test)</option>
+              <option value="QA Automation Specialist">QA Automation Specialist</option>
+              <option value="Test Lead">Test Lead</option>
+              <option value="Quality Assurance Engineer">Quality Assurance Engineer</option>
+              <option value="Selenium Automation Engineer">Selenium Automation Engineer</option>
+              <option value="Manual QA Engineer">Manual QA Engineer</option>
+              <option value="Others">Others (specify below)</option>
+            </select>
+          </div>
+
+          <!-- Custom job title input (shown only when "Others" is selected) -->
+          <div id="customJobTitleDiv" style="display: none;" class="form-group">
+            <label>Enter custom job title:</label>
+            <input type="text" id="customJobTitle" placeholder="e.g., Performance Test Engineer, Load Testing Specialist, etc.">
+          </div>
+
+          <div class="form-group">
+            <label>Additional Keywords (optional):</label>
+            <input type="text" id="jobKeywords" placeholder="e.g., Selenium, Python, Java, Remote, Berlin, etc.">
+          </div>
         </div>
 
         <button class="btn" onclick="runJobSearchAgent()" style="width: 100%; margin-top: 20px;">🚀 Search Jobs in Germany</button>
@@ -540,23 +588,79 @@
       displayDiv.innerHTML = html;
     }
 
-    async function runJobSearchAgent() {
-      const resume = document.getElementById('resumeInput').value.trim();
+    function toggleSearchMethod() {
+      const searchMethod = document.querySelector('input[name="searchMethod"]:checked').value;
+      const resumeSection = document.getElementById('resumeSection');
+      const jobTitleSection = document.getElementById('jobTitleSection');
 
-      if (!resume) {
-        showMessage('jobAgentMessage', '❌ Please paste your resume or background', 'error');
-        return;
+      if (searchMethod === 'resume') {
+        resumeSection.style.display = 'block';
+        jobTitleSection.style.display = 'none';
+      } else {
+        resumeSection.style.display = 'none';
+        jobTitleSection.style.display = 'block';
       }
 
-      showMessage('jobAgentMessage', '⏳ Analyzing resume and searching job portals...', 'success');
+      // Clear outputs when switching
+      document.getElementById('searchPlanOutput').innerHTML = '';
+      document.getElementById('jobResultsOutput').innerHTML = '';
+    }
+
+    function handleJobTitleChange() {
+      const jobTitle = document.getElementById('jobTitleDropdown').value;
+      const customDiv = document.getElementById('customJobTitleDiv');
+
+      if (jobTitle === 'Others') {
+        customDiv.style.display = 'block';
+      } else {
+        customDiv.style.display = 'none';
+      }
+    }
+
+    async function runJobSearchAgent() {
+      const searchMethod = document.querySelector('input[name="searchMethod"]:checked').value;
+      let searchInput = '';
+
+      if (searchMethod === 'resume') {
+        searchInput = document.getElementById('resumeInput').value.trim();
+        if (!searchInput) {
+          showMessage('jobAgentMessage', '❌ Please paste your resume or background', 'error');
+          return;
+        }
+      } else {
+        // Job title search
+        let jobTitle = document.getElementById('jobTitleDropdown').value;
+        if (!jobTitle) {
+          showMessage('jobAgentMessage', '❌ Please select a job title', 'error');
+          return;
+        }
+
+        if (jobTitle === 'Others') {
+          const customTitle = document.getElementById('customJobTitle').value.trim();
+          if (!customTitle) {
+            showMessage('jobAgentMessage', '❌ Please enter a custom job title', 'error');
+            return;
+          }
+          jobTitle = customTitle;
+        }
+
+        const keywords = document.getElementById('jobKeywords').value.trim();
+        searchInput = jobTitle + (keywords ? ' ' + keywords : '');
+      }
+
+      showMessage('jobAgentMessage', '⏳ Searching job portals...', 'success');
       document.getElementById('searchPlanOutput').innerHTML = '<div class="loading"></div> Building search plan...';
       document.getElementById('jobResultsOutput').innerHTML = '';
 
       try {
+        const payload = searchMethod === 'resume'
+          ? { resume: searchInput }
+          : { jobTitle: searchInput };
+
         const response = await fetch('/api/job-search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ resume })
+          body: JSON.stringify(payload)
         });
 
         const data = await response.json();
