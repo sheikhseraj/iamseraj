@@ -61,22 +61,36 @@ router.post('/api/generate', requireAdmin, async (req, res) => {
 
   try {
     // Call backend route to generate content
-    const response = await fetch('/api/generate-content', {
+    const port = process.env.PORT || 3000
+    const url = `http://127.0.0.1:${port}/api/generate-content`
+
+    console.log(`Fetching from: ${url}`)
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode, topics, tone })
     })
 
+    console.log(`Response status: ${response.status}`)
+
     const data = await response.json()
 
+    console.log(`Response data:`, data)
+
     if (!response.ok) {
+      console.error('API returned error:', data)
       return res.status(response.status).json(data)
     }
 
     res.json(data)
   } catch (err) {
-    console.error('Generate content error:', err)
-    res.status(500).json({ error: 'Failed to generate content' })
+    console.error('Generate content error:', err.message)
+    console.error('Full error:', err)
+    res.status(500).json({
+      error: 'Failed to generate content',
+      details: err.message
+    })
   }
 })
 
