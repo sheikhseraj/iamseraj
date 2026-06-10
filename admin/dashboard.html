@@ -686,6 +686,8 @@
           tone
         });
 
+        console.log('Generated content result:', result);
+
         let html = '<h4 style="margin-bottom: 20px;">📄 Generated Content - Copy & Review:</h4>';
 
         const formats = [
@@ -697,15 +699,22 @@
           { key: 'connection_message', label: '💬 Connection Message', icon: '👥' }
         ];
 
+        let foundAny = false;
         formats.forEach(fmt => {
           if (result[fmt.key]) {
+            foundAny = true;
+            const contentText = result[fmt.key];
             html += `<div style="margin: 20px 0; padding: 20px; background: #1f2940; border-radius: 8px; border-left: 3px solid #2563eb;">
               <h5 style="margin-bottom: 12px; color: #2563eb;">${fmt.icon} ${fmt.label}</h5>
-              <p style="white-space: pre-wrap; font-size: 13px; line-height: 1.6;">${result[fmt.key]}</p>
-              <button class="btn btn-secondary" style="margin-top: 12px;" onclick="copyToClipboard(\`${result[fmt.key].replace(/`/g, '\\`')}\`)">📋 Copy to Clipboard</button>
+              <p style="white-space: pre-wrap; font-size: 13px; line-height: 1.6;">${contentText}</p>
+              <button class="btn btn-secondary" style="margin-top: 12px;" onclick="copyText('${contentText.replace(/'/g, "\\'")}')">📋 Copy to Clipboard</button>
             </div>`;
           }
         });
+
+        if (!foundAny) {
+          html += '<p style="color: #dc2626;">❌ No content generated. Please check your API key and try again.</p>';
+        }
 
         html += '<div style="margin-top: 30px; padding: 20px; background: #0f1729; border-radius: 8px; border: 1px solid #1f2940;">';
         html += '<p style="color: #94a0b8; font-size: 13px;">✅ Review the content above, then publish to your channels:<br><strong>• LinkedIn</strong> • <strong>XING</strong> • <strong>Blog (GitHub)</strong></p>';
@@ -714,7 +723,8 @@
         document.getElementById('contentOutput').innerHTML = html;
         showMessage('contentMessage', '✅ Content generated! Review and copy to publish.', 'success');
       } catch (err) {
-        showMessage('contentMessage', 'Error generating content: ' + err.message, 'error');
+        console.error('Generate error:', err);
+        showMessage('contentMessage', 'Error: ' + err.message, 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '✨ Generate Today\'s Content';
@@ -724,6 +734,14 @@
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text);
       alert('Copied to clipboard!');
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Copied to clipboard!');
+      }).catch(() => {
+        alert('Error copying. Try right-click → Copy instead.');
+      });
     }
 
     function logout() {
