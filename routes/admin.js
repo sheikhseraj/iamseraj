@@ -119,6 +119,41 @@ router.post('/api/todays-content', requireAdmin, async (req, res) => {
   }
 })
 
+// Job Search Agent API
+router.post('/api/job-search', requireAdmin, async (req, res) => {
+  const { resume } = req.body
+
+  if (!resume) {
+    return res.status(400).json({ error: 'Resume required' })
+  }
+
+  try {
+    // Step 1: Analyze resume with Claude to create search plan
+    const searchPlan = await analyzeResumeWithClaude(resume)
+
+    // Step 2: Search job portals (would use Apify in production)
+    const jobs = await searchJobPortals(searchPlan)
+
+    // Step 3: Score jobs
+    const scoredJobs = scoreJobs(jobs, resume, searchPlan)
+
+    // Get top 3
+    const topPicks = scoredJobs.slice(0, 3).map(j => j.id)
+
+    res.json({
+      searchPlan,
+      jobs: scoredJobs,
+      topPicks
+    })
+  } catch (err) {
+    console.error('Job search error:', err.message)
+    res.status(500).json({
+      error: 'Job search failed',
+      details: err.message
+    })
+  }
+})
+
 // Serve admin pages
 router.get('/login.html', (req, res) => {
   res.sendFile('admin/login.html', { root: '.' })
@@ -131,5 +166,172 @@ router.get('/dashboard.html', requireAdmin, (req, res) => {
 router.get('/agent.html', requireAdmin, (req, res) => {
   res.sendFile('admin/agent.html', { root: '.' })
 })
+
+// Helper: Analyze resume with Claude to create search plan
+async function analyzeResumeWithClaude(resume) {
+  try {
+    const { Anthropic } = await import('@anthropic-ai/sdk')
+    const client = new Anthropic()
+
+    const prompt = `Analyze this resume/background and create a job search plan for finding test automation/QA engineer roles in Germany.
+
+RESUME/BACKGROUND:
+${resume}
+
+Return ONLY valid JSON (no markdown, no code blocks) with this exact structure:
+{
+  "targetRoles": ["Role1", "Role2", "Role3"],
+  "seniority": "Junior/Mid/Senior",
+  "coreSkills": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+}
+
+Guidelines:
+- targetRoles: Infer 2-3 target job titles based on resume (e.g., "Test Automation Engineer", "QA Engineer", "SDET")
+- seniority: Infer from experience (years, level of responsibilities)
+- coreSkills: Extract top 5 technical/domain skills
+- keywords: Create 5 search keywords for job portals combining role + skills + location
+
+Be specific and accurate.`
+
+    const message = await client.messages.create({
+      model: 'claude-opus-4-8',
+      max_tokens: 500,
+      messages: [{ role: 'user', content: prompt }]
+    })
+
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
+
+    // Extract JSON from response (in case it has markdown formatting)
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
+    const jsonStr = jsonMatch ? jsonMatch[0] : responseText
+
+    const searchPlan = JSON.parse(jsonStr)
+    console.log('Search Plan:', searchPlan)
+    return searchPlan
+  } catch (err) {
+    console.error('Error analyzing resume:', err)
+    // Return default search plan if Claude fails
+    return {
+      targetRoles: ['Test Automation Engineer', 'QA Engineer', 'SDET'],
+      seniority: 'Mid',
+      coreSkills: ['Selenium', 'Java', 'Test Automation', 'QA', 'CI/CD'],
+      keywords: ['Test Automation Engineer Germany', 'QA Automation Remote', 'SDET Germany', 'Selenium Java QA', 'Test Engineer Remote']
+    }
+  }
+}
+
+// Helper: Search job portals (returns mock data - in production would use Apify)
+async function searchJobPortals(searchPlan) {
+  // Mock job data - in production this would call Apify actors for each portal
+  const mockJobs = [
+    {
+      id: 'job_001',
+      title: 'Test Automation Engineer',
+      company: 'SinnerSchrader AG',
+      location: 'Berlin, Remote',
+      postedDate: '2 days ago',
+      source: 'StepStone',
+      applyLink: 'https://stepstone.de',
+      description: 'Senior Test Automation Engineer for fintech startup'
+    },
+    {
+      id: 'job_002',
+      title: 'SDET (Senior Development Engineer in Test)',
+      company: 'Zalando SE',
+      location: 'Berlin',
+      postedDate: '1 day ago',
+      source: 'XING',
+      applyLink: 'https://xing.de',
+      description: 'Build automation frameworks for e-commerce platform'
+    },
+    {
+      id: 'job_003',
+      title: 'QA Automation Engineer',
+      company: 'Bosch Software Innovations',
+      location: 'Stuttgart, Remote Option',
+      postedDate: '3 days ago',
+      source: 'LinkedIn',
+      applyLink: 'https://linkedin.com',
+      description: 'Java-based test automation for automotive software'
+    },
+    {
+      id: 'job_004',
+      title: 'Test Engineer (Selenium/Python)',
+      company: 'Wix.com GmbH',
+      location: 'Berlin, Remote',
+      postedDate: '4 hours ago',
+      source: 'Indeed',
+      applyLink: 'https://indeed.de',
+      description: 'Develop automated test suites for web platform'
+    },
+    {
+      id: 'job_005',
+      title: 'QA / Test Automation Specialist',
+      company: 'Delivery Hero',
+      location: 'Hamburg, Remote',
+      postedDate: '5 days ago',
+      source: 'StepStone',
+      applyLink: 'https://stepstone.de',
+      description: 'Lead QA automation for food delivery platform'
+    }
+  ]
+
+  return mockJobs
+}
+
+// Helper: Score jobs against resume
+function scoreJobs(jobs, resume, searchPlan) {
+  const resumeLower = resume.toLowerCase()
+  const skillsLower = searchPlan.coreSkills.map(s => s.toLowerCase())
+
+  return jobs.map(job => {
+    const jobLower = (job.title + ' ' + job.description).toLowerCase()
+
+    // Skills match (40%)
+    let skillsScore = 0
+    let matchedSkills = []
+    skillsLower.forEach(skill => {
+      if (jobLower.includes(skill)) {
+        skillsScore += 8
+        matchedSkills.push(skill)
+      }
+    })
+
+    // Experience fit (25%)
+    let experienceScore = 20
+    if (jobLower.includes('senior') || jobLower.includes('lead')) experienceScore = 25
+    if (jobLower.includes('junior')) experienceScore = 15
+
+    // Role alignment (20%)
+    let roleScore = 0
+    searchPlan.targetRoles.forEach(role => {
+      if (jobLower.includes(role.toLowerCase())) roleScore = 20
+    })
+
+    // Location/work-mode fit (15%)
+    let locationScore = 15 // All Germany, give full marks
+    if (!jobLower.includes('germany') && !jobLower.includes('remote') && !jobLower.includes('hybrid')) {
+      locationScore = 5
+    }
+
+    const totalScore = skillsScore + experienceScore + roleScore + locationScore
+
+    // Determine gaps
+    let gaps = ''
+    const missingSkills = skillsLower.filter(s => !jobLower.includes(s))
+    if (missingSkills.length > 0) {
+      gaps = `Missing: ${missingSkills.slice(0, 2).join(', ')}`
+    }
+
+    return {
+      ...job,
+      score: Math.min(100, totalScore),
+      whyItFits: `Matches ${matchedSkills.length}+ of your core skills: ${matchedSkills.slice(0, 3).join(', ')}. Role aligns with your target positions.`,
+      gaps: gaps,
+      matchedSkills
+    }
+  }).sort((a, b) => b.score - a.score)
+}
 
 export default router
