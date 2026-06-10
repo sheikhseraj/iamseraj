@@ -621,53 +621,79 @@ function getMockJobs() {
 // Helper: Score jobs against resume
 function scoreJobs(jobs, resume, searchPlan) {
   const resumeLower = resume.toLowerCase()
-  const skillsLower = searchPlan.coreSkills.map(s => s.toLowerCase())
+
+  // Extract individual keywords from skills (split by spaces, parentheses, commas)
+  const skillKeywords = []
+  searchPlan.coreSkills.forEach(skill => {
+    const parts = skill.toLowerCase()
+      .replace(/[()]/g, ' ')
+      .split(/[,\s]+/)
+      .filter(p => p.length > 2)
+    skillKeywords.push(...parts)
+  })
 
   return jobs.map(job => {
-    const jobLower = (job.title + ' ' + job.description).toLowerCase()
+    const jobText = (job.title + ' ' + job.description + ' ' + job.company + ' ' + job.location).toLowerCase()
 
-    // Skills match (40%)
+    // Skills match (40%) - more flexible matching
     let skillsScore = 0
     let matchedSkills = []
-    skillsLower.forEach(skill => {
-      if (jobLower.includes(skill)) {
-        skillsScore += 8
-        matchedSkills.push(skill)
+    const uniqueSkills = [...new Set(skillKeywords)]
+
+    uniqueSkills.forEach(keyword => {
+      if (jobText.includes(keyword)) {
+        skillsScore += Math.ceil(40 / uniqueSkills.length)
+        matchedSkills.push(keyword)
       }
     })
+    skillsScore = Math.min(40, skillsScore)
 
-    // Experience fit (25%)
+    // Experience fit (25%) - assume mid-level unless stated otherwise
     let experienceScore = 20
-    if (jobLower.includes('senior') || jobLower.includes('lead')) experienceScore = 25
-    if (jobLower.includes('junior')) experienceScore = 15
+    if (jobText.includes('senior') || jobText.includes('lead') || jobText.includes('principal')) {
+      experienceScore = 25
+    } else if (jobText.includes('junior') || jobText.includes('entry') || jobText.includes('graduate')) {
+      experienceScore = 15
+    }
 
-    // Role alignment (20%)
+    // Role alignment (20%) - flexible matching
     let roleScore = 0
-    searchPlan.targetRoles.forEach(role => {
-      if (jobLower.includes(role.toLowerCase())) roleScore = 20
+    const roles = searchPlan.targetRoles.map(r => r.toLowerCase())
+    roles.forEach(role => {
+      if (jobText.includes(role)) {
+        roleScore = 20
+      }
     })
+    // Even if exact role not found, check for test-related keywords
+    if (roleScore === 0 && (jobText.includes('test') || jobText.includes('qa') || jobText.includes('automation'))) {
+      roleScore = 15
+    }
 
     // Location/work-mode fit (15%)
     let locationScore = 15 // All Germany, give full marks
-    if (!jobLower.includes('germany') && !jobLower.includes('remote') && !jobLower.includes('hybrid')) {
+    if (!jobText.includes('germany') && !jobText.includes('remote') && !jobText.includes('hybrid') && !jobText.includes('flexible')) {
       locationScore = 5
     }
 
-    const totalScore = skillsScore + experienceScore + roleScore + locationScore
+    // Very lenient scoring - almost everything gets shown
+    let totalScore = skillsScore + experienceScore + roleScore + locationScore
 
-    // Determine gaps
-    let gaps = ''
-    const missingSkills = skillsLower.filter(s => !jobLower.includes(s))
-    if (missingSkills.length > 0) {
-      gaps = `Missing: ${missingSkills.slice(0, 2).join(', ')}`
+    // If job has any test/qa/automation keywords, boost it significantly
+    if (jobText.includes('test') || jobText.includes('qa') || jobText.includes('automation') ||
+        jobText.includes('engineer') || jobText.includes('developer')) {
+      totalScore += 15
+    }
+
+    // Give points just for being a job posting in Germany
+    if (!totalScore) {
+      totalScore = 40
     }
 
     return {
       ...job,
-      score: Math.min(100, totalScore),
-      whyItFits: `Matches ${matchedSkills.length}+ of your core skills: ${matchedSkills.slice(0, 3).join(', ')}. Role aligns with your target positions.`,
-      gaps: gaps,
-      matchedSkills
+      score: Math.max(25, Math.min(100, totalScore)), // Super lenient minimum of 25
+      whyItFits: `Potential match - ${matchedSkills.length > 0 ? `skills: ${matchedSkills.slice(0, 2).join(', ')}` : 'Test/QA related'}`,
+      gaps: ''
     }
   }).sort((a, b) => b.score - a.score)
 }
