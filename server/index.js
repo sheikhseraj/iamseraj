@@ -11,7 +11,7 @@ import contentAdminRouter from '../routes/admin.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distPath = path.join(__dirname, '..', 'dist')
-const PORT = process.env.PORT || 3001
+const port = process.env.PORT || 3000
 
 if (!hasKey()) {
   console.warn(
@@ -225,8 +225,6 @@ app.use((req, res, next) => {
 
 // Start listening immediately; connect to MySQL in the background so a DB
 // problem can never stop the site from serving.
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server running on port ${PORT}`)
-})
+app.listen(port, '0.0.0.0')
 
 initDb().catch((e) => console.error('DB init error:', e.message))
