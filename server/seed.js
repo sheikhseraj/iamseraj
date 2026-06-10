@@ -5,53 +5,67 @@ import { initDb, isReady, saveAnswer } from './db.js'
 // 'seed' answers so common questions are served instantly without an AI call.
 // Add, edit, or remove pairs freely, then re-run `npm run seed`.
 const SEED = [
+  // --- English ---
   {
     q: 'What do you do?',
-    a: "I'm a Test Manager and Test Automation Engineer. I lead QA strategy, build robust test automation frameworks, and bring AI agents into the testing process to catch issues early and ship with confidence.",
+    a: "I'm an ISTQB Advanced Level certified Test Manager and Test Automation Engineer with 3+ years of experience. I lead test strategy, build automation frameworks with Playwright and Selenium, and integrate testing into CI/CD pipelines.",
   },
   {
     q: 'Tell me about your test automation experience',
-    a: 'I build and maintain UI and API automation frameworks with tools like Selenium, Playwright, Cypress, Appium, and REST Assured, integrated into CI/CD pipelines for fast feedback on every commit. I focus on stable, maintainable suites that increase coverage and cut regression time.',
+    a: 'At Akkodis I built test automation frameworks with Playwright & Selenium (Python/JavaScript) from the ground up — 50+ automated test cases reaching 70% coverage, which cut manual test time by 30% — and integrated them into CI/CD pipelines with Jenkins and Azure DevOps.',
   },
   {
     q: 'What is your experience as a test manager?',
-    a: 'As a Test Manager I own end-to-end test strategy across products, lead QA teams, and set up risk-based test planning, defect governance, and quality metrics that give leadership clear release-readiness signals.',
+    a: 'As Test Manager at Akkodis GmbH (2023–2025) I had overall responsibility for test management in international client projects: test strategy, test concepts, regression suites, structured defect management with Jira & Xray, and reporting risks and quality metrics to stakeholders.',
   },
   {
     q: 'How do you use AI in testing?',
-    a: 'I use AI agents and LLMs to generate test cases from user stories, triage failures automatically, and self-heal flaky tests when selectors change. This significantly reduces test maintenance and triage effort.',
+    a: "I'm deepening my expertise in AI-driven test automation with Playwright MCP and Claude Code — spinning up AI agents for testing, CI/CD testing and automated reporting. I believe the future of QA lies in combining automation with AI.",
   },
   {
     q: 'What tools and technologies do you use?',
-    a: 'For automation: Selenium, Playwright, Cypress, Appium, REST Assured, TestNG/JUnit, and Postman. For AI testing: LLM test generation, AI failure triage, and self-healing tests. For development and DevOps: Java, Python, JavaScript, SQL, Git, CI/CD, Jenkins, GitHub Actions, and Docker.',
+    a: 'Automation: Playwright, Selenium WebDriver, Pytest, TestNG. API testing: Postman, REST API, Swagger. Test management: Jira, Xray, Confluence, TestRail, MS Azure Test Plans. DevOps/CI-CD: Jenkins, Git, GitHub, Azure DevOps, Docker. Programming: Python, JavaScript, C++.',
   },
   {
-    q: 'What programming languages do you know?',
-    a: 'I work mainly with Java, Python, and JavaScript, and I use SQL for data validation. That lets me bridge the gap between QA and engineering.',
+    q: 'What certifications do you have?',
+    a: "I'm ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM) and ISTQB® Certified Tester Foundation Level v4.0, both from 2024.",
   },
   {
-    q: 'Can you tell me about your projects?',
-    a: "Some highlights: an AI-Powered Test Automation Framework that auto-generates tests and self-heals broken selectors; an end-to-end UI + API automation suite wired into CI/CD; a company-wide QA strategy with quality dashboards; and an AI Test Assistant agent that helps QA engineers write and run tests in natural language.",
+    q: 'What is your education?',
+    a: 'I hold an M.Sc. in Mechanical Engineering with a focus on Digitalization from TH Nürnberg (completed entirely in German), and a B.Tech. in Mechanical Engineering from India. I also completed German language courses up to C1.',
   },
   {
-    q: 'Are you a developer?',
-    a: "I'm primarily a Test Manager and Automation Engineer, but I also write code — Java, Python, and JavaScript — so I can build tooling and bridge QA with the engineering team.",
+    q: 'What languages do you speak?',
+    a: 'I speak German and English fluently, both at C1 level. I completed my Master’s degree in German and my Bachelor’s in English.',
   },
   {
     q: 'How can I contact you?',
-    a: 'The best way to reach me is by email at herrsiddiqui@gmail.com. You can also find me via the links in the contact section of this site.',
+    a: 'The best way to reach me is by email at herrsiddiqui@gmail.com or by phone at +49 176 5524 1842. I’m based in Magdeburg, Germany and open to relocating anywhere in Germany.',
   },
   {
     q: 'Are you available for work?',
-    a: "I'm always open to interesting opportunities in test management and automation. The best way to start a conversation is to email me at herrsiddiqui@gmail.com.",
+    a: "I'm open to Test Manager and test automation roles across Germany. The best way to start a conversation is to email me at herrsiddiqui@gmail.com.",
+  },
+  // --- German ---
+  {
+    q: 'Was machst du beruflich?',
+    a: 'Ich bin ISTQB Advanced Level zertifizierter Testmanager und Testautomatisierungs-Ingenieur mit über 3 Jahren Erfahrung. Ich verantworte Teststrategien, baue Automatisierungs-Frameworks mit Playwright und Selenium und integriere Tests in CI/CD-Pipelines.',
   },
   {
-    q: 'What makes you a good test manager?',
-    a: 'I combine QA leadership with hands-on automation and coding skills, and I bring modern AI-assisted testing into the workflow. That means I can set strategy, build the automation to back it up, and keep quality measurable and visible to stakeholders.',
+    q: 'Erzähl mir von deiner Testautomatisierungs-Erfahrung',
+    a: 'Bei Akkodis habe ich Testautomatisierungs-Frameworks mit Playwright & Selenium (Python/JavaScript) von Grund auf aufgebaut — 50+ automatisierte Testfälle mit 70 % Abdeckung, was die manuelle Testzeit um 30 % reduziert hat — und in CI/CD-Pipelines mit Jenkins und Azure DevOps integriert.',
   },
   {
-    q: 'Do you have experience with CI/CD?',
-    a: 'Yes — I integrate automated UI and API tests into CI/CD pipelines using tools like Jenkins and GitHub Actions, with parallel execution and reporting so teams get fast quality feedback on every commit.',
+    q: 'Welche Zertifizierungen hast du?',
+    a: 'Ich bin ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM) sowie ISTQB® Certified Tester Foundation Level v4.0, beide aus dem Jahr 2024.',
+  },
+  {
+    q: 'Welche Sprachen sprichst du?',
+    a: 'Ich spreche Deutsch und Englisch fließend, beide auf C1-Niveau. Mein Masterstudium habe ich auf Deutsch und mein Bachelorstudium auf Englisch absolviert.',
+  },
+  {
+    q: 'Wie kann ich dich kontaktieren?',
+    a: 'Am besten erreichen Sie mich per E-Mail unter herrsiddiqui@gmail.com oder telefonisch unter +49 176 5524 1842. Ich bin in Magdeburg ansässig und deutschlandweit umzugsbereit.',
   },
 ]
 
