@@ -272,14 +272,6 @@
         return;
       }
 
-      // Modify topic based on post size (always generate full mode, but adjust length)
-      let finalTopic = topic;
-      if (postSize === 'short') {
-        finalTopic = `KEEP ALL SECTIONS SHORT (100-150 words each): ${topic}`;
-      } else if (postSize === 'long') {
-        finalTopic = `MAKE ALL SECTIONS DETAILED AND LONG (300-500 words each): ${topic}`;
-      }
-
       const btn = document.getElementById('generateBtn');
       btn.disabled = true;
       btn.innerHTML = '<span class="loading"></span> Generating...';
@@ -288,7 +280,7 @@
         const response = await fetch('/api/generate-content', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: 'full', topics: [finalTopic], tone })
+          body: JSON.stringify({ mode: 'full', topics: [topic], tone, length: postSize })
         });
 
         const data = await response.json();
