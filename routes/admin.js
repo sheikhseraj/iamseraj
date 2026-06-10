@@ -293,6 +293,19 @@ async function searchJobPortals(searchPlan, searchInput) {
   const allJobs = []
   const keyword = searchPlan.keywords[0] || searchPlan.targetRoles[0]
 
+  // Test API token validity first
+  console.log('🔐 Testing Apify API token...')
+  const tokenTest = await fetch('https://api.apify.com/v2/users/me', {
+    headers: { 'Authorization': `Bearer ${apiToken}` }
+  })
+  const tokenData = await tokenTest.json()
+  console.log(`Token test response: ${tokenTest.status}`)
+  if (!tokenTest.ok) {
+    console.error('❌ APIFY_API_TOKEN is INVALID:', tokenData)
+    return getMockJobs()
+  }
+  console.log('✅ Token is valid')
+
   const actors = [
     { id: 'curious_coder/linkedin-jobs-scraper', name: 'LinkedIn', input: { keyword, location: 'Germany', maxResults: 15 } },
     { id: 'epctex/xing-scraper', name: 'XING', input: { keyword, location: 'Germany', maxResults: 12 } },
