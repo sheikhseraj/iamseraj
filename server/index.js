@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
 import session from 'express-session'
-import { initDb, isReady, findAnswer, saveAnswer } from './db.js'
+import { initDb, isReady, findAnswer, saveAnswer, saveGeneratedContent, getTodaysContent } from './db.js'
 import { streamAnswer, hasKey } from './ai.js'
 import adminRouter from './admin.js'
 import contentAdminRouter from '../routes/admin.js'
@@ -49,15 +49,27 @@ app.post('/api/generate-content', async (req, res) => {
 
   const { mode, topics, tone, length } = req.body
 
+  console.log('📝 Content Generation Request:', { mode, topics, tone, length })
+
   try {
     const { Anthropic } = await import('@anthropic-ai/sdk')
     const client = new Anthropic()
 
-    const prompt = buildContentPrompt(mode, topics, tone, length)
+    const prompt = buildContentPrompt(mode, topics, tone)
+    console.log('⚡ Length instruction:', length === 'short' ? 'SHORT' : length === 'long' ? 'LONG' : 'MEDIUM')
+
+    // Build system message based on length
+    let systemMessage = 'You are a professional content creator. Generate high-quality content.'
+    if (length === 'short') {
+      systemMessage = 'You are a professional content creator. Generate VERY SHORT and CONCISE content. Keep each section to maximum 100-150 words. Be brief and to the point.'
+    } else if (length === 'long') {
+      systemMessage = 'You are a professional content creator. Generate DETAILED and COMPREHENSIVE content. Make each section 300-500 words. Be thorough and informative.'
+    }
 
     const message = await client.messages.create({
       model: 'claude-opus-4-8',
       max_tokens: 2000,
+      system: systemMessage,
       messages: [
         {
           role: 'user',
@@ -71,6 +83,13 @@ app.post('/api/generate-content', async (req, res) => {
     // Parse the generated content into sections
     const outputs = parseContentSections(content, mode)
 
+    // Save to database if we have database connection
+    if (isReady()) {
+      const topicString = topics.join(', ')
+      await saveGeneratedContent(topicString, tone, length || 'medium', outputs)
+      console.log('✅ Content saved to database for topic:', topicString)
+    }
+
     res.json(outputs)
   } catch (err) {
     console.error('Content generation error:', err.message)
@@ -83,19 +102,38 @@ app.post('/api/generate-content', async (req, res) => {
   }
 })
 
-// Helper: Build prompt based on mode and topics
-function buildContentPrompt(mode, topics, tone, length) {
-  const topicString = topics.join(', ')
+// Get today's generated content
+app.post('/api/todays-content', async (req, res) => {
+  const { topic, tone, length } = req.body
 
-  let lengthInstructions = ''
-  if (length === 'short') {
-    lengthInstructions = '\n\n⚠️ IMPORTANT: Keep ALL sections VERY SHORT - maximum 100-150 words each. Be concise.'
-  } else if (length === 'long') {
-    lengthInstructions = '\n\n⚠️ IMPORTANT: Make ALL sections DETAILED and LONG - aim for 300-500 words each. Be comprehensive.'
+  if (!topic || !tone) {
+    return res.status(400).json({ error: 'Topic and tone required' })
   }
 
+  try {
+    if (isReady()) {
+      const content = await getTodaysContent(topic, tone, length || 'medium')
+      if (content) {
+        res.json({ exists: true, content })
+        return
+      }
+    }
+    res.json({ exists: false })
+  } catch (err) {
+    console.error('Error retrieving todays content:', err.message)
+    res.status(500).json({
+      error: 'Failed to retrieve content',
+      details: err.message
+    })
+  }
+})
+
+// Helper: Build prompt based on mode and topics
+function buildContentPrompt(mode, topics, tone) {
+  const topicString = topics.join(', ')
+
   if (mode === 'linkedin') {
-    return `Generate professional content for LinkedIn about: ${topicString}. Tone: ${tone}.${lengthInstructions}
+    return `Generate professional content for LinkedIn about: ${topicString}. Tone: ${tone}.
 
 Please provide:
 1. A compelling LinkedIn post
@@ -105,7 +143,7 @@ Format each section with a header like "===LINKEDIN POST===" and "===CONNECTION 
   }
 
   if (mode === 'github') {
-    return `Generate GitHub-related content ideas about: ${topicString}. Tone: ${tone}.${lengthInstructions}
+    return `Generate GitHub-related content ideas about: ${topicString}. Tone: ${tone}.
 
 Please provide:
 1. 5 GitHub project ideas or improvements
@@ -115,7 +153,7 @@ Format each section with a header like "===GITHUB IDEAS===" and "===COMMIT MESSA
   }
 
   // Full Daily Pack (3 content types only)
-  return `Generate a complete content pack about: ${topicString}. Tone: ${tone}.${lengthInstructions}
+  return `Generate a complete content pack about: ${topicString}. Tone: ${tone}.
 
 Please provide:
 1. LinkedIn Post - A professional post for LinkedIn
