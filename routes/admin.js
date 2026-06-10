@@ -284,8 +284,200 @@ Be specific and accurate.`
 
 // Helper: Search job portals (returns mock data - in production would use Apify)
 async function searchJobPortals(searchPlan) {
-  // Mock job data - in production this would call Apify actors for each portal
-  const mockJobs = [
+  const apiToken = process.env.APIFY_API_TOKEN
+  if (!apiToken) {
+    console.warn('⚠️ APIFY_API_TOKEN not set - returning mock jobs')
+    return getMockJobs()
+  }
+
+  const allJobs = []
+  const searchKeywords = searchPlan.keywords.join(' ')
+
+  try {
+    // Search Indeed.de (most comprehensive for Germany)
+    console.log('🔍 Searching Indeed.de for:', searchKeywords)
+    const indeedJobs = await searchIndeedDE(apiToken, searchKeywords)
+    allJobs.push(...indeedJobs)
+
+    // Search StepStone.de
+    console.log('🔍 Searching StepStone.de for:', searchKeywords)
+    const stoneJobs = await searchStepStoneDE(apiToken, searchKeywords)
+    allJobs.push(...stoneJobs)
+
+    // Search XING
+    console.log('🔍 Searching XING for:', searchKeywords)
+    const xingJobs = await searchXING(apiToken, searchKeywords)
+    allJobs.push(...xingJobs)
+
+    console.log(`✅ Found ${allJobs.length} jobs across all portals`)
+    return allJobs.slice(0, 40) // Cap at 40 results
+  } catch (err) {
+    console.error('❌ Error searching Apify:', err.message)
+    console.log('📋 Falling back to mock jobs')
+    return getMockJobs()
+  }
+}
+
+// Apify: Search Indeed.de
+async function searchIndeedDE(apiToken, keywords) {
+  try {
+    const response = await fetch('https://api.apify.com/v2/acts/apify~indeed-job-scraper/runs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiToken}`
+      },
+      body: JSON.stringify({
+        maxResults: 15,
+        countryCode: 'DE',
+        keywords: keywords,
+        locationName: 'Germany'
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Apify response: ${response.status}`)
+    }
+
+    const data = await response.json()
+    const runId = data.data.id
+
+    // Wait for job to complete and get results
+    const results = await getApifyResults(apiToken, 'apify~indeed-job-scraper', runId)
+
+    return results.map((job, idx) => ({
+      id: `indeed_${idx}`,
+      title: job.positionName || 'Job Title',
+      company: job.companyName || 'Company',
+      location: job.location || 'Germany',
+      postedDate: job.postedDate || 'Recently',
+      source: 'Indeed.de',
+      applyLink: job.positionUrl || 'https://indeed.de',
+      description: job.description || job.positionName || ''
+    }))
+  } catch (err) {
+    console.error('Indeed search error:', err.message)
+    return []
+  }
+}
+
+// Apify: Search StepStone.de
+async function searchStepStoneDE(apiToken, keywords) {
+  try {
+    const response = await fetch('https://api.apify.com/v2/acts/nMatik~stepstone-scraper/runs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiToken}`
+      },
+      body: JSON.stringify({
+        keyword: keywords,
+        location: 'Germany',
+        maxResults: 15
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Apify response: ${response.status}`)
+    }
+
+    const data = await response.json()
+    const runId = data.data.id
+
+    const results = await getApifyResults(apiToken, 'nMatik~stepstone-scraper', runId)
+
+    return results.map((job, idx) => ({
+      id: `stepstone_${idx}`,
+      title: job.title || 'Job Title',
+      company: job.company || 'Company',
+      location: job.location || 'Germany',
+      postedDate: job.datePosted || 'Recently',
+      source: 'StepStone.de',
+      applyLink: job.url || 'https://stepstone.de',
+      description: job.jobDescription || job.title || ''
+    }))
+  } catch (err) {
+    console.error('StepStone search error:', err.message)
+    return []
+  }
+}
+
+// Apify: Search XING
+async function searchXING(apiToken, keywords) {
+  try {
+    const response = await fetch('https://api.apify.com/v2/acts/nMatik~xing-job-search-scraper/runs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiToken}`
+      },
+      body: JSON.stringify({
+        searchTerm: keywords,
+        country: 'DE',
+        maxJobs: 15
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Apify response: ${response.status}`)
+    }
+
+    const data = await response.json()
+    const runId = data.data.id
+
+    const results = await getApifyResults(apiToken, 'nMatik~xing-job-search-scraper', runId)
+
+    return results.map((job, idx) => ({
+      id: `xing_${idx}`,
+      title: job.jobTitle || 'Job Title',
+      company: job.companyName || 'Company',
+      location: job.location || 'Germany',
+      postedDate: job.publishedDate || 'Recently',
+      source: 'XING',
+      applyLink: job.jobUrl || 'https://xing.de',
+      description: job.jobDescription || job.jobTitle || ''
+    }))
+  } catch (err) {
+    console.error('XING search error:', err.message)
+    return []
+  }
+}
+
+// Get Apify Actor Results
+async function getApifyResults(apiToken, actorId, runId) {
+  try {
+    // Wait for run to complete (max 5 attempts, 2 seconds each)
+    for (let i = 0; i < 5; i++) {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      const statusResponse = await fetch(
+        `https://api.apify.com/v2/actor-runs/${runId}`,
+        { headers: { 'Authorization': `Bearer ${apiToken}` } }
+      )
+      const statusData = await statusResponse.json()
+
+      if (statusData.data.status === 'SUCCEEDED') {
+        // Get results from dataset
+        const datasetResponse = await fetch(
+          `https://api.apify.com/v2/actor-runs/${runId}/dataset/items`,
+          { headers: { 'Authorization': `Bearer ${apiToken}` } }
+        )
+        const results = await datasetResponse.json()
+        return results.map(item => item.data || item).slice(0, 15)
+      }
+    }
+
+    console.warn(`⏱️ Actor ${actorId} took too long`)
+    return []
+  } catch (err) {
+    console.error('Error getting Apify results:', err.message)
+    return []
+  }
+}
+
+// Mock jobs fallback
+function getMockJobs() {
+  return [
     {
       id: 'job_001',
       title: 'Test Automation Engineer',
@@ -293,7 +485,7 @@ async function searchJobPortals(searchPlan) {
       location: 'Berlin, Remote',
       postedDate: '2 days ago',
       source: 'StepStone',
-      applyLink: 'https://stepstone.de',
+      applyLink: 'https://www.stepstone.de/jobs/search?q=Test+Automation+Engineer',
       description: 'Senior Test Automation Engineer for fintech startup'
     },
     {
@@ -303,7 +495,7 @@ async function searchJobPortals(searchPlan) {
       location: 'Berlin',
       postedDate: '1 day ago',
       source: 'XING',
-      applyLink: 'https://xing.de',
+      applyLink: 'https://www.xing.com/jobs/search?q=SDET',
       description: 'Build automation frameworks for e-commerce platform'
     },
     {
@@ -312,33 +504,11 @@ async function searchJobPortals(searchPlan) {
       company: 'Bosch Software Innovations',
       location: 'Stuttgart, Remote Option',
       postedDate: '3 days ago',
-      source: 'LinkedIn',
-      applyLink: 'https://linkedin.com',
-      description: 'Java-based test automation for automotive software'
-    },
-    {
-      id: 'job_004',
-      title: 'Test Engineer (Selenium/Python)',
-      company: 'Wix.com GmbH',
-      location: 'Berlin, Remote',
-      postedDate: '4 hours ago',
       source: 'Indeed',
-      applyLink: 'https://indeed.de',
-      description: 'Develop automated test suites for web platform'
-    },
-    {
-      id: 'job_005',
-      title: 'QA / Test Automation Specialist',
-      company: 'Delivery Hero',
-      location: 'Hamburg, Remote',
-      postedDate: '5 days ago',
-      source: 'StepStone',
-      applyLink: 'https://stepstone.de',
-      description: 'Lead QA automation for food delivery platform'
+      applyLink: 'https://de.indeed.com/jobs?q=QA+Automation+Engineer',
+      description: 'Java-based test automation for automotive software'
     }
   ]
-
-  return mockJobs
 }
 
 // Helper: Score jobs against resume
