@@ -47,13 +47,13 @@ app.post('/api/generate-content', async (req, res) => {
     return res.status(500).json({ error: 'API key not configured' })
   }
 
-  const { mode, topics, tone } = req.body
+  const { mode, topics, tone, length } = req.body
 
   try {
     const { Anthropic } = await import('@anthropic-ai/sdk')
     const client = new Anthropic()
 
-    const prompt = buildContentPrompt(mode, topics, tone)
+    const prompt = buildContentPrompt(mode, topics, tone, length)
 
     const message = await client.messages.create({
       model: 'claude-opus-4-8',
@@ -84,21 +84,28 @@ app.post('/api/generate-content', async (req, res) => {
 })
 
 // Helper: Build prompt based on mode and topics
-function buildContentPrompt(mode, topics, tone) {
+function buildContentPrompt(mode, topics, tone, length) {
   const topicString = topics.join(', ')
 
+  let lengthInstructions = ''
+  if (length === 'short') {
+    lengthInstructions = '\n\n⚠️ IMPORTANT: Keep ALL sections VERY SHORT - maximum 100-150 words each. Be concise.'
+  } else if (length === 'long') {
+    lengthInstructions = '\n\n⚠️ IMPORTANT: Make ALL sections DETAILED and LONG - aim for 300-500 words each. Be comprehensive.'
+  }
+
   if (mode === 'linkedin') {
-    return `Generate professional content for LinkedIn about: ${topicString}. Tone: ${tone}.
+    return `Generate professional content for LinkedIn about: ${topicString}. Tone: ${tone}.${lengthInstructions}
 
 Please provide:
-1. A compelling LinkedIn post (3-4 paragraphs)
+1. A compelling LinkedIn post
 2. A personal connection message to send when connecting
 
 Format each section with a header like "===LINKEDIN POST===" and "===CONNECTION MESSAGE==="`
   }
 
   if (mode === 'github') {
-    return `Generate GitHub-related content ideas about: ${topicString}. Tone: ${tone}.
+    return `Generate GitHub-related content ideas about: ${topicString}. Tone: ${tone}.${lengthInstructions}
 
 Please provide:
 1. 5 GitHub project ideas or improvements
@@ -108,7 +115,7 @@ Format each section with a header like "===GITHUB IDEAS===" and "===COMMIT MESSA
   }
 
   // Full Daily Pack (3 content types only)
-  return `Generate a complete content pack about: ${topicString}. Tone: ${tone}.
+  return `Generate a complete content pack about: ${topicString}. Tone: ${tone}.${lengthInstructions}
 
 Please provide:
 1. LinkedIn Post - A professional post for LinkedIn
