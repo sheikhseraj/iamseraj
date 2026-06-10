@@ -73,8 +73,13 @@ app.post('/api/generate-content', async (req, res) => {
 
     res.json(outputs)
   } catch (err) {
-    console.error('Content generation error:', err)
-    res.status(500).json({ error: 'Failed to generate content' })
+    console.error('Content generation error:', err.message)
+    console.error('Full error:', err)
+    res.status(500).json({
+      error: 'Failed to generate content',
+      details: err.message,
+      type: err.constructor.name
+    })
   }
 })
 
