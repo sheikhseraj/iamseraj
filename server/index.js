@@ -107,18 +107,15 @@ Please provide:
 Format each section with a header like "===GITHUB IDEAS===" and "===COMMIT MESSAGES==="`
   }
 
-  // Full Daily Pack
+  // Full Daily Pack (3 content types only)
   return `Generate a complete content pack about: ${topicString}. Tone: ${tone}.
 
 Please provide:
-1. LinkedIn Post - A professional post (2-3 paragraphs)
-2. Article - A detailed technical article (500+ words)
+1. LinkedIn Post - A professional post for LinkedIn (2-3 paragraphs)
+2. Article - A detailed article for blog (500+ words)
 3. Xing German Post - The same post in German for Xing (2-3 paragraphs)
-4. GitHub Ideas - 3-5 project or improvement ideas
-5. Connection Message - A message to send when connecting with someone
-6. Checklist - Action items or checklist related to the topic
 
-Format each section with headers like "===LINKEDIN POST===", "===ARTICLE===", "===XING GERMAN POST===", "===GITHUB IDEAS===", "===CONNECTION MESSAGE===", "===CHECKLIST==="`
+Format each section with headers like "===LINKEDIN POST===", "===ARTICLE===", "===XING GERMAN POST==="`
 }
 
 // Helper: Parse content sections from Claude response
@@ -132,13 +129,10 @@ function parseContentSections(content, mode) {
     sections.github_ideas = extractSection(content, 'GITHUB IDEAS')
     sections.commit_messages = extractSection(content, 'COMMIT MESSAGES')
   } else {
-    // Full pack
+    // Full pack (3 content types only)
     sections.linkedin_post = extractSection(content, 'LINKEDIN POST')
     sections.article = extractSection(content, 'ARTICLE')
     sections.xing_german_post = extractSection(content, 'XING GERMAN POST')
-    sections.github_ideas = extractSection(content, 'GITHUB IDEAS')
-    sections.connection_message = extractSection(content, 'CONNECTION MESSAGE')
-    sections.checklist = extractSection(content, 'CHECKLIST')
   }
 
   return sections

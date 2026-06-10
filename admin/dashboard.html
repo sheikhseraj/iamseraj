@@ -293,6 +293,11 @@
 
         const data = await response.json();
 
+        console.log('=== API RESPONSE ===');
+        console.log('Full data:', data);
+        console.log('Data keys:', Object.keys(data));
+        console.log('Data values:', Object.entries(data).map(([k, v]) => `${k}: ${v ? v.substring(0, 50) + '...' : 'empty'}`));
+
         if (!response.ok || data.error) {
           showMessage('generatorMessage', `❌ ${data.error || 'Error'}`, 'error');
           return;
@@ -304,11 +309,9 @@
         let html = '<h4 style="margin-bottom: 20px;">📄 Generated Content:</h4>';
 
         const sections = [
-          { key: 'linkedin_post', title: '📱 LinkedIn', platform: 'LinkedIn', emoji: '🔗' },
-          { key: 'xing_german_post', title: '🇩🇪 XING', platform: 'XING', emoji: '🌍' },
-          { key: 'article', title: '📝 Blog Article', platform: 'Blog', emoji: '📰' },
-          { key: 'github_ideas', title: '💡 GitHub Ideas', platform: 'GitHub', emoji: '🔧' },
-          { key: 'checklist', title: '✅ Checklist', platform: 'Checklist', emoji: '📋' }
+          { key: 'linkedin_post', title: '📱 LinkedIn Post', platform: 'LinkedIn', emoji: '🔗' },
+          { key: 'xing_german_post', title: '🇩🇪 XING Post (German)', platform: 'XING', emoji: '🌍' },
+          { key: 'article', title: '📝 Blog Article', platform: 'Blog', emoji: '📰' }
         ];
 
         sections.forEach((section, idx) => {
