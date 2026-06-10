@@ -61,7 +61,8 @@ router.post('/api/generate', requireAdmin, async (req, res) => {
 
   try {
     // Call backend route to generate content
-    const response = await fetch('/api/generate-content', {
+    const port = process.env.PORT || 3000
+    const response = await fetch(`http://localhost:${port}/api/generate-content`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode, topics, tone })
