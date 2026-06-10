@@ -119,6 +119,15 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label>Post Size</label>
+          <select id="postSize">
+            <option value="short">📱 Short (Quick test)</option>
+            <option value="medium" selected>📝 Medium (Normal post)</option>
+            <option value="long">📄 Long (Full article)</option>
+          </select>
+        </div>
+
         <button class="btn" id="generateBtn" onclick="generateContent()">✨ Generate Content</button>
 
         <div id="output" style="margin-top: 30px;"></div>
@@ -256,10 +265,19 @@
     async function generateContent() {
       const topic = document.getElementById('topic').value;
       const tone = document.getElementById('tone').value;
+      const postSize = document.getElementById('postSize').value;
 
       if (!topic.trim()) {
         showMessage('generatorMessage', '❌ Please enter a topic', 'error');
         return;
+      }
+
+      // Modify topic based on post size
+      let finalTopic = topic;
+      if (postSize === 'short') {
+        finalTopic = `SHORT VERSION (Twitter/LinkedIn comment length, max 280 characters): ${topic}`;
+      } else if (postSize === 'long') {
+        finalTopic = `LONG VERSION (Detailed article, 800+ words): ${topic}`;
       }
 
       const btn = document.getElementById('generateBtn');
@@ -270,7 +288,7 @@
         const response = await fetch('/api/generate-content', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: 'full', topics: [topic], tone })
+          body: JSON.stringify({ mode: 'full', topics: [finalTopic], tone })
         });
 
         const data = await response.json();
