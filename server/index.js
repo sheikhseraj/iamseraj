@@ -9,6 +9,8 @@ import { streamAnswer, hasKey } from './ai.js'
 import adminRouter from './admin.js'
 import contentAdminRouter from '../routes/admin.js'
 
+console.log("Starting app...")
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distPath = path.join(__dirname, '..', 'dist')
 const port = process.env.PORT || 3000
@@ -225,6 +227,11 @@ app.use((req, res, next) => {
 
 // Start listening immediately; connect to MySQL in the background so a DB
 // problem can never stop the site from serving.
-app.listen(port, '0.0.0.0')
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on ${port}`)
+})
 
-initDb().catch((e) => console.error('DB init error:', e.message))
+initDb().catch((err) => {
+  console.error('DB connection failed:', err)
+  // Don't exit - app can run without DB
+})
