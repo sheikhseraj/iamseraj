@@ -27,6 +27,20 @@ CREATE TABLE IF NOT EXISTS qa_pairs (
   UNIQUE KEY uniq_norm (question_norm),
   FULLTEXT KEY ft_norm (question_norm)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS generated_content (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  topic VARCHAR(512) NOT NULL,
+  tone VARCHAR(50) NOT NULL,
+  length VARCHAR(20) NOT NULL,
+  linkedin_post MEDIUMTEXT,
+  article MEDIUMTEXT,
+  xing_german_post MEDIUMTEXT,
+  created_at DATE NOT NULL DEFAULT CURDATE(),
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_daily_content (created_at, topic, tone, length),
+  KEY idx_date (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 `
 
 let pool = null
@@ -116,4 +130,31 @@ export async function saveAnswer(question, answer, source = 'ai') {
      ON DUPLICATE KEY UPDATE answer = VALUES(answer), source = VALUES(source)`,
     [question.slice(0, 512), norm.slice(0, 512), answer, source],
   )
+}
+
+// Save generated content
+export async function saveGeneratedContent(topic, tone, length, content) {
+  if (!ready) return
+  await pool.query(
+    `INSERT INTO generated_content (topic, tone, length, linkedin_post, article, xing_german_post, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, CURDATE())
+     ON DUPLICATE KEY UPDATE
+      linkedin_post = VALUES(linkedin_post),
+      article = VALUES(article),
+      xing_german_post = VALUES(xing_german_post),
+      updated_at = CURRENT_TIMESTAMP`,
+    [topic, tone, length, content.linkedin_post || null, content.article || null, content.xing_german_post || null],
+  )
+}
+
+// Get today's generated content
+export async function getTodaysContent(topic, tone, length) {
+  if (!ready) return null
+  const [rows] = await pool.query(
+    `SELECT linkedin_post, article, xing_german_post, created_at FROM generated_content
+     WHERE topic = ? AND tone = ? AND length = ? AND DATE(created_at) = CURDATE()
+     LIMIT 1`,
+    [topic, tone, length],
+  )
+  return rows.length ? rows[0] : null
 }
