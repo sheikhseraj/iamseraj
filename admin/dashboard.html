@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Seraj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #060d1a;
+      color: #e6e9f0;
+      line-height: 1.6;
+    }
+
+    .header {
+      background: #0f1729;
+      border-bottom: 1px solid #1f2940;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: #1f2940;
+      color: #e6e9f0;
+      border: 1px solid #2a3a52;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #2a3a52;
+      color: #2563eb;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: #0f1729;
+      border: 1px solid #1f2940;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.2s;
+    }
+
+    .card:hover {
+      border-color: #2563eb;
+      transform: translateY(-4px);
+    }
+
+    .card-title {
+      font-size: 13px;
+      color: #94a0b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .card-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: #2563eb;
+      margin-bottom: 12px;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .streak {
+      background: linear-gradient(135deg, #2563eb15, #06b6d415);
+      border: 1px solid #2563eb30;
+    }
+
+    .streak .card-value {
+      color: #60a5fa;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .stat-input {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-input label {
+      font-size: 12px;
+      color: #94a0b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .stat-input input {
+      padding: 10px 12px;
+      background: #151c2e;
+      border: 1px solid #1f2940;
+      border-radius: 8px;
+      color: #e6e9f0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+    }
+
+    .stat-input input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #e6e9f0;
+    }
+
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .kanban-col h3 {
+      font-size: 13px;
+      color: #94a0b8;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .kanban-item {
+      background: #151c2e;
+      border: 1px solid #1f2940;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      color: #e6e9f0;
+      margin-bottom: 8px;
+    }
+
+    .kanban-item.applied { border-left: 3px solid #60a5fa; }
+    .kanban-item.interview { border-left: 3px solid #fbbf24; }
+    .kanban-item.rejected { border-left: 3px solid #ef4444; }
+    .kanban-item.offer { border-left: 3px solid #34d399; }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .link-btn {
+      padding: 10px 16px;
+      background: #151c2e;
+      border: 1px solid #1f2940;
+      border-radius: 8px;
+      color: #60a5fa;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .link-btn:hover {
+      background: #1f2940;
+      border-color: #2563eb;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .day-header {
+      font-size: 12px;
+      color: #94a0b8;
+      text-align: center;
+      font-weight: 600;
+      padding: 8px;
+    }
+
+    .day-cell {
+      aspect-ratio: 1;
+      background: #151c2e;
+      border: 1px solid #1f2940;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .day-cell:hover {
+      background: #1f2940;
+      border-color: #2563eb;
+    }
+
+    .day-cell.active {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kanban {
+        grid-template-columns: 1fr;
+      }
+
+      .card-value {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📊 Analytics Dashboard</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="container">
+    <!-- Stats Overview -->
+    <div class="grid">
+      <div class="card streak">
+        <div class="card-title">Content Streak</div>
+        <div class="card-value" id="streak">0</div>
+        <div class="card-meta">Days in a row</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">LinkedIn Connections</div>
+        <div class="card-value" id="linkedin-connections">-</div>
+        <input type="number" id="linkedin-connections-input" placeholder="Enter count" style="margin-top: 8px; padding: 8px; background: #151c2e; border: 1px solid #1f2940; border-radius: 6px; color: #e6e9f0; font-family: 'Space Grotesk';">
+      </div>
+
+      <div class="card">
+        <div class="card-title">LinkedIn Post Views</div>
+        <div class="card-value" id="linkedin-views">-</div>
+        <input type="number" id="linkedin-views-input" placeholder="Enter count" style="margin-top: 8px; padding: 8px; background: #151c2e; border: 1px solid #1f2940; border-radius: 6px; color: #e6e9f0; font-family: 'Space Grotesk';">
+      </div>
+
+      <div class="card">
+        <div class="card-title">GitHub Commits (Week)</div>
+        <div class="card-value" id="github-commits">Loading...</div>
+        <div class="card-meta">Fetching from GitHub...</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">GitHub Repos</div>
+        <div class="card-value" id="github-repos">Loading...</div>
+        <div class="card-meta">Public repositories</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Xing Network</div>
+        <div class="card-value" id="xing-count">-</div>
+        <input type="number" id="xing-count-input" placeholder="Enter count" style="margin-top: 8px; padding: 8px; background: #151c2e; border: 1px solid #1f2940; border-radius: 6px; color: #e6e9f0; font-family: 'Space Grotesk';">
+      </div>
+    </div>
+
+    <!-- Job Applications Tracker -->
+    <div class="section">
+      <div class="section-title">Job Applications Tracker</div>
+      <div class="kanban">
+        <div class="kanban-col">
+          <h3>📨 Applied</h3>
+          <div class="kanban-item applied">
+            <input type="text" id="applied-input" placeholder="Add job..." style="width: 100%; background: transparent; border: none; color: inherit; font-family: 'Space Grotesk'; font-size: 13px;">
+          </div>
+          <div id="applied-list"></div>
+        </div>
+        <div class="kanban-col">
+          <h3>🎤 Interview</h3>
+          <div class="kanban-item interview">
+            <input type="text" id="interview-input" placeholder="Add job..." style="width: 100%; background: transparent; border: none; color: inherit; font-family: 'Space Grotesk'; font-size: 13px;">
+          </div>
+          <div id="interview-list"></div>
+        </div>
+        <div class="kanban-col">
+          <h3>❌ Rejected</h3>
+          <div class="kanban-item rejected">
+            <input type="text" id="rejected-input" placeholder="Add job..." style="width: 100%; background: transparent; border: none; color: inherit; font-family: 'Space Grotesk'; font-size: 13px;">
+          </div>
+          <div id="rejected-list"></div>
+        </div>
+        <div class="kanban-col">
+          <h3>✅ Offer</h3>
+          <div class="kanban-item offer">
+            <input type="text" id="offer-input" placeholder="Add job..." style="width: 100%; background: transparent; border: none; color: inherit; font-family: 'Space Grotesk'; font-size: 13px;">
+          </div>
+          <div id="offer-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="section">
+      <div class="section-title">Quick Links</div>
+      <div class="quick-links">
+        <a href="https://linkedin.com/in/sheikh-seraj" target="_blank" class="link-btn">🔗 LinkedIn Profile</a>
+        <a href="https://xing.com/profile/SerajAhmad_Siddiqui" target="_blank" class="link-btn">🔗 Xing Profile</a>
+        <a href="https://github.com/sheikhseraj" target="_blank" class="link-btn">🔗 GitHub Profile</a>
+        <a href="https://langnation.de" target="_blank" class="link-btn">🔗 LangNation</a>
+        <a href="/admin/agent.html" class="link-btn">🤖 Content Agent</a>
+      </div>
+    </div>
+
+    <!-- Weekly Calendar -->
+    <div class="section">
+      <div class="section-title">Weekly Content Calendar</div>
+      <div style="font-size: 12px; color: #94a0b8; margin-bottom: 12px;">Click days to mark content</div>
+      <div class="calendar" id="calendar"></div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+  <script>
+    // Check auth
+    checkAuth();
+
+    // Fetch GitHub stats
+    async function fetchGitHubStats() {
+      try {
+        const response = await fetch('https://api.github.com/users/sheikhseraj');
+        const data = await response.json();
+        document.getElementById('github-repos').textContent = data.public_repos || 0;
+
+        // Fetch commits from past week
+        const eventsResponse = await fetch('https://api.github.com/users/sheikhseraj/events/public');
+        const events = await eventsResponse.json();
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const recentCommits = events.filter(e =>
+          e.type === 'PushEvent' && new Date(e.created_at) > weekAgo
+        ).length;
+        document.getElementById('github-commits').textContent = recentCommits || 0;
+      } catch (err) {
+        console.error('GitHub fetch error:', err);
+        document.getElementById('github-repos').textContent = '—';
+        document.getElementById('github-commits').textContent = '—';
+      }
+    }
+
+    // Load and save stats
+    function loadStats() {
+      const stats = JSON.parse(localStorage.getItem('dashboardStats') || '{}');
+      document.getElementById('linkedin-connections-input').value = stats.linkedinConnections || '';
+      document.getElementById('linkedin-views-input').value = stats.linkedinViews || '';
+      document.getElementById('xing-count-input').value = stats.xingCount || '';
+      document.getElementById('streak').textContent = stats.streak || 0;
+
+      updateDisplayValues();
+    }
+
+    function saveStats() {
+      const stats = {
+        linkedinConnections: document.getElementById('linkedin-connections-input').value,
+        linkedinViews: document.getElementById('linkedin-views-input').value,
+        xingCount: document.getElementById('xing-count-input').value,
+        streak: document.getElementById('streak').textContent
+      };
+      localStorage.setItem('dashboardStats', JSON.stringify(stats));
+      updateDisplayValues();
+    }
+
+    function updateDisplayValues() {
+      const conn = document.getElementById('linkedin-connections-input').value;
+      const views = document.getElementById('linkedin-views-input').value;
+      const xing = document.getElementById('xing-count-input').value;
+
+      document.getElementById('linkedin-connections').textContent = conn || '—';
+      document.getElementById('linkedin-views').textContent = views || '—';
+      document.getElementById('xing-count').textContent = xing || '—';
+    }
+
+    // Input change listeners
+    ['linkedin-connections-input', 'linkedin-views-input', 'xing-count-input'].forEach(id => {
+      document.getElementById(id).addEventListener('change', saveStats);
+      document.getElementById(id).addEventListener('input', updateDisplayValues);
+    });
+
+    // Calendar
+    function initCalendar() {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const calendar = document.getElementById('calendar');
+
+      days.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'day-header';
+        header.textContent = day;
+        calendar.appendChild(header);
+      });
+
+      for (let i = 1; i <= 28; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'day-cell';
+        cell.textContent = i;
+        cell.addEventListener('click', () => {
+          cell.classList.toggle('active');
+        });
+        calendar.appendChild(cell);
+      }
+    }
+
+    // Logout
+    function logout() {
+      fetch('/admin/api/logout', { method: 'POST' })
+        .then(() => window.location.href = '/admin/login.html');
+    }
+
+    // Initialize
+    loadStats();
+    fetchGitHubStats();
+    initCalendar();
+
+    // Refresh GitHub stats every 5 minutes
+    setInterval(fetchGitHubStats, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
