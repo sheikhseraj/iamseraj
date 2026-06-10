@@ -9,11 +9,10 @@ import { streamAnswer, hasKey } from './ai.js'
 import adminRouter from './admin.js'
 import contentAdminRouter from '../routes/admin.js'
 
-console.log("Starting app...")
+console.log("Booting app...")
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distPath = path.join(__dirname, '..', 'dist')
-const port = process.env.PORT || 3000
 
 if (!hasKey()) {
   console.warn(
@@ -227,10 +226,13 @@ app.use((req, res, next) => {
 
 // Start listening immediately; connect to MySQL in the background so a DB
 // problem can never stop the site from serving.
+const port = process.env.PORT || 3000
+console.log(`Binding to port ${port}`)
+
 const server = app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on ${port}`)
+  console.log(`Listening on ${port}`)
 })
 
-initDb().catch((err) => {
-  console.error('DB connection failed:', err.message)
-})
+initDb()
+  .then(() => console.log('DB initialized'))
+  .catch((err) => console.error('DB init error:', err.message))
