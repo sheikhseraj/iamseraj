@@ -293,6 +293,19 @@ async function searchJobPortals(searchPlan, searchInput) {
   const allJobs = []
   const keyword = searchPlan.keywords[0] || searchPlan.targetRoles[0]
 
+  // Test API token validity first
+  console.log('🔐 Testing Apify API token...')
+  const tokenTest = await fetch('https://api.apify.com/v2/users/me', {
+    headers: { 'Authorization': `Bearer ${apiToken}` }
+  })
+  const tokenData = await tokenTest.json()
+  console.log(`Token test response: ${tokenTest.status}`)
+  if (!tokenTest.ok) {
+    console.error('❌ APIFY_API_TOKEN is INVALID:', tokenData)
+    return getMockJobs()
+  }
+  console.log('✅ Token is valid')
+
   const actors = [
     { id: 'curious_coder/linkedin-jobs-scraper', name: 'LinkedIn', input: { keyword, location: 'Germany', maxResults: 15 } },
     { id: 'epctex/xing-scraper', name: 'XING', input: { keyword, location: 'Germany', maxResults: 12 } },
@@ -311,10 +324,21 @@ async function searchJobPortals(searchPlan, searchInput) {
       actors.map(actor => runApifyActor(apiToken, actor.id, actor.name, actor.input))
     )
 
-    // Combine all results
-    results.forEach(jobs => allJobs.push(...jobs))
+    // Combine all results with detailed logging
+    results.forEach((jobs, idx) => {
+      console.log(`  ${actors[idx].name}: ${jobs.length} jobs`)
+      allJobs.push(...jobs)
+    })
 
-    console.log(`✅ Total jobs fetched: ${allJobs.length}`)
+    console.log(`✅ Total jobs fetched from all portals: ${allJobs.length}`)
+    console.log(`📊 Breakdown by source:`)
+    const bySource = {}
+    allJobs.forEach(job => {
+      bySource[job.source] = (bySource[job.source] || 0) + 1
+    })
+    Object.entries(bySource).forEach(([source, count]) => {
+      console.log(`   ${source}: ${count} jobs`)
+    })
 
     if (allJobs.length === 0) {
       console.log('⚠️ No jobs found, using mock jobs')
