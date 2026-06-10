@@ -57,6 +57,7 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('analytics')">📈 Analytics</button>
     <button class="tab-btn" onclick="switchTab('generator')">🤖 Content Generator</button>
+    <button class="tab-btn" onclick="switchTab('todays-content')">📅 Today's Content</button>
     <button class="tab-btn" onclick="switchTab('portfolio')">👤 Portfolio</button>
   </div>
 
@@ -132,6 +133,56 @@
 
         <div id="output" style="margin-top: 30px;"></div>
       </div>
+    </div>
+
+    <!-- Today's Content Tab -->
+    <div id="todays-content" class="tab-content">
+      <h2 style="margin-bottom: 30px;">📅 Today's Content</h2>
+
+      <div class="form-section">
+        <h3>Content Source Selection</h3>
+        <div id="contentSourceMessage"></div>
+
+        <div class="form-group" style="margin-bottom: 30px;">
+          <label style="margin-bottom: 15px;">Choose content source:</label>
+          <div style="display: flex; gap: 20px;">
+            <label style="display: flex; align-items: center; font-weight: 400; margin: 0;">
+              <input type="radio" name="contentSource" value="today" checked style="width: auto; margin-right: 8px;"> 📅 Today's Content (Same)
+            </label>
+            <label style="display: flex; align-items: center; font-weight: 400; margin: 0;">
+              <input type="radio" name="contentSource" value="new" style="width: auto; margin-right: 8px;"> ✨ Generate New Content
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Topic:</label>
+          <input type="text" id="todaysTopic" placeholder="Enter topic for today's content">
+        </div>
+
+        <div class="form-group">
+          <label>Tone:</label>
+          <select id="todaysTone">
+            <option value="professional">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="educational">Educational</option>
+            <option value="motivational">Motivational</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Post Size:</label>
+          <select id="todaysPostSize">
+            <option value="short">📱 Short (Quick test)</option>
+            <option value="medium" selected>📝 Medium (Normal post)</option>
+            <option value="long">📄 Long (Full article)</option>
+          </select>
+        </div>
+
+        <button class="btn" onclick="loadTodaysContent()" style="width: 100%; margin-top: 20px;">🔄 Load Content</button>
+      </div>
+
+      <div id="todaysContentDisplay"></div>
     </div>
 
     <!-- Portfolio Tab -->
@@ -371,6 +422,117 @@
 
     function showMessage(el, msg, type) {
       document.getElementById(el).innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+
+    async function loadTodaysContent() {
+      const contentSource = document.querySelector('input[name="contentSource"]:checked').value;
+      const topic = document.getElementById('todaysTopic').value;
+      const tone = document.getElementById('todaysTone').value;
+      const postSize = document.getElementById('todaysPostSize').value;
+
+      if (!topic.trim()) {
+        showMessage('contentSourceMessage', '❌ Please enter a topic', 'error');
+        return;
+      }
+
+      const displayDiv = document.getElementById('todaysContentDisplay');
+      displayDiv.innerHTML = '<div class="loading"></div> Loading...';
+
+      try {
+        if (contentSource === 'today') {
+          // Try to load from database
+          const response = await fetch('/api/todays-content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic, tone, length: postSize })
+          });
+
+          const data = await response.json();
+
+          if (data.exists && data.content) {
+            showMessage('contentSourceMessage', '✅ Loaded today\'s saved content!', 'success');
+            displayTodaysContent(data.content, topic, tone, postSize);
+            return;
+          } else {
+            showMessage('contentSourceMessage', '⚠️ No saved content for today. Generate new content instead.', 'error');
+            displayDiv.innerHTML = '';
+            return;
+          }
+        } else {
+          // Generate new content
+          const response = await fetch('/api/generate-content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'full', topics: [topic], tone, length: postSize })
+          });
+
+          const data = await response.json();
+          showMessage('contentSourceMessage', '✅ New content generated!', 'success');
+          displayTodaysContent(data, topic, tone, postSize);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        showMessage('contentSourceMessage', '❌ Error: ' + err.message, 'error');
+        displayDiv.innerHTML = '';
+      }
+    }
+
+    function displayTodaysContent(data, topic, tone, postSize) {
+      const displayDiv = document.getElementById('todaysContentDisplay');
+      const hashtags = getTodaysHashtags(topic);
+
+      let html = `<div style="margin-top: 30px;">`;
+
+      const sections = [
+        { key: 'linkedin_post', title: '📱 LinkedIn Post', platform: 'LinkedIn', emoji: '🔗' },
+        { key: 'xing_german_post', title: '🇩🇪 XING Post (German)', platform: 'XING', emoji: '🌍' },
+        { key: 'article', title: '📝 Blog Article', platform: 'Blog', emoji: '📰' }
+      ];
+
+      sections.forEach((section, idx) => {
+        if (data[section.key]) {
+          const text = data[section.key];
+          const fullText = section.platform !== 'Blog' ? `${text}\n\n${hashtags}` : text;
+          const btnId = `todays-copy-${idx}`;
+
+          html += `<div class="content-block">
+            <h4>${section.emoji} ${section.title}</h4>
+            <p>${text}</p>
+            <div class="hashtags">${hashtags}</div>
+            <div class="button-group">
+              <button class="btn btn-secondary" onclick="copyToClipboard('${btnId}', \`${fullText.replace(/`/g, '\\`')}\`)">📋 Copy</button>
+              <input type="hidden" id="${btnId}" value="${fullText.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}">`;
+
+          if (section.platform === 'LinkedIn') {
+            html += `<button class="btn btn-success" onclick="postAndCopy('${btnId}', 'https://www.linkedin.com/feed/', 'LinkedIn')">📱 Post to LinkedIn</button>`;
+          } else if (section.platform === 'XING') {
+            html += `<button class="btn btn-success" onclick="postAndCopy('${btnId}', 'https://www.xing.com', 'XING')">🇩🇪 Post to XING</button>`;
+          } else if (section.platform === 'Blog') {
+            html += `<button class="btn btn-success" onclick="postAndCopy('${btnId}', '', 'Blog')">💾 Save to Blog</button>`;
+          }
+
+          html += `</div></div>`;
+        }
+      });
+
+      html += `</div>`;
+      displayDiv.innerHTML = html;
+    }
+
+    function getTodaysHashtags(topic) {
+      const hashtagMap = {
+        'Monday': '#MondayMotivation #AI #TechTrends #Learning #Growth',
+        'Tuesday': '#TechTuesday #AI #Innovation #Development #Code',
+        'Wednesday': '#WednesdayWisdom #AI #BestPractices #Development #Tech',
+        'Thursday': '#ThursdayThoughts #AI #Future #Technology #Ideas',
+        'Friday': '#FridayFeeling #AI #WeeklyWrap #Success #Community',
+        'Saturday': '#SaturdayStories #AI #Learning #Community #Growth',
+        'Sunday': '#SundayFunday #AI #WeekPrep #Planning #Goals'
+      };
+
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const today = days[new Date().getDay()];
+      return hashtagMap[today] || '#AI #Tech #Content #Growth';
     }
 
     async function addBlog() {
