@@ -657,7 +657,7 @@
           ? { resume: searchInput }
           : { jobTitle: searchInput };
 
-        const response = await fetch('/api/job-search', {
+        const response = await fetch('/admin/api/job-search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
