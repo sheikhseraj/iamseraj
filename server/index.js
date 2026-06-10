@@ -225,7 +225,7 @@ app.use((req, res, next) => {
 
 // Start listening immediately; connect to MySQL in the background so a DB
 // problem can never stop the site from serving.
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`)
 })
 
