@@ -311,10 +311,21 @@ async function searchJobPortals(searchPlan, searchInput) {
       actors.map(actor => runApifyActor(apiToken, actor.id, actor.name, actor.input))
     )
 
-    // Combine all results
-    results.forEach(jobs => allJobs.push(...jobs))
+    // Combine all results with detailed logging
+    results.forEach((jobs, idx) => {
+      console.log(`  ${actors[idx].name}: ${jobs.length} jobs`)
+      allJobs.push(...jobs)
+    })
 
-    console.log(`✅ Total jobs fetched: ${allJobs.length}`)
+    console.log(`✅ Total jobs fetched from all portals: ${allJobs.length}`)
+    console.log(`📊 Breakdown by source:`)
+    const bySource = {}
+    allJobs.forEach(job => {
+      bySource[job.source] = (bySource[job.source] || 0) + 1
+    })
+    Object.entries(bySource).forEach(([source, count]) => {
+      console.log(`   ${source}: ${count} jobs`)
+    })
 
     if (allJobs.length === 0) {
       console.log('⚠️ No jobs found, using mock jobs')
