@@ -307,12 +307,12 @@ async function searchJobPortals(searchPlan, searchInput) {
   console.log('✅ Token is valid')
 
   const actors = [
-    { id: 'curious_coder/linkedin-jobs-scraper', name: 'LinkedIn', input: { keyword, location: 'Germany', maxResults: 15 } },
-    { id: 'epctex/xing-scraper', name: 'XING', input: { keyword, location: 'Germany', maxResults: 12 } },
-    { id: 'borderline/indeed-scraper', name: 'Indeed', input: { keyword, location: 'Germany', maxResults: 15 } },
-    { id: 'easyapi/stepstone-jobs-scraper', name: 'StepStone', input: { keyword, location: 'Germany', maxResults: 12 } },
-    { id: 'fatihtahta/arbeitsagentur-scraper', name: 'Arbeitsagentur', input: { keyword, location: 'Germany', maxResults: 10 } },
-    { id: 'valig/glassdoor-jobs-scraper', name: 'Glassdoor', input: { keyword, location: 'Germany', maxResults: 10 } }
+    { id: 'cryptosignals/linkedin-jobs-scraper', name: 'LinkedIn', input: { keyword, location: 'Germany', maxResults: 15 } },
+    { id: 'valig/indeed-jobs-scraper', name: 'Indeed', input: { keyword, location: 'Germany', maxResults: 15 } },
+    { id: 'scrapestorm/stepstone-jobs-scraper---cheap', name: 'StepStone', input: { keyword, location: 'Germany', maxResults: 12 } },
+    { id: 'scrapestorm/bundesagentur-fur-arbeit-arbeitsagentur-scraper-cheap', name: 'Arbeitsagentur', input: { keyword, location: 'Germany', maxResults: 10 } },
+    { id: 'valig/glassdoor-jobs-scraper', name: 'Glassdoor', input: { keyword, location: 'Germany', maxResults: 10 } },
+    { id: 'agentx/all-jobs-scraper', name: 'XING', input: { keyword, location: 'Germany', maxResults: 12 } }
   ]
 
   try {
