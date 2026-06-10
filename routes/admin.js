@@ -297,19 +297,29 @@ async function searchJobPortals(searchPlan) {
     // Search Indeed.de (most comprehensive for Germany)
     console.log('🔍 Searching Indeed.de for:', searchKeywords)
     const indeedJobs = await searchIndeedDE(apiToken, searchKeywords)
+    console.log(`📊 Indeed returned ${indeedJobs.length} jobs`)
     allJobs.push(...indeedJobs)
 
     // Search StepStone.de
     console.log('🔍 Searching StepStone.de for:', searchKeywords)
     const stoneJobs = await searchStepStoneDE(apiToken, searchKeywords)
+    console.log(`📊 StepStone returned ${stoneJobs.length} jobs`)
     allJobs.push(...stoneJobs)
 
     // Search XING
     console.log('🔍 Searching XING for:', searchKeywords)
     const xingJobs = await searchXING(apiToken, searchKeywords)
+    console.log(`📊 XING returned ${xingJobs.length} jobs`)
     allJobs.push(...xingJobs)
 
     console.log(`✅ Found ${allJobs.length} jobs across all portals`)
+
+    // If no jobs found from Apify, use mock jobs
+    if (allJobs.length === 0) {
+      console.log('⚠️ No Apify results, using mock jobs as fallback')
+      return getMockJobs()
+    }
+
     return allJobs.slice(0, 40) // Cap at 40 results
   } catch (err) {
     console.error('❌ Error searching Apify:', err.message)
@@ -446,31 +456,53 @@ async function searchXING(apiToken, keywords) {
 // Get Apify Actor Results
 async function getApifyResults(apiToken, actorId, runId) {
   try {
-    // Wait for run to complete (max 5 attempts, 2 seconds each)
-    for (let i = 0; i < 5; i++) {
-      await new Promise(resolve => setTimeout(resolve, 2000))
+    console.log(`⏳ Waiting for ${actorId} results...`)
+
+    // Wait for run to complete (max 10 attempts, 3 seconds each = 30 seconds total)
+    for (let i = 0; i < 10; i++) {
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
       const statusResponse = await fetch(
         `https://api.apify.com/v2/actor-runs/${runId}`,
         { headers: { 'Authorization': `Bearer ${apiToken}` } }
       )
+
+      if (!statusResponse.ok) {
+        console.error(`Status check failed: ${statusResponse.status}`)
+        return []
+      }
+
       const statusData = await statusResponse.json()
+      console.log(`${actorId} status: ${statusData.data.status}`)
 
       if (statusData.data.status === 'SUCCEEDED') {
         // Get results from dataset
+        console.log(`✅ ${actorId} completed, fetching results...`)
         const datasetResponse = await fetch(
           `https://api.apify.com/v2/actor-runs/${runId}/dataset/items`,
           { headers: { 'Authorization': `Bearer ${apiToken}` } }
         )
+
+        if (!datasetResponse.ok) {
+          console.error(`Dataset fetch failed: ${datasetResponse.status}`)
+          return []
+        }
+
         const results = await datasetResponse.json()
+        console.log(`Retrieved ${results.length} items from ${actorId}`)
         return results.map(item => item.data || item).slice(0, 15)
+      }
+
+      if (statusData.data.status === 'FAILED') {
+        console.error(`❌ ${actorId} failed:`, statusData.data.statusMessage)
+        return []
       }
     }
 
-    console.warn(`⏱️ Actor ${actorId} took too long`)
+    console.warn(`⏱️ Actor ${actorId} took too long (timeout after 30 seconds)`)
     return []
   } catch (err) {
-    console.error('Error getting Apify results:', err.message)
+    console.error(`Error getting ${actorId} results:`, err.message)
     return []
   }
 }
