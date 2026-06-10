@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
 import session from 'express-session'
-import { initDb, isReady, findAnswer, saveAnswer, saveGeneratedContent, getTodaysContent } from './db.js'
+import { initDb, isReady, findAnswer, saveAnswer, saveGeneratedContent } from './db.js'
 import { streamAnswer, hasKey } from './ai.js'
 import adminRouter from './admin.js'
 import contentAdminRouter from '../routes/admin.js'
@@ -98,32 +98,6 @@ app.post('/api/generate-content', async (req, res) => {
       error: 'Failed to generate content',
       details: err.message,
       type: err.constructor.name
-    })
-  }
-})
-
-// Get today's generated content
-app.post('/api/todays-content', async (req, res) => {
-  const { topic, tone, length } = req.body
-
-  if (!topic || !tone) {
-    return res.status(400).json({ error: 'Topic and tone required' })
-  }
-
-  try {
-    if (isReady()) {
-      const content = await getTodaysContent(topic, tone, length || 'medium')
-      if (content) {
-        res.json({ exists: true, content })
-        return
-      }
-    }
-    res.json({ exists: false })
-  } catch (err) {
-    console.error('Error retrieving todays content:', err.message)
-    res.status(500).json({
-      error: 'Failed to retrieve content',
-      details: err.message
     })
   }
 })
