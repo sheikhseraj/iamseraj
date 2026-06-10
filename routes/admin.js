@@ -675,14 +675,24 @@ function scoreJobs(jobs, resume, searchPlan) {
       locationScore = 5
     }
 
-    const totalScore = skillsScore + experienceScore + roleScore + locationScore
+    // Very lenient scoring - almost everything gets shown
+    let totalScore = skillsScore + experienceScore + roleScore + locationScore
+
+    // If job has any test/qa/automation keywords, boost it significantly
+    if (jobText.includes('test') || jobText.includes('qa') || jobText.includes('automation') ||
+        jobText.includes('engineer') || jobText.includes('developer')) {
+      totalScore += 15
+    }
+
+    // Give points just for being a job posting in Germany
+    if (!totalScore) {
+      totalScore = 40
+    }
 
     return {
       ...job,
-      score: Math.max(45, Math.min(100, totalScore)), // Minimum 45 to show some relevance
-      whyItFits: matchedSkills.length > 0
-        ? `Matches skills: ${matchedSkills.slice(0, 3).join(', ')}${roleScore > 0 ? '. Role aligned.' : ''}`
-        : `Test/QA role in Germany`,
+      score: Math.max(25, Math.min(100, totalScore)), // Super lenient minimum of 25
+      whyItFits: `Potential match - ${matchedSkills.length > 0 ? `skills: ${matchedSkills.slice(0, 2).join(', ')}` : 'Test/QA related'}`,
       gaps: ''
     }
   }).sort((a, b) => b.score - a.score)
