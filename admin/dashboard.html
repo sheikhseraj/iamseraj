@@ -272,12 +272,12 @@
         return;
       }
 
-      // Select mode based on post size
-      let mode = 'full';
+      // Modify topic based on post size (always generate full mode, but adjust length)
+      let finalTopic = topic;
       if (postSize === 'short') {
-        mode = 'linkedin'; // LinkedIn mode generates shorter content
+        finalTopic = `KEEP ALL SECTIONS SHORT (100-150 words each): ${topic}`;
       } else if (postSize === 'long') {
-        mode = 'full'; // Full mode is longest
+        finalTopic = `MAKE ALL SECTIONS DETAILED AND LONG (300-500 words each): ${topic}`;
       }
 
       const btn = document.getElementById('generateBtn');
@@ -288,10 +288,15 @@
         const response = await fetch('/api/generate-content', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: mode, topics: [topic], tone })
+          body: JSON.stringify({ mode: 'full', topics: [finalTopic], tone })
         });
 
         const data = await response.json();
+
+        console.log('=== API RESPONSE ===');
+        console.log('Full data:', data);
+        console.log('Data keys:', Object.keys(data));
+        console.log('Data values:', Object.entries(data).map(([k, v]) => `${k}: ${v ? v.substring(0, 50) + '...' : 'empty'}`));
 
         if (!response.ok || data.error) {
           showMessage('generatorMessage', `❌ ${data.error || 'Error'}`, 'error');
