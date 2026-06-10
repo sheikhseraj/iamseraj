@@ -36,6 +36,10 @@ export function isReady() {
   return ready
 }
 
+export function getPool() {
+  return pool
+}
+
 // Connect (if DB env vars are present) and ensure the table exists.
 // If anything fails, the app keeps working in AI-only mode.
 export async function initDb() {
