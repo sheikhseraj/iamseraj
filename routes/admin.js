@@ -304,7 +304,7 @@ async function searchJobPortals(searchPlan, searchInput) {
 
   try {
     console.log(`🔍 Searching ${actors.length} German job portals for: ${keyword}`)
-    console.log(`⏱️ Fetching from all portals (timeout: 30 seconds)...`)
+    console.log(`⏱️ Fetching from all portals (timeout: 90 seconds)...`)
 
     // Run all actors in parallel
     const results = await Promise.all(
@@ -357,8 +357,8 @@ async function runApifyActor(apiToken, actorId, actorName, input) {
     const runId = runData.data.id
     console.log(`⏳ ${actorName} running (ID: ${runId})`)
 
-    // Wait for completion (max 15 attempts, 2 seconds = 30 seconds total)
-    for (let i = 0; i < 15; i++) {
+    // Wait for completion (max 45 attempts, 2 seconds = 90 seconds total)
+    for (let i = 0; i < 45; i++) {
       await new Promise(r => setTimeout(r, 2000))
 
       const statusResp = await fetch(`https://api.apify.com/v2/actor-runs/${runId}`, {
@@ -395,7 +395,7 @@ async function runApifyActor(apiToken, actorId, actorName, input) {
       }
     }
 
-    console.warn(`⏱️ ${actorName} timeout after 30 seconds`)
+    console.warn(`⏱️ ${actorName} timeout after 90 seconds`)
     return []
   } catch (err) {
     console.error(`Error with ${actorName}:`, err.message)
