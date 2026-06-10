@@ -477,36 +477,45 @@
     <!-- Content Generator Tab -->
     <div id="content" class="tab-content">
       <div class="form-section">
-        <h3>🤖 AI Content Generator</h3>
+        <h3>🤖 Daily Content Strategy</h3>
         <div id="contentMessage"></div>
 
-        <div class="form-group">
-          <label>Mode</label>
-          <select id="contentMode">
-            <option value="full">Full Daily Pack</option>
-            <option value="linkedin">LinkedIn Only</option>
-            <option value="github">GitHub Boost</option>
-          </select>
+        <div style="background: #1f2940; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <div style="font-size: 14px; color: #94a0b8; margin-bottom: 8px;">TODAY'S CONTENT</div>
+          <div style="font-size: 24px; font-weight: 700; color: #2563eb;" id="todayContent">Loading...</div>
         </div>
 
         <div class="form-group">
-          <label>Topics (comma separated)</label>
-          <input type="text" id="contentTopics" placeholder="e.g. Web Development, React, JavaScript">
+          <label>Content Theme</label>
+          <input type="text" id="contentTopics" placeholder="Auto-populated based on day">
         </div>
 
         <div class="form-group">
           <label>Tone</label>
           <select id="contentTone">
             <option value="professional">Professional</option>
-            <option value="casual">Casual</option>
-            <option value="technical">Technical</option>
             <option value="educational">Educational</option>
+            <option value="casual">Casual & Engaging</option>
+            <option value="technical">Technical Deep-Dive</option>
           </select>
         </div>
 
-        <button class="btn" id="generateBtn" onclick="generateContent()">Generate Content</button>
+        <button class="btn" id="generateBtn" onclick="generateContent()">✨ Generate Today's Content</button>
 
         <div id="contentOutput" style="margin-top: 30px;"></div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #1f2940;">
+          <h4 style="margin-bottom: 15px;">📅 Weekly Schedule:</h4>
+          <div style="font-size: 13px; color: #94a0b8; line-height: 2;">
+            📌 Monday: Testing tip<br>
+            📌 Tuesday: Automation tip<br>
+            📌 Wednesday: AI in testing<br>
+            📌 Thursday: ISTQB lesson<br>
+            📌 Friday: Bug story<br>
+            📌 Saturday: Career lesson<br>
+            📌 Sunday: Tool review
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -518,6 +527,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       checkAuth();
       getToken();
+      initializeDaily();
     });
 
     function checkAuth() {
@@ -642,8 +652,25 @@
       showMessage('certificationsMessage', result.id ? 'Certification added!' : 'Error', result.id ? 'success' : 'error');
     }
 
+    // Daily content schedule
+    const dailySchedule = {
+      0: { day: 'Sunday', type: 'Tool review', theme: 'Testing tool reviews and comparisons' },
+      1: { day: 'Monday', type: 'Testing tip', theme: 'QA testing best practices and tips' },
+      2: { day: 'Tuesday', type: 'Automation tip', theme: 'Test automation strategies and tools' },
+      3: { day: 'Wednesday', type: 'AI in testing', theme: 'How AI helps QA and test management' },
+      4: { day: 'Thursday', type: 'ISTQB lesson', theme: 'ISTQB certification concepts and knowledge' },
+      5: { day: 'Friday', type: 'Bug story', theme: 'Real bug stories and lessons learned' },
+      6: { day: 'Saturday', type: 'Career lesson', theme: 'QA career growth and industry insights' }
+    };
+
+    function initializeDaily() {
+      const today = new Date().getDay();
+      const schedule = dailySchedule[today];
+      document.getElementById('todayContent').textContent = `${schedule.day} - ${schedule.type}`;
+      document.getElementById('contentTopics').value = schedule.theme;
+    }
+
     async function generateContent() {
-      const mode = document.getElementById('contentMode').value;
       const topics = document.getElementById('contentTopics').value.split(',').map(t => t.trim());
       const tone = document.getElementById('contentTone').value;
 
@@ -652,25 +679,45 @@
       btn.innerHTML = '<span class="loading"></span> Generating...';
 
       try {
-        const result = await apiCall('POST', '/admin/api/generate', { mode, topics, tone });
+        // Generate full daily pack with all formats
+        const result = await apiCall('POST', '/admin/api/generate', {
+          mode: 'full',
+          topics,
+          tone
+        });
 
-        let html = '<h4>Generated Content:</h4>';
-        for (const [key, value] of Object.entries(result)) {
-          if (value) {
-            const title = key.replace(/_/g, ' ').toUpperCase();
-            html += `<div style="margin: 20px 0; padding: 15px; background: #1f2940; border-radius: 8px;">
-              <h5 style="margin-bottom: 10px;">${title}</h5>
-              <p style="white-space: pre-wrap;">${value}</p>
-              <button class="btn btn-secondary" onclick="copyToClipboard(\`${value.replace(/`/g, '\\`')}\`)">Copy</button>
+        let html = '<h4 style="margin-bottom: 20px;">📄 Generated Content - Copy & Review:</h4>';
+
+        const formats = [
+          { key: 'linkedin_post', label: '🔗 LinkedIn Post', icon: '📱' },
+          { key: 'article', label: '📰 Blog Article', icon: '📝' },
+          { key: 'xing_german_post', label: '🇩🇪 XING Post (German)', icon: '🌍' },
+          { key: 'github_ideas', label: '💡 GitHub Ideas', icon: '🔧' },
+          { key: 'checklist', label: '✅ Action Checklist', icon: '📋' },
+          { key: 'connection_message', label: '💬 Connection Message', icon: '👥' }
+        ];
+
+        formats.forEach(fmt => {
+          if (result[fmt.key]) {
+            html += `<div style="margin: 20px 0; padding: 20px; background: #1f2940; border-radius: 8px; border-left: 3px solid #2563eb;">
+              <h5 style="margin-bottom: 12px; color: #2563eb;">${fmt.icon} ${fmt.label}</h5>
+              <p style="white-space: pre-wrap; font-size: 13px; line-height: 1.6;">${result[fmt.key]}</p>
+              <button class="btn btn-secondary" style="margin-top: 12px;" onclick="copyToClipboard(\`${result[fmt.key].replace(/`/g, '\\`')}\`)">📋 Copy to Clipboard</button>
             </div>`;
           }
-        }
+        });
+
+        html += '<div style="margin-top: 30px; padding: 20px; background: #0f1729; border-radius: 8px; border: 1px solid #1f2940;">';
+        html += '<p style="color: #94a0b8; font-size: 13px;">✅ Review the content above, then publish to your channels:<br><strong>• LinkedIn</strong> • <strong>XING</strong> • <strong>Blog (GitHub)</strong></p>';
+        html += '</div>';
+
         document.getElementById('contentOutput').innerHTML = html;
+        showMessage('contentMessage', '✅ Content generated! Review and copy to publish.', 'success');
       } catch (err) {
         showMessage('contentMessage', 'Error generating content: ' + err.message, 'error');
       } finally {
         btn.disabled = false;
-        btn.innerHTML = 'Generate Content';
+        btn.innerHTML = '✨ Generate Today\'s Content';
       }
     }
 
