@@ -369,6 +369,9 @@ async function searchJobPortals(searchPlan, searchInput) {
 // Run Apify Actor and wait for results
 async function runApifyActor(apiToken, actorId, input) {
   try {
+    console.log(`🚀 Starting actor: ${actorId}`)
+    console.log(`📋 Input:`, JSON.stringify(input))
+
     // Start the actor
     const runResponse = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs`, {
       method: 'POST',
@@ -380,7 +383,9 @@ async function runApifyActor(apiToken, actorId, input) {
     })
 
     if (!runResponse.ok) {
-      console.error(`Actor ${actorId} start failed: ${runResponse.status}`)
+      const errorText = await runResponse.text()
+      console.error(`❌ Actor ${actorId} start failed: ${runResponse.status}`)
+      console.error(`   Response: ${errorText}`)
       return []
     }
 
@@ -397,22 +402,36 @@ async function runApifyActor(apiToken, actorId, input) {
         { headers: { 'Authorization': `Bearer ${apiToken}` } }
       )
 
+      if (!statusResponse.ok) {
+        console.error(`Status check failed: ${statusResponse.status}`)
+        continue
+      }
+
       const statusData = await statusResponse.json()
       const status = statusData.data.status
+      console.log(`   Status (attempt ${i + 1}): ${status}`)
 
       if (status === 'SUCCEEDED') {
         // Get dataset items
+        console.log(`✅ ${actorId} completed, fetching results...`)
         const itemsResponse = await fetch(
           `https://api.apify.com/v2/actor-runs/${runId}/dataset/items`,
           { headers: { 'Authorization': `Bearer ${apiToken}` } }
         )
+
+        if (!itemsResponse.ok) {
+          console.error(`Dataset fetch failed: ${itemsResponse.status}`)
+          return []
+        }
+
         const items = await itemsResponse.json()
-        console.log(`✅ ${actorId} completed with ${items.length} items`)
+        console.log(`✅ ${actorId} returned ${items.length} items`)
         return items
       }
 
       if (status === 'FAILED') {
-        console.error(`❌ ${actorId} failed: ${statusData.data.statusMessage}`)
+        const errorMsg = statusData.data.statusMessage || 'Unknown error'
+        console.error(`❌ ${actorId} failed: ${errorMsg}`)
         return []
       }
     }
@@ -420,7 +439,8 @@ async function runApifyActor(apiToken, actorId, input) {
     console.warn(`⏱️ ${actorId} timeout (40s)`)
     return []
   } catch (err) {
-    console.error(`Error running ${actorId}:`, err.message)
+    console.error(`❌ Error running ${actorId}:`, err.message)
+    console.error(`   Stack:`, err.stack)
     return []
   }
 }
