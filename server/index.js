@@ -55,12 +55,21 @@ app.post('/api/generate-content', async (req, res) => {
     const { Anthropic } = await import('@anthropic-ai/sdk')
     const client = new Anthropic()
 
-    const prompt = buildContentPrompt(mode, topics, tone, length)
+    const prompt = buildContentPrompt(mode, topics, tone)
     console.log('⚡ Length instruction:', length === 'short' ? 'SHORT' : length === 'long' ? 'LONG' : 'MEDIUM')
+
+    // Build system message based on length
+    let systemMessage = 'You are a professional content creator. Generate high-quality content.'
+    if (length === 'short') {
+      systemMessage = 'You are a professional content creator. Generate VERY SHORT and CONCISE content. Keep each section to maximum 100-150 words. Be brief and to the point.'
+    } else if (length === 'long') {
+      systemMessage = 'You are a professional content creator. Generate DETAILED and COMPREHENSIVE content. Make each section 300-500 words. Be thorough and informative.'
+    }
 
     const message = await client.messages.create({
       model: 'claude-opus-4-8',
       max_tokens: 2000,
+      system: systemMessage,
       messages: [
         {
           role: 'user',
@@ -87,18 +96,11 @@ app.post('/api/generate-content', async (req, res) => {
 })
 
 // Helper: Build prompt based on mode and topics
-function buildContentPrompt(mode, topics, tone, length) {
+function buildContentPrompt(mode, topics, tone) {
   const topicString = topics.join(', ')
 
-  let lengthInstructions = ''
-  if (length === 'short') {
-    lengthInstructions = '\n\n⚠️ IMPORTANT: Keep ALL sections VERY SHORT - maximum 100-150 words each. Be concise.'
-  } else if (length === 'long') {
-    lengthInstructions = '\n\n⚠️ IMPORTANT: Make ALL sections DETAILED and LONG - aim for 300-500 words each. Be comprehensive.'
-  }
-
   if (mode === 'linkedin') {
-    return `Generate professional content for LinkedIn about: ${topicString}. Tone: ${tone}.${lengthInstructions}
+    return `Generate professional content for LinkedIn about: ${topicString}. Tone: ${tone}.
 
 Please provide:
 1. A compelling LinkedIn post
@@ -108,7 +110,7 @@ Format each section with a header like "===LINKEDIN POST===" and "===CONNECTION 
   }
 
   if (mode === 'github') {
-    return `Generate GitHub-related content ideas about: ${topicString}. Tone: ${tone}.${lengthInstructions}
+    return `Generate GitHub-related content ideas about: ${topicString}. Tone: ${tone}.
 
 Please provide:
 1. 5 GitHub project ideas or improvements
@@ -118,7 +120,7 @@ Format each section with a header like "===GITHUB IDEAS===" and "===COMMIT MESSA
   }
 
   // Full Daily Pack (3 content types only)
-  return `Generate a complete content pack about: ${topicString}. Tone: ${tone}.${lengthInstructions}
+  return `Generate a complete content pack about: ${topicString}. Tone: ${tone}.
 
 Please provide:
 1. LinkedIn Post - A professional post for LinkedIn
