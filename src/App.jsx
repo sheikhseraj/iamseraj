@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
-import { profile, socials, skills, experience, education, certifications, languages, ui } from './data.js'
+import { useState, useEffect, useRef } from 'react'
+import { profile, socials, skills, experience, education, certifications, languages, projects, ui } from './data.js'
 import { LangContext, useLang } from './lang.js'
 import ChatWidget from './ChatWidget.jsx'
 import Connect from './Connect.jsx'
 import Blog from './Blog.jsx'
 
-const NAV_IDS = ['about', 'skills', 'experience', 'education', 'certifications', 'connect', 'blog', 'contact']
+const NAV_IDS = ['about', 'skills', 'projects', 'experience', 'education', 'certifications', 'connect', 'blog', 'contact']
 
 function Navbar() {
   const { lang, setLang } = useLang()
@@ -109,6 +109,117 @@ function Skills() {
             <h3>{g.group[lang]}</h3>
             <ul>{g.items.map((it) => <li key={it}>{it}</li>)}</ul>
           </div>
+        ))}
+      </div>
+    </Section>
+  )
+}
+
+function Projects() {
+  const { lang } = useLang()
+  const t = ui[lang]
+  const [filter, setFilter] = useState('all')
+  const [idx, setIdx] = useState(0)
+  const trackRef = useRef(null)
+
+  const filters = [
+    { key: 'all', en: 'All', de: 'Alle' },
+    { key: 'qa', en: 'QA / Testing', de: 'QA / Testing' },
+    { key: 'dev', en: 'Development', de: 'Entwicklung' },
+    { key: 'cicd', en: 'CI/CD', de: 'CI/CD' },
+  ]
+
+  const categoryMap = {
+    portfolio: ['dev', 'qa'],
+    qaops: ['qa', 'cicd', 'dev'],
+    cicd: ['cicd', 'dev'],
+    langnation: ['qa'],
+    futureingermany: ['qa'],
+    'business-sites': ['qa'],
+  }
+
+  const visible = projects.filter(p => filter === 'all' || (categoryMap[p.id] || []).includes(filter))
+  const VISIBLE = 3
+  const maxIdx = Math.max(0, visible.length - VISIBLE)
+
+  function changeFilter(key) {
+    setFilter(key)
+    setIdx(0)
+  }
+
+  function slide(dir) {
+    setIdx(prev => Math.min(maxIdx, Math.max(0, prev + dir)))
+  }
+
+  useEffect(() => {
+    if (!trackRef.current) return
+    const cardW = trackRef.current.querySelector('.proj-card')?.offsetWidth || 0
+    const gap = 18
+    trackRef.current.style.transform = `translateX(-${idx * (cardW + gap)}px)`
+  }, [idx, visible.length])
+
+  return (
+    <Section id="projects" title={t.titles.projects}>
+      <div className="proj-controls">
+        <div className="proj-filters">
+          {filters.map(f => (
+            <button
+              key={f.key}
+              className={`proj-filter ${filter === f.key ? 'proj-filter--active' : ''}`}
+              onClick={() => changeFilter(f.key)}
+            >
+              {f[lang]}
+            </button>
+          ))}
+        </div>
+        <div className="proj-arrows">
+          <button className="proj-arrow" onClick={() => slide(-1)} disabled={idx === 0} aria-label="Previous">&#8592;</button>
+          <span className="proj-counter">{idx + 1} / {maxIdx + 1}</span>
+          <button className="proj-arrow" onClick={() => slide(1)} disabled={idx >= maxIdx} aria-label="Next">&#8594;</button>
+        </div>
+      </div>
+
+      <div className="proj-slider">
+        <div className="proj-track" ref={trackRef}>
+          {visible.map(p => (
+            <div key={p.id} className={`proj-card ${p.featured ? 'proj-card--featured' : ''}`}>
+              <div className="proj-card__top">
+                {p.featured && <div className="proj-card__badge">★ Featured</div>}
+                <div className="proj-card__icon">
+                  <i className={`ti ${p.icon}`} aria-hidden="true" />
+                </div>
+                <h3 className="proj-card__title">{p.title[lang]}</h3>
+                <p className="proj-card__desc">{p.desc[lang]}</p>
+              </div>
+              <div className="proj-card__tags">
+                {p.tags.map(tag => <span key={tag} className="proj-tag">{tag}</span>)}
+              </div>
+              <div className="proj-card__footer">
+                <div className="proj-card__role">
+                  <span className={`proj-dot proj-dot--${p.status}`} />
+                  <span>{p.role[lang]}</span>
+                </div>
+                <div className="proj-card__links">
+                  {p.github && (
+                    <a href={p.github} target="_blank" rel="noreferrer" aria-label="GitHub">
+                      <i className="ti ti-brand-github" aria-hidden="true" /> Code
+                    </a>
+                  )}
+                  {p.demo && (
+                    <a href={p.demo} target="_blank" rel="noreferrer" aria-label="Live demo">
+                      <i className="ti ti-external-link" aria-hidden="true" /> Live
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="proj-dots">
+        {Array.from({ length: maxIdx + 1 }).map((_, i) => (
+          <button key={i} className={`proj-dot-btn ${i === idx ? 'proj-dot-btn--active' : ''}`} onClick={() => setIdx(i)} aria-label={`Go to slide ${i + 1}`} />
         ))}
       </div>
     </Section>
@@ -264,6 +375,7 @@ export default function App() {
         <Hero />
         <About />
         <Skills />
+        <Projects />
         <div className="exp-edu-grid">
           <Experience />
           <Education />

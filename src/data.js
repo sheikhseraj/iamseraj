@@ -253,12 +253,105 @@ export const languages = {
 }
 
 
+export const projects = [
+  {
+    id: 'portfolio',
+    featured: true,
+    icon: 'ti-code',
+    title: { en: 'Personal Portfolio — iamseraj.com', de: 'Persönliches Portfolio — iamseraj.com' },
+    desc: {
+      en: 'Full-stack portfolio site built with React, Node.js & Claude AI. Features a bilingual chat assistant, AI content generator, and job search agent.',
+      de: 'Full-Stack-Portfolio mit React, Node.js & Claude KI. Zweisprachiger Chat-Assistent, KI-Inhaltsgenerator und Job-Such-Agent.',
+    },
+    tags: ['React', 'Node.js', 'Claude API', 'Vite'],
+    role: { en: 'Built & QA tested', de: 'Entwickelt & getestet' },
+    status: 'live',
+    github: 'https://github.com/sheikhseraj/iamseraj',
+    demo: 'https://iamseraj.com',
+  },
+  {
+    id: 'qaops',
+    featured: false,
+    icon: 'ti-test-pipe',
+    title: { en: 'QAOps Playwright Framework', de: 'QAOps Playwright Framework' },
+    desc: {
+      en: 'End-to-end browser automation framework using Playwright & Python. Structured for CI/CD integration with detailed reporting.',
+      de: 'End-to-End-Browser-Automatisierungsframework mit Playwright & Python. Strukturiert für CI/CD-Integration mit detailliertem Reporting.',
+    },
+    tags: ['Playwright', 'Python', 'GitHub Actions', 'CI/CD'],
+    role: { en: 'Developer & QA', de: 'Entwickler & QA' },
+    status: 'live',
+    github: 'https://github.com/sheikhseraj/QAOpsPlaywright',
+    demo: null,
+  },
+  {
+    id: 'cicd',
+    featured: false,
+    icon: 'ti-git-merge',
+    title: { en: 'CI/CD Pipeline Practice', de: 'CI/CD Pipeline Übungen' },
+    desc: {
+      en: 'Hands-on CI/CD pipeline implementations using Jenkins and GitHub Actions. Includes automated test execution, code quality gates, and deployment stages.',
+      de: 'Praktische CI/CD-Pipeline-Implementierungen mit Jenkins und GitHub Actions. Enthält automatisierte Testausführung und Deployment-Stufen.',
+    },
+    tags: ['Jenkins', 'GitHub Actions', 'Python', 'Docker'],
+    role: { en: 'Developer & QA', de: 'Entwickler & QA' },
+    status: 'live',
+    github: 'https://github.com/sheikhseraj/wtecc-CICD_PracticeCode',
+    demo: null,
+  },
+  {
+    id: 'langnation',
+    featured: false,
+    icon: 'ti-language',
+    title: { en: 'LangNation — EN↔DE Dictionary', de: 'LangNation — EN↔DE Wörterbuch' },
+    desc: {
+      en: 'Bilingual English-German dictionary and language learning platform. Tested end-to-end across browsers for accuracy and performance.',
+      de: 'Zweisprachiges Englisch-Deutsch Wörterbuch und Sprachlernplattform. End-to-End getestet auf Genauigkeit und Performance.',
+    },
+    tags: ['QA Testing', 'E2E Tests', 'Cross-browser'],
+    role: { en: 'QA Tester', de: 'QA Tester' },
+    status: 'live',
+    github: null,
+    demo: 'https://langnation.de',
+  },
+  {
+    id: 'futureingermany',
+    featured: false,
+    icon: 'ti-world',
+    title: { en: 'FutureInGermany — Study & Work Portal', de: 'FutureInGermany — Studien- & Arbeitsportal' },
+    desc: {
+      en: 'Educational consultancy platform helping people study and work in Germany. QA tested portal flows including visa guidance, application tracking, and counseling.',
+      de: 'Bildungsberatungsplattform für Studium und Arbeit in Deutschland. Portal-Flows getestet inkl. Visa-Beratung und Bewerbungsverfolgung.',
+    },
+    tags: ['QA Testing', 'Functional Testing', 'User Flows'],
+    role: { en: 'QA Tester', de: 'QA Tester' },
+    status: 'live',
+    github: null,
+    demo: 'https://futureingermany.in',
+  },
+  {
+    id: 'business-sites',
+    featured: false,
+    icon: 'ti-building',
+    title: { en: 'Business Websites — Alaska & ElbSol', de: 'Unternehmenswebsites — Alaska & ElbSol' },
+    desc: {
+      en: 'Quality assurance for two international business websites. Tested responsive layouts, contact flows, SEO elements, and cross-device compatibility.',
+      de: 'Qualitätssicherung für zwei internationale Unternehmenswebsites. Getestet: Responsive Layouts, Kontakt-Flows, SEO-Elemente und Gerätekompatibilität.',
+    },
+    tags: ['QA Testing', 'Responsive', 'Cross-device', 'SEO'],
+    role: { en: 'QA Tester', de: 'QA Tester' },
+    status: 'live',
+    github: null,
+    demo: 'https://elbsol.com',
+  },
+]
+
 // UI labels, buttons, section titles, and chat strings per language.
 export const ui = {
   en: {
-    nav: { about: 'About', skills: 'Skills', experience: 'Experience', education: 'Education', certifications: 'Certifications', connect: 'Connect', blog: 'Blog', contact: 'Contact' },
+    nav: { about: 'About', skills: 'Skills', projects: 'Projects', experience: 'Experience', education: 'Education', certifications: 'Certifications', connect: 'Connect', blog: 'Blog', contact: 'Contact' },
     hero: { eyebrow: 'Hi, my name is', viewWork: 'View my experience', getInTouch: 'Get in touch', resume: 'Résumé' },
-    titles: { about: 'About', skills: 'Skills', experience: 'Experience', education: 'Education', certifications: 'Certifications', connect: 'Connect', blog: 'Blog', contact: 'Contact', languages: 'Languages' },
+    titles: { about: 'About', skills: 'Skills', projects: 'Projects', experience: 'Experience', education: 'Education', certifications: 'Certifications', connect: 'Connect', blog: 'Blog', contact: 'Contact', languages: 'Languages' },
     connectUI: { findMe: 'Find me online', githubActivity: 'Live GitHub activity', viewProfile: 'View profile', optionA: 'Option 1 — Branded cards', optionB: 'Option 2 — Live add-ons (GitHub stats + LinkedIn-style card)' },
     contact: {
       blurb: 'Have a role or project in mind? My inbox is always open — in German or English.',
@@ -276,9 +369,9 @@ export const ui = {
     },
   },
   de: {
-    nav: { about: 'Über mich', skills: 'Kenntnisse', experience: 'Berufserfahrung', education: 'Ausbildung', certifications: 'Zertifizierungen', connect: 'Profile', blog: 'Blog', contact: 'Kontakt' },
+    nav: { about: 'Über mich', skills: 'Kenntnisse', projects: 'Projekte', experience: 'Berufserfahrung', education: 'Ausbildung', certifications: 'Zertifizierungen', connect: 'Profile', blog: 'Blog', contact: 'Kontakt' },
     hero: { eyebrow: 'Hallo, mein Name ist', viewWork: 'Meine Erfahrung ansehen', getInTouch: 'Kontakt aufnehmen', resume: 'Lebenslauf' },
-    titles: { about: 'Über mich', skills: 'Kenntnisse', experience: 'Berufserfahrung', education: 'Ausbildung', certifications: 'Zertifizierungen', connect: 'Profile', blog: 'Blog', contact: 'Kontakt', languages: 'Sprachen' },
+    titles: { about: 'Über mich', skills: 'Kenntnisse', projects: 'Projekte', experience: 'Berufserfahrung', education: 'Ausbildung', certifications: 'Zertifizierungen', connect: 'Profile', blog: 'Blog', contact: 'Kontakt', languages: 'Sprachen' },
     connectUI: { findMe: 'Finden Sie mich online', githubActivity: 'Live GitHub-Aktivität', viewProfile: 'Profil ansehen', optionA: 'Option 1 — Branding-Karten', optionB: 'Option 2 — Live-Erweiterungen (GitHub-Statistiken + LinkedIn-Karte)' },
     contact: {
       blurb: 'Sie haben eine Position oder ein Projekt im Kopf? Schreiben Sie mir gern — auf Deutsch oder Englisch.',
