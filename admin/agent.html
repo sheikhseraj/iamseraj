@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Content Agent - Seraj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #060d1a;
+      color: #e6e9f0;
+      line-height: 1.6;
+    }
+
+    .header {
+      background: #0f1729;
+      border-bottom: 1px solid #1f2940;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: #1f2940;
+      color: #e6e9f0;
+      border: 1px solid #2a3a52;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #2a3a52;
+      color: #2563eb;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 32px;
+    }
+
+    .section {
+      background: #0f1729;
+      border: 1px solid #1f2940;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .section h2 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #e6e9f0;
+    }
+
+    .mode-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .mode-btn {
+      padding: 12px 16px;
+      background: #151c2e;
+      border: 1px solid #1f2940;
+      color: #94a0b8;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .mode-btn.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: white;
+    }
+
+    .mode-btn:hover {
+      border-color: #2563eb;
+    }
+
+    .topic-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .chip {
+      padding: 6px 12px;
+      background: #151c2e;
+      border: 1px solid #1f2940;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #94a0b8;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+
+    .chip.selected {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: white;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 12px;
+      color: #94a0b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    textarea {
+      padding: 10px 12px;
+      background: #151c2e;
+      border: 1px solid #1f2940;
+      border-radius: 8px;
+      color: #e6e9f0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .generate-btn {
+      padding: 12px 20px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .generate-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .generate-btn:disabled {
+      background: #1f2940;
+      cursor: not-allowed;
+      color: #94a0b8;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      color: #94a0b8;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #1f2940;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .output-section {
+      margin-bottom: 24px;
+    }
+
+    .output-title {
+      font-size: 13px;
+      color: #94a0b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .output-box {
+      background: #151c2e;
+      border: 1px solid #1f2940;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e6e9f0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      min-height: 60px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .copy-btn {
+      padding: 4px 10px;
+      background: #1f2940;
+      border: 1px solid #2a3a52;
+      color: #60a5fa;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .copy-btn:hover {
+      background: #2a3a52;
+      border-color: #2563eb;
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 968px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🤖 AI Content Agent</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="container">
+    <div class="grid">
+      <!-- Left: Controls -->
+      <div class="section">
+        <h2>Generate Content</h2>
+
+        <div class="mode-selector">
+          <button class="mode-btn active" onclick="selectMode('full')" data-mode="full">📦 Full Daily Pack</button>
+          <button class="mode-btn" onclick="selectMode('linkedin')" data-mode="linkedin">💼 LinkedIn Only</button>
+          <button class="mode-btn" onclick="selectMode('github')" data-mode="github">🚀 GitHub Boost</button>
+        </div>
+
+        <label style="margin-bottom: 12px; margin-top: 20px; font-weight: 600;">Topics</label>
+        <div class="topic-chips" id="topicChips"></div>
+
+        <div class="form-group">
+          <label>Custom Topic</label>
+          <input type="text" id="customTopic" placeholder="Or write your own...">
+        </div>
+
+        <div class="form-group">
+          <label>Tone</label>
+          <input type="text" id="tone" placeholder="e.g., professional, casual, humorous" value="professional">
+        </div>
+
+        <button class="generate-btn" onclick="generateContent()">Generate Content</button>
+        <div class="loading" id="loading">
+          <span class="spinner"></span>
+          <span>Creating content...</span>
+        </div>
+      </div>
+
+      <!-- Right: Outputs -->
+      <div>
+        <div class="section">
+          <div id="outputs"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+  <script>
+    checkAuth();
+
+    const TOPICS = [
+      'Test Automation',
+      'Playwright',
+      'Selenium',
+      'CI/CD',
+      'Testing Best Practices',
+      'Quality Assurance',
+      'Software Quality',
+      'DevOps',
+      'Test Strategy',
+      'Automation Framework'
+    ];
+
+    const OUTPUT_TYPES = {
+      full: ['LinkedIn Post', 'Article', 'Xing German Post', 'GitHub Ideas', 'Connection Message', 'Checklist'],
+      linkedin: ['LinkedIn Post', 'Connection Message'],
+      github: ['GitHub Ideas', 'Commit Messages']
+    };
+
+    let selectedMode = 'full';
+    let selectedTopics = [];
+
+    function initTopics() {
+      const container = document.getElementById('topicChips');
+      TOPICS.forEach(topic => {
+        const chip = document.createElement('button');
+        chip.className = 'chip';
+        chip.textContent = topic;
+        chip.onclick = () => {
+          chip.classList.toggle('selected');
+          selectedTopics = Array.from(document.querySelectorAll('.chip.selected')).map(c => c.textContent);
+        };
+        container.appendChild(chip);
+      });
+    }
+
+    function selectMode(mode) {
+      selectedMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+    }
+
+    async function generateContent() {
+      const topics = selectedTopics.length > 0 ? selectedTopics : [document.getElementById('customTopic').value || 'Test Automation'];
+      const tone = document.getElementById('tone').value || 'professional';
+
+      if (!topics[0]) {
+        alert('Select a topic or enter a custom one');
+        return;
+      }
+
+      const btn = document.querySelector('.generate-btn');
+      const loading = document.getElementById('loading');
+
+      btn.disabled = true;
+      loading.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: selectedMode,
+            topics: topics,
+            tone: tone
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          displayOutputs(data);
+        } else {
+          showError(data.error || 'Generation failed');
+        }
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+      }
+    }
+
+    function displayOutputs(data) {
+      const container = document.getElementById('outputs');
+      container.innerHTML = '';
+
+      OUTPUT_TYPES[selectedMode].forEach(type => {
+        const key = type.toLowerCase().replace(/\s+/g, '_');
+        const content = data[key] || data[key.replace(/_/g, ' ')] || '(No content generated)';
+
+        const section = document.createElement('div');
+        section.className = 'output-section';
+        section.innerHTML = `
+          <div class="output-title">
+            ${type}
+            <button class="copy-btn" onclick="copyToClipboard(\`${type}\`)">Copy</button>
+          </div>
+          <div class="output-box" id="output-${key}">${escapeHtml(content)}</div>
+        `;
+        container.appendChild(section);
+      });
+    }
+
+    function copyToClipboard(type) {
+      const key = type.toLowerCase().replace(/\s+/g, '_');
+      const box = document.getElementById(`output-${key}`);
+      const text = box.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+      });
+    }
+
+    function showError(msg) {
+      const container = document.getElementById('outputs');
+      container.innerHTML = `<div class="error">${escapeHtml(msg)}</div>`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function logout() {
+      fetch('/admin/api/logout', { method: 'POST' })
+        .then(() => window.location.href = '/admin/login.html');
+    }
+
+    initTopics();
+  </script>
+</body>
+</html>

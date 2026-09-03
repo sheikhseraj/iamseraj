@@ -9,12 +9,25 @@ export default function ChatWidget() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([{ role: 'assistant', content: t.greeting }])
   const [loading, setLoading] = useState(false)
+  const [showBubble, setShowBubble] = useState(false)
   const scrollRef = useRef(null)
 
   // Reset the greeting when the language changes (only if the chat is fresh).
   useEffect(() => {
     setMessages((prev) => (prev.length <= 1 ? [{ role: 'assistant', content: t.greeting }] : prev))
   }, [lang]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pop the inviting greeting bubble a moment after load — once per browser session.
+  useEffect(() => {
+    if (sessionStorage.getItem('chatBubbleDismissed')) return
+    const timer = setTimeout(() => setShowBubble(true), 2500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  function dismissBubble() {
+    setShowBubble(false)
+    sessionStorage.setItem('chatBubbleDismissed', '1')
+  }
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
@@ -73,18 +86,32 @@ export default function ChatWidget() {
 
   return (
     <>
+      {!open && showBubble && (
+        <div className="chat-bubble" onClick={() => { setOpen(true); dismissBubble() }} role="button">
+          <span>{t.bubble}</span>
+          <button
+            className="chat-bubble__close"
+            onClick={(e) => { e.stopPropagation(); dismissBubble() }}
+            aria-label="Dismiss"
+          >×</button>
+        </div>
+      )}
+
       <button
         className={`chat-fab ${open ? 'chat-fab--open' : ''}`}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => { setOpen((v) => !v); dismissBubble() }}
         aria-label={open ? 'Close chat' : 'Ask my AI assistant'}
       >
-        {open ? '×' : '💬'}
+        {open ? '×' : <img className="chat-fab__photo" src="/chat-avatar.png" alt="Seraj" />}
       </button>
 
       {open && (
         <div className="chat-panel" role="dialog" aria-label="AI assistant chat">
           <div className="chat-header">
-            <div><strong>{t.title}</strong></div>
+            <div className="chat-header__id">
+              <img className="chat-header__photo" src="/chat-avatar.png" alt="Seraj" />
+              <strong>{t.title}</strong>
+            </div>
             <button className="chat-close" onClick={() => setOpen(false)} aria-label="Close">×</button>
           </div>
 
