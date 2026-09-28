@@ -245,6 +245,11 @@ function CloudJourney() {
             <h3>{step.stage[lang]}</h3>
             <ul>{step.items.map((item) => <li key={item}>{item}</li>)}</ul>
             <span className="journey__status">{step.status[lang]}</span>
+            {step.sourceUrl && (
+              <a className="journey__link" href={step.sourceUrl} target="_blank" rel="noreferrer">
+                {t.cloudJourney.viewPost} <i className="ti ti-external-link" aria-hidden="true" />
+              </a>
+            )}
           </article>
         ))}
       </div>
