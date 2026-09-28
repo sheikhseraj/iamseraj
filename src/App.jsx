@@ -103,14 +103,58 @@ function About() {
 function Skills() {
   const { lang } = useLang()
   const t = ui[lang]
+  const [idx, setIdx] = useState(0)
+  const [cardsPerView, setCardsPerView] = useState(3)
+  const touchStart = useRef(null)
+  const maxIdx = Math.max(0, skills.length - cardsPerView)
+  const currentIdx = Math.min(idx, maxIdx)
+
+  useEffect(() => {
+    const update = () => setCardsPerView(window.innerWidth <= 500 ? 1 : window.innerWidth <= 768 ? 2 : 3)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  useEffect(() => setIdx(current => Math.min(current, maxIdx)), [maxIdx])
+
+  const slide = (direction) => setIdx(current => Math.max(0, Math.min(maxIdx, current + direction)))
+
   return (
     <Section id="skills" title={t.titles.skills}>
-      <div className="skills">
-        {skills.map((g) => (
-          <div key={g.group.en} className="skills__group">
-            <h3>{g.group[lang]}</h3>
-            <ul>{g.items.map((it) => <li key={it}>{it}</li>)}</ul>
-          </div>
+      <div className="skills__controls proj-arrows">
+        <button className="proj-arrow" onClick={() => slide(-1)} disabled={currentIdx === 0} aria-label={lang === 'de' ? 'Vorherige Kenntnisse' : 'Previous skills'}>&#8592;</button>
+        <span className="proj-counter" aria-live="polite">{currentIdx + 1} / {maxIdx + 1}</span>
+        <button className="proj-arrow" onClick={() => slide(1)} disabled={currentIdx === maxIdx} aria-label={lang === 'de' ? 'Nächste Kenntnisse' : 'Next skills'}>&#8594;</button>
+      </div>
+      <div className="skills" role="region" aria-label={t.titles.skills} tabIndex={0}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            event.preventDefault()
+            slide(event.key === 'ArrowLeft' ? -1 : 1)
+          }
+        }}
+        onTouchStart={(event) => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY } }}
+        onTouchCancel={() => { touchStart.current = null }}
+        onTouchEnd={(event) => {
+          if (!touchStart.current) return
+          const dx = event.changedTouches[0].clientX - touchStart.current.x
+          const dy = event.changedTouches[0].clientY - touchStart.current.y
+          if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) slide(dx < 0 ? 1 : -1)
+          touchStart.current = null
+        }}>
+        <div className="skills__track" style={{ transform: `translateX(calc(${currentIdx * -100 / cardsPerView}% - ${currentIdx * 18 / cardsPerView}px))` }}>
+          {skills.map((g, index) => (
+            <div key={g.group.en} className="skills__group" aria-hidden={index < currentIdx || index >= currentIdx + cardsPerView}>
+              <h3>{g.group[lang]}</h3>
+              <ul>{g.items.map((it) => <li key={it}>{it}</li>)}</ul>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="proj-dots skills__dots">
+        {Array.from({ length: maxIdx + 1 }, (_, i) => (
+          <button key={i} className={`proj-dot-btn ${i === currentIdx ? 'proj-dot-btn--active' : ''}`} onClick={() => setIdx(i)} aria-current={i === currentIdx ? 'true' : undefined} aria-label={lang === 'de' ? `Kenntnisse: Seite ${i + 1}` : `Go to skills slide ${i + 1}`} />
         ))}
       </div>
     </Section>
@@ -160,7 +204,7 @@ function Projects() {
     const cardW = trackRef.current.querySelector('.proj-card')?.offsetWidth || 0
     const gap = 18
     trackRef.current.style.transform = `translateX(-${idx * (cardW + gap)}px)`
-  }, [idx, visible.length])
+  }, [idx, visible.length, cardsPerView])
 
   return (
     <Section id="projects" title={t.titles.projects}>
@@ -234,23 +278,66 @@ function Projects() {
 function CloudJourney() {
   const { lang } = useLang()
   const t = ui[lang]
+  const [idx, setIdx] = useState(0)
+  const [cardsPerView, setCardsPerView] = useState(3)
+  const trackRef = useRef(null)
+  const maxIdx = Math.max(0, cloudJourney.length - cardsPerView)
+
+  useEffect(() => {
+    const updateCardsPerView = () => setCardsPerView(window.innerWidth <= 500 ? 1 : window.innerWidth <= 768 ? 2 : 3)
+    updateCardsPerView()
+    window.addEventListener('resize', updateCardsPerView)
+    return () => window.removeEventListener('resize', updateCardsPerView)
+  }, [])
+
+  useEffect(() => setIdx((current) => Math.min(current, maxIdx)), [maxIdx])
+
+  useEffect(() => {
+    if (!trackRef.current) return
+    const cardW = trackRef.current.querySelector('.journey__step')?.offsetWidth || 0
+    const gap = 18
+    trackRef.current.style.transform = `translateX(-${idx * (cardW + gap)}px)`
+  }, [idx, cardsPerView])
+
+  function slide(dir) {
+    setIdx(prev => Math.min(maxIdx, Math.max(0, prev + dir)))
+  }
+
   return (
     <Section id="cloud-journey" title={t.titles.cloudJourney}>
-      <p className="journey__intro">{t.cloudJourney.subtitle}</p>
+      <div className="journey__header">
+        <p className="journey__intro">{t.cloudJourney.subtitle}</p>
+        <div className="proj-arrows">
+          <button className="proj-arrow" onClick={() => slide(-1)} disabled={idx === 0} aria-label="Previous journey step">&#8592;</button>
+          <span className="proj-counter">{idx + 1} / {maxIdx + 1}</span>
+          <button className="proj-arrow" onClick={() => slide(1)} disabled={idx >= maxIdx} aria-label="Next journey step">&#8594;</button>
+        </div>
+      </div>
+
       <div className="journey" aria-label={t.titles.cloudJourney}>
-        {cloudJourney.map((step, index) => (
-          <article className={`journey__step journey__step--${step.state}`} key={step.stage.en}>
-            <div className="journey__node" aria-hidden="true"><i className={`ti ${step.icon}`} /></div>
-            <div className="journey__number">0{index + 1}</div>
-            <h3>{step.stage[lang]}</h3>
-            <ul>{step.items.map((item) => <li key={item}>{item}</li>)}</ul>
-            <span className="journey__status">{step.status[lang]}</span>
-            {step.sourceUrl && (
-              <a className="journey__link" href={step.sourceUrl} target="_blank" rel="noreferrer">
-                {t.cloudJourney.viewPost} <i className="ti ti-external-link" aria-hidden="true" />
-              </a>
-            )}
-          </article>
+        <div className="journey__track" ref={trackRef}>
+          {cloudJourney.map((step, index) => (
+            <article className={`journey__step journey__step--${step.state}`} key={step.stage.en}>
+              <div className="journey__node" aria-hidden="true"><i className={`ti ${step.icon}`} /></div>
+              <div className="journey__number">{String(index + 1).padStart(2, '0')}</div>
+              <h3>{step.stage[lang]}</h3>
+              <ul>{step.items.map((item) => <li key={item}>{item}</li>)}</ul>
+              <div className="journey__footer">
+                <span className="journey__status">{step.status[lang]}</span>
+                {step.sourceUrl && (
+                  <a className="journey__link" href={step.sourceUrl} target="_blank" rel="noreferrer">
+                    {t.cloudJourney.viewPost} <i className="ti ti-external-link" aria-hidden="true" />
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className="proj-dots journey__dots">
+        {Array.from({ length: maxIdx + 1 }).map((_, i) => (
+          <button key={i} className={`proj-dot-btn ${i === idx ? 'proj-dot-btn--active' : ''}`} onClick={() => setIdx(i)} aria-label={`Go to journey slide ${i + 1}`} />
         ))}
       </div>
     </Section>
