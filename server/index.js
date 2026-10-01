@@ -16,8 +16,7 @@ const distPath = path.join(__dirname, '..', 'dist')
 
 if (!hasKey()) {
   console.warn(
-    '\n⚠️  ANTHROPIC_API_KEY is not set — the AI fallback will error.\n' +
-      '   Add it to a ".env" file: ANTHROPIC_API_KEY=sk-ant-...\n',
+    '\nNo AI provider configured. Set ANTHROPIC_API_KEY and/or OPENAI_API_KEY on the server.\n',
   )
 }
 
@@ -189,16 +188,19 @@ app.post('/api/chat', async (req, res) => {
     //    first turn — follow-ups depend on conversation context, so skip cache).
     const isFollowUp = clean.filter((m) => m.role === 'user').length > 1
     if (!isFollowUp) {
-      const cached = await findAnswer(lastUser.content)
+      const cached = await findAnswer(lastUser.content).catch((err) => {
+        console.error('Chat cache unavailable:', err.message)
+        return null
+      })
       if (cached) {
         res.setHeader('X-Answer-Source', cached.matchType) // exact | fuzzy
         return res.end(cached.answer)
       }
     }
 
-    // 2) Cache miss → ask Claude, streaming the reply to the browser.
+    // 2) Cache miss → Anthropic first, then OpenAI if needed.
     if (!hasKey()) {
-      return res.end("Sorry — the AI isn't configured yet. Please email me instead.")
+      return res.status(503).json({ error: 'Assistant temporarily unavailable.' })
     }
     res.setHeader('X-Answer-Source', 'ai')
 
@@ -244,7 +246,7 @@ app.use((req, res, next) => {
 
 // Start listening immediately; connect to MySQL in the background so a DB
 // problem can never stop the site from serving.
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3001
 console.log(`Binding to port ${port}`)
 
 const server = app.listen(port, '0.0.0.0', () => {

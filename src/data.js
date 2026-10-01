@@ -18,8 +18,8 @@ export const profile = {
     de: 'AWS Cloud & Infrastructure Engineer',
   },
   tagline: {
-    en: 'Building secure, reliable cloud infrastructure with AWS, Linux, networking, Python, automation and CI/CD — backed by professional Software Quality Engineering experience.',
-    de: 'Aufbau sicherer, zuverlässiger Cloud-Infrastruktur mit AWS, Linux, Netzwerken, Python, Automatisierung und CI/CD — gestützt durch professionelle Erfahrung im Software Quality Engineering.',
+    en: 'Reliable cloud infrastructure. Thoughtful automation. Built with a quality-engineering mindset.',
+    de: 'Zuverlässige Cloud-Infrastruktur. Durchdachte Automatisierung. Mit dem Blick eines Quality Engineers.',
   },
   location: {
     en: 'Magdeburg, Germany',

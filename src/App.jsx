@@ -52,14 +52,10 @@ function Hero() {
   return (
     <section id="top" className="hero">
       <div className="container hero__inner">
-        <p className="hero__eyebrow">{t.hero.eyebrow}</p>
+        <div className="hero__copy">
         <h1 className="hero__name">{profile.name}</h1>
         <h2 className="hero__role">{profile.role[lang]}</h2>
         <p className="hero__tagline">{profile.tagline[lang]}</p>
-        <a className="hero__credential" href="#certifications">
-          <img src={cloudBadges[0].image} alt="" width="48" height="48" />
-          <span>{cloudBadges[0].name}<small>{lang === 'de' ? 'AWS-Badge erhalten · Nachweis ansehen' : 'AWS badge earned · View credential'} ↗</small></span>
-        </a>
         <div className="hero__cta">
           <a href="#projects" className="btn btn--primary">{t.hero.viewProjects}</a>
           <a href={socials.find((s) => s.label === 'GitHub')?.url} className="btn btn--ghost" target="_blank" rel="noreferrer">GitHub</a>
@@ -68,11 +64,11 @@ function Hero() {
             <a href={profile.resumeUrl} className="btn btn--ghost" target="_blank" rel="noreferrer">{t.hero.resume}</a>
           )}
         </div>
-        <div className="hero__socials">
-          {socials.map((s) => (
-            <a key={s.label} href={socialUrl(s, lang)} target="_blank" rel="noreferrer">{s.label}</a>
-          ))}
         </div>
+        <a className="hero__credential" href="#certifications">
+          <img src={cloudBadges[0].image} alt="" width="120" height="120" />
+          <span>{cloudBadges[0].name}<small>{lang === 'de' ? 'Nachweis ansehen' : 'View credential'} ↗</small></span>
+        </a>
       </div>
     </section>
   )

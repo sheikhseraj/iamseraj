@@ -38,17 +38,20 @@ export default function ChatWidget() {
     if (!question || loading) return
     setInput('')
 
-    const history = [...messages, { role: 'user', content: question }]
+    const history = [...messages.filter(m => !m.failed), { role: 'user', content: question }]
     setMessages([...history, { role: 'assistant', content: '' }])
     setLoading(true)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 45000)
 
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: history.slice(1), lang }),
+        signal: controller.signal,
       })
-      if (!res.ok || !res.body) throw new Error('Request failed')
+      if (!res.ok || !res.body || !res.headers.get('content-type')?.includes('text/plain')) throw new Error('Request failed')
 
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
@@ -63,16 +66,19 @@ export default function ChatWidget() {
           return next
         })
       }
+      if (!acc.trim()) throw new Error('Empty response')
     } catch {
       setMessages((prev) => {
         const next = [...prev]
         next[next.length - 1] = {
           role: 'assistant',
+          failed: true,
           content: `${lang === 'de' ? 'Entschuldigung — ich konnte den Assistenten gerade nicht erreichen. Schreiben Sie mir gern an' : "Sorry — I couldn't reach the assistant just now. Feel free to email"} ${profile.email}.`,
         }
         return next
       })
     } finally {
+      clearTimeout(timeout)
       setLoading(false)
     }
   }

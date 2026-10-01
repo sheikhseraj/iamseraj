@@ -1,13 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk'
-import { profile, skills, experience, education, certifications, languages } from '../src/data.js'
+import { createAnswerService } from './ai-providers.js'
+import { profile, skills, experience, education, certifications, cloudBadges, projects, languages } from '../src/data.js'
 
-// Lazily create the client so a missing key never crashes the server at
-// startup — it only matters when we actually need to call the AI.
-let _client = null
-function getClient() {
-  if (!_client) _client = new Anthropic() // reads ANTHROPIC_API_KEY from env
-  return _client
-}
+const service = createAnswerService()
 
 // Build a persona system prompt from the CV/portfolio data (English source),
 // instructing the model to answer in the visitor's language.
@@ -42,33 +36,28 @@ EDUCATION:
 ${eduLines}
 
 CERTIFICATIONS:
-${certLines}`
+${certLines}
+
+EARNED AWS BADGES:
+${cloudBadges.map(b => `- ${b.name}: ${b.url}`).join('\n')}
+
+PROJECTS:
+${projects.map(p => `- ${p.title.en}: ${p.desc.en}`).join('\n')}`
 }
 
 export function hasKey() {
-  return Boolean(process.env.ANTHROPIC_API_KEY)
+  return service.hasKey()
 }
 
-// Stream Claude's answer; resolves with the full text so the caller can cache it.
+// Buffer the completed answer before emitting it. If a provider fails, visitors
+// never see a partial answer mixed with the fallback provider's response.
 export async function streamAnswer(messages, onText, lang = 'en') {
-  const stream = getClient().messages.stream({
-    model: 'claude-opus-4-8',
-    max_tokens: 1024,
-    system: buildSystemPrompt(lang),
-    messages,
-  })
-  stream.on('text', (delta) => onText(delta))
-  const final = await stream.finalMessage()
-  return final.content.filter((b) => b.type === 'text').map((b) => b.text).join('')
+  const text = await service.answer(messages, buildSystemPrompt(lang))
+  onText(text)
+  return text
 }
 
 // Non-streaming single answer (used by the seed script).
 export async function generateAnswer(question, lang = 'en') {
-  const msg = await getClient().messages.create({
-    model: 'claude-opus-4-8',
-    max_tokens: 1024,
-    system: buildSystemPrompt(lang),
-    messages: [{ role: 'user', content: question }],
-  })
-  return msg.content.filter((b) => b.type === 'text').map((b) => b.text).join('')
+  return service.answer([{ role: 'user', content: question }], buildSystemPrompt(lang))
 }
