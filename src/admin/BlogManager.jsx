@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
+import RichTextEditor from './RichTextEditor.jsx'
 
 export default function BlogManager({ token }) {
   const [blogs, setBlogs] = useState([])
@@ -192,21 +191,9 @@ export default function BlogManager({ token }) {
 
           <div className="form-group">
             <label>Content *</label>
-            <ReactQuill
-              theme="snow"
+            <RichTextEditor
               value={form.content}
               onChange={(content) => setForm({ ...form, content })}
-              placeholder="Write your blog post here..."
-              modules={{
-                toolbar: [
-                  [{ header: [1, 2, 3, false] }],
-                  ['bold', 'italic', 'underline', 'strike'],
-                  [{ list: 'ordered' }, { list: 'bullet' }],
-                  ['blockquote', 'code-block'],
-                  ['link', 'image'],
-                  ['clean'],
-                ],
-              }}
             />
           </div>
 

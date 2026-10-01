@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { lazy, Suspense, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
-import Admin from './Admin.jsx'
 import './index.css'
+
+// Load the admin editor only when the admin page is opened.
+const Admin = lazy(() => import('./Admin.jsx'))
 
 function Router() {
   const [isAdmin, setIsAdmin] = useState(window.location.pathname === '/admin')
@@ -15,7 +17,7 @@ function Router() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  return isAdmin ? <Admin /> : <App />
+  return isAdmin ? <Suspense fallback={<p role="status">Loading admin…</p>}><Admin /></Suspense> : <App />
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
