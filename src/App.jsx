@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { profile, socials, skills, experience, education, certifications, languages, projects, cloudJourney, ui } from './data.js'
+import { profile, socials, skills, experience, education, certifications, cloudBadges, languages, projects, cloudJourney, ui } from './data.js'
 import { LangContext, useLang } from './lang.js'
 import ChatWidget from './ChatWidget.jsx'
 import Connect from './Connect.jsx'
@@ -56,6 +56,10 @@ function Hero() {
         <h1 className="hero__name">{profile.name}</h1>
         <h2 className="hero__role">{profile.role[lang]}</h2>
         <p className="hero__tagline">{profile.tagline[lang]}</p>
+        <a className="hero__credential" href="#certifications">
+          <img src={cloudBadges[0].image} alt="" width="48" height="48" />
+          <span>{cloudBadges[0].name}<small>{lang === 'de' ? 'AWS-Badge erhalten · Nachweis ansehen' : 'AWS badge earned · View credential'} ↗</small></span>
+        </a>
         <div className="hero__cta">
           <a href="#projects" className="btn btn--primary">{t.hero.viewProjects}</a>
           <a href={socials.find((s) => s.label === 'GitHub')?.url} className="btn btn--ghost" target="_blank" rel="noreferrer">GitHub</a>
@@ -387,6 +391,37 @@ function Education() {
   )
 }
 
+function CloudBadge({ badge }) {
+  const { lang } = useLang()
+  const [showEmbed, setShowEmbed] = useState(false)
+  return (
+    <article className="cloud-badge">
+      <a className="cloud-badge__image" href={badge.url} target="_blank" rel="noreferrer">
+        <img src={badge.image} alt={badge.name} width="180" height="180" loading="lazy" />
+      </a>
+      <div className="cloud-badge__content">
+        <span className="cloud-badge__status">{lang === 'de' ? 'Erhalten' : 'Earned'}</span>
+        <h4>{badge.name}</h4>
+        <p>Amazon Web Services (AWS)</p>
+        <div className="cloud-badge__actions">
+          <a href={badge.url} target="_blank" rel="noreferrer">{lang === 'de' ? 'Auf Credly verifizieren' : 'Verify on Credly'} ↗</a>
+          <button type="button" aria-expanded={showEmbed} aria-controls={`credly-${badge.id}`} onClick={() => setShowEmbed(value => !value)}>
+            {showEmbed ? (lang === 'de' ? 'Badge ausblenden' : 'Hide live badge') : (lang === 'de' ? 'Offizielles Badge anzeigen' : 'Show official live badge')}
+          </button>
+        </div>
+      </div>
+      <div className="cloud-badge__embed" id={`credly-${badge.id}`} hidden={!showEmbed}>
+        {showEmbed && <iframe
+          title={`${badge.name} — Credly`}
+          width="174" height="294"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:12px;background:white}</style></head><body><div data-iframe-width="150" data-iframe-height="270" data-share-badge-id="${badge.id}" data-share-badge-host="https://www.credly.com"></div><script type="text/javascript" async src="https://cdn.credly.com/assets/utilities/embed.js"></script></body></html>`}
+        />}
+      </div>
+    </article>
+  )
+}
+
 function Certifications() {
   const { lang } = useLang()
   const t = ui[lang]
@@ -420,6 +455,10 @@ function Certifications() {
 
   return (
     <Section id="certifications" title={t.titles.certifications}>
+      <h3 className="certs__group-title">{lang === 'de' ? 'AWS & Cloud-Badges' : 'AWS & Cloud Badges'}</h3>
+      <div className="cloud-badges">
+        {cloudBadges.map(badge => <CloudBadge key={badge.id} badge={badge} />)}
+      </div>
       <h3 className="certs__group-title">{t.certificationGroups.quality}</h3>
       <div className="certs">
         {certifications[lang].map((c, i) => (

@@ -196,6 +196,25 @@ a { color: inherit; text-decoration: none; }
 .edu__school { color: var(--text-dim); font-size: .92rem; margin-top: 4px; }
 
 /* ---------- Certifications ---------- */
+.hero__credential { display: flex; align-items: center; gap: 12px; width: fit-content; max-width: 100%; margin: 0 0 24px; padding: 10px 16px 10px 10px; border: 1px solid rgba(34,211,238,.35); border-radius: 12px; background: var(--bg-card); font-size: .85rem; }
+.hero__credential img { flex-shrink: 0; border-radius: 6px; }
+.hero__credential small { display: block; color: var(--accent-2); margin-top: 2px; }
+.hero__credential:hover { border-color: var(--accent-2); }
+.cloud-badges { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr)); gap: 20px; margin-bottom: 32px; }
+.cloud-badge { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; padding: 24px; background: linear-gradient(135deg, var(--bg-card), rgba(34,211,238,.06)); border: 1px solid rgba(34,211,238,.35); border-radius: var(--radius); }
+.cloud-badge__image { flex-shrink: 0; }
+.cloud-badge__image img { display: block; width: 180px; height: 180px; object-fit: contain; border-radius: 10px; }
+.cloud-badge__content { flex: 1 1 200px; min-width: 0; }
+.cloud-badge__status { display: inline-block; color: #6ee7b7; background: rgba(52,211,153,.1); padding: 3px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600; margin-bottom: 10px; }
+.cloud-badge h4 { font-size: 1.2rem; line-height: 1.4; margin-bottom: 8px; }
+.cloud-badge p { color: var(--text-dim); font-size: .9rem; }
+.cloud-badge__actions { display: flex; align-items: flex-start; flex-direction: column; gap: 12px; margin-top: 18px; }
+.cloud-badge__actions a { color: var(--accent-2); font-size: .9rem; font-weight: 600; }
+.cloud-badge__actions a:hover { text-decoration: underline; }
+.cloud-badge__actions button { background: var(--bg-elev); color: var(--text); font: inherit; font-size: .8rem; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; text-align: left; }
+.cloud-badge__actions button:hover { border-color: var(--accent-2); }
+.cloud-badge__embed { flex-basis: 100%; }
+.cloud-badge__embed iframe { display: block; border: 0; border-radius: 10px; background: white; }
 .certs { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
 .certs__group-title { color: var(--accent-2); font-size: 1rem; margin-bottom: 14px; }
 .cert-card {

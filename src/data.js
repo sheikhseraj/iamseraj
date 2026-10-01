@@ -240,6 +240,16 @@ export const education = {
   ],
 }
 
+// Add future badges here only once awarded, with their official Credly ID and artwork.
+export const cloudBadges = [
+  {
+    id: 'ad23491e-dc6e-4694-b9cd-d110e206fd0c',
+    name: 'AWS Well-Architected Proficient',
+    image: '/badges/well-architected-proficient.png',
+    url: 'https://www.credly.com/badges/ad23491e-dc6e-4694-b9cd-d110e206fd0c/public_url',
+  },
+]
+
 export const certifications = {
   en: [
     { name: 'ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM)', year: '2024' },
