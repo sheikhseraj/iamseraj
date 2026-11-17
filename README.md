@@ -4,6 +4,8 @@ The lab is integrated into the React portfolio at `/aws-practice`. Use it to pra
 
 ## Run locally
 
+Use Node.js 22.12 or later. The checks below were run on Node.js 24.
+
 From `D:\Project_All\Portfolio\portfolio-v2\Portfolio v02`:
 
 ```powershell
@@ -11,7 +13,7 @@ npm ci
 npm run dev:web
 ```
 
-Open `http://localhost:5173/aws-practice`, or follow **AWS Practice Lab** in the portfolio’s Tools section. Guest practice can run with Vite alone. To test accounts, configure MySQL in `.env` using the existing `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` settings, then run:
+Open `http://localhost:5173/aws-practice`, or follow **AWS Practice Lab** from the portfolio menu under **Tools** (`/tools`). Guest practice can run with Vite alone. To test accounts, configure MySQL in `.env` using the existing `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` settings, then run:
 
 ```powershell
 npm run migrate:aws-practice

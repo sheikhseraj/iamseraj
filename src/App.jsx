@@ -3,7 +3,6 @@ import { profile, socials, skills, experience, education, certifications, cloudB
 import { useLang } from './lang.js'
 import SiteLayout from './components/SiteLayout.jsx'
 import Connect from './Connect.jsx'
-import Blog from './Blog.jsx'
 
 const socialUrl = (social, lang) => typeof social.url === 'string' ? social.url : social.url[lang]
 
@@ -26,10 +25,14 @@ function Hero() {
           )}
         </div>
         </div>
-        <a className="hero__credential" href="#certifications">
-          <img src={cloudBadges[0].image} alt="" width="120" height="120" />
-          <span>{cloudBadges[0].name}<small>{lang === 'de' ? 'Nachweis ansehen' : 'View credential'} ↗</small></span>
-        </a>
+        <ul className="hero__credentials" aria-label={lang === 'de' ? 'AWS-Nachweise' : 'AWS credentials'}>
+          {cloudBadges.map(badge => <li key={badge.id}>
+            <a className="hero__credential" href={`#credential-${badge.id}`}>
+              <img src={badge.image} alt="" width="88" height="88" />
+              <span>{badge.name}<small>{lang === 'de' ? 'Nachweis ansehen' : 'View credential'}</small></span>
+            </a>
+          </li>)}
+        </ul>
       </div>
     </section>
   )
@@ -352,7 +355,7 @@ function CloudBadge({ badge }) {
   const { lang } = useLang()
   const [showEmbed, setShowEmbed] = useState(false)
   return (
-    <article className="cloud-badge">
+    <article className="cloud-badge" id={`credential-${badge.id}`}>
       <a className="cloud-badge__image" href={badge.url} target="_blank" rel="noreferrer">
         <img src={badge.image} alt={badge.name} width="180" height="180" loading="lazy" />
       </a>
@@ -466,27 +469,10 @@ function Contact() {
   )
 }
 
-function Tools() {
-  const { lang } = useLang()
-  return <Section id="tools" title="Tools">
-    <div className="tools-grid">
-      <article className="tool-card">
-        <div>
-          <h3>AWS Cloud Practitioner Practice Lab</h3>
-          <p>{lang === 'de'
-            ? 'Übungsfragen, Probeklausuren und Lernkarten zur Vorbereitung auf die AWS-Zertifizierung CLF-C02.'
-            : 'Prepare for the AWS CLF-C02 certification with practice questions, mock exams, and flashcards.'}</p>
-        </div>
-        <a className="btn btn--primary" href="/aws-practice">AWS Practice Lab</a>
-      </article>
-    </div>
-  </Section>
-}
-
 export default function App() {
   return <SiteLayout includeChat>
-    <Hero /><About /><Skills /><Projects /><Tools /><CloudJourney />
+    <Hero /><About /><Skills /><Projects /><CloudJourney />
     <div className="exp-edu-grid"><Experience /><Education /></div>
-    <Certifications /><Connect /><Blog /><Contact />
+    <Certifications /><Connect /><Contact />
   </SiteLayout>
 }

@@ -1,8 +1,13 @@
 import { useState } from 'react'
 import { blogs, ui } from './data.js'
 import { useLang } from './lang.js'
+import SiteLayout from './components/SiteLayout.jsx'
 
-export default function Blog() {
+export default function BlogPage() {
+  return <SiteLayout page="/blog" pageTitle="Blog"><Blog /></SiteLayout>
+}
+
+function Blog() {
   const { lang } = useLang()
   const [selectedBlog, setSelectedBlog] = useState(null)
   const labels = { en: { share: 'Share', close: 'Close' }, de: { share: 'Teilen', close: 'Schließen' } }
@@ -34,9 +39,9 @@ export default function Blog() {
   }
 
   return (
-    <section id="blog" className="section">
+    <section id="blog" className="portfolio-page">
       <div className="container">
-        <h2 className="section__title"><span>#</span> {ui[lang].titles.blog}</h2>
+        <h1 className="portfolio-page__title">{ui[lang].titles.blog}</h1>
 
         {/* Blog cards grid */}
         <div className="blog-grid">

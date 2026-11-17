@@ -7,6 +7,8 @@ import './index.css'
 const Admin = lazy(() => import('./Admin.jsx'))
 const Community = lazy(() => import('./Community.jsx'))
 const AwsPractice = lazy(() => import('./aws-practice/AwsPractice.jsx'))
+const Blog = lazy(() => import('./Blog.jsx'))
+const Tools = lazy(() => import('./Tools.jsx'))
 
 function Router() {
   const [pathname, setPathname] = useState(window.location.pathname.replace(/\/$/, '') || '/')
@@ -22,6 +24,8 @@ function Router() {
   if (pathname === '/admin') return <Suspense fallback={<p role="status">Loading admin…</p>}><Admin /></Suspense>
   if (pathname === '/community') return <Suspense fallback={<p role="status">Loading community…</p>}><Community /></Suspense>
   if (pathname === '/aws-practice') return <Suspense fallback={<p role="status">Loading AWS Practice Lab…</p>}><AwsPractice /></Suspense>
+  if (pathname === '/blog') return <Suspense fallback={<p role="status">Loading blog…</p>}><Blog /></Suspense>
+  if (pathname === '/tools') return <Suspense fallback={<p role="status">Loading tools…</p>}><Tools /></Suspense>
   return <App />
 }
 
