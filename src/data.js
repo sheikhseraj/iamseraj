@@ -251,8 +251,15 @@ export const cloudBadges = [
   {
     id: '92d380b6-1be5-4ee9-a0ac-862d97f90bc8',
     name: 'AWS re/Start Graduate',
+    featured: true,
     image: '/badges/aws-re-start-graduate.png',
     url: 'https://www.credly.com/badges/92d380b6-1be5-4ee9-a0ac-862d97f90bc8/public_url',
+  },
+  {
+    id: '1bf7ce7a-f64f-40d5-ab17-4a71384c536e',
+    name: 'AWS Knowledge: Amazon ECS - Training Badge',
+    image: '/badges/aws-knowledge-amazon-ecs-training-badge.png',
+    url: 'https://www.credly.com/badges/1bf7ce7a-f64f-40d5-ab17-4a71384c536e/public_url',
   },
 ]
 

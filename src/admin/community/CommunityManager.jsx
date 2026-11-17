@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
+import ThemeToggle from '../../components/ThemeToggle.jsx'
 import { createCommunityApi } from './api.js'
 import { CommunityContext, Notice } from './components.jsx'
 import Overview from './Overview.jsx'
@@ -79,7 +80,7 @@ export default function CommunityManager({ token, onUnauthorized, onExit, onLogo
     </aside>
     <div className="community-workspace" inert={mobile && menuOpen ? '' : undefined}><header className="community-topbar"><button className="community-menu-toggle" onClick={() => setMenuOpen(value => !value)} aria-expanded={menuOpen} aria-controls="community-sidebar" aria-label="Toggle navigation"><Icon name="menu" /></button>
       <form className="community-global-search" onSubmit={event => { event.preventDefault(); setSearchOpen(true) }}><Icon name="search" /><input aria-label="Search members, groups, requests" placeholder="Search members, groups, requests…" value={search} maxLength={160} onChange={event => setSearch(event.target.value)} /><button aria-label="Search community" type="submit"><Icon name="arrow" size={16} /></button></form>
-      <div className="community-topbar-user"><button className="community-notifications" aria-label="Review join requests" onClick={() => navigate('requests')}><Icon name="bell" />{counts?.pendingRequests > 0 && <small>{counts.pendingRequests}</small>}</button><button className="community-account" onClick={() => onExit?.('profile')}><img src="/photo-linkedin.jpg" alt="" /><span><strong>Seraj</strong><small>Admin</small></span></button></div>
+      <div className="community-topbar-user"><ThemeToggle /><button className="community-notifications" aria-label="Review join requests" onClick={() => navigate('requests')}><Icon name="bell" />{counts?.pendingRequests > 0 && <small>{counts.pendingRequests}</small>}</button><button className="community-account" onClick={() => onExit?.('profile')}><img src="/photo-linkedin.jpg" alt="" /><span><strong>Seraj</strong><small>Admin</small></span></button></div>
     </header><main className="community-content"><section className="community" aria-labelledby="community-heading">
     <div className="community-heading"><div className="community-title-group"><span className="community-title-icon" aria-hidden="true"><Icon name="phone" size={34} /></span><div><h2 id="community-heading">WhatsApp Community Management</h2><p className="text-muted">Manage join requests, groups and members, and keep the community safe and helpful.</p></div></div>
       <div className="community-summary"><span className="community-badge is-neutral">Manual WhatsApp handoff</span>{settings && <span className={`community-badge ${settings.feature_enabled ? 'is-good' : 'is-neutral'}`}>{settings.feature_enabled ? 'Community enabled' : 'Community disabled'}</span>}</div>

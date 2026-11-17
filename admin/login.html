@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="/portfolio-theme.css">
+  <script src="/portfolio-theme.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login - Seraj</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,12 +16,12 @@
 
     body {
       font-family: 'Space Grotesk', sans-serif;
-      background: linear-gradient(135deg, #060d1a 0%, #0f1729 100%);
+      background: linear-gradient(135deg, var(--bg) 0%, var(--bg-elev) 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #e6e9f0;
+      color: var(--text);
     }
 
     .login-container {
@@ -29,8 +31,8 @@
     }
 
     .login-box {
-      background: #0f1729;
-      border: 1px solid #1f2940;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
       border-radius: 16px;
       padding: 40px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -45,7 +47,7 @@
       font-size: 28px;
       font-weight: 700;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      background: linear-gradient(135deg, var(--accent), var(--accent-text));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -53,7 +55,7 @@
 
     .logo p {
       font-size: 14px;
-      color: #94a0b8;
+      color: var(--text-dim);
     }
 
     .form-group {
@@ -65,16 +67,16 @@
       margin-bottom: 8px;
       font-size: 14px;
       font-weight: 500;
-      color: #e6e9f0;
+      color: var(--text);
     }
 
     input[type="password"] {
       width: 100%;
       padding: 12px 16px;
-      background: #151c2e;
-      border: 1px solid #1f2940;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      color: #e6e9f0;
+      color: var(--text);
       font-family: 'Space Grotesk', sans-serif;
       font-size: 14px;
       transition: all 0.2s;
@@ -82,14 +84,14 @@
 
     input[type="password"]:focus {
       outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
     }
 
     button {
       width: 100%;
       padding: 12px;
-      background: #2563eb;
+      background: var(--accent);
       color: white;
       border: none;
       border-radius: 10px;
@@ -101,7 +103,7 @@
     }
 
     button:hover {
-      background: #1d4ed8;
+      background: var(--accent-hover);
       transform: translateY(-2px);
     }
 
@@ -111,9 +113,9 @@
 
     .error {
       display: none;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
+      background: var(--danger-surface);
+      border: 1px solid var(--danger-border);
+      color: var(--danger);
       padding: 12px;
       border-radius: 8px;
       margin-bottom: 20px;
@@ -127,7 +129,7 @@
     .loading {
       display: none;
       text-align: center;
-      color: #94a0b8;
+      color: var(--text-dim);
       font-size: 13px;
     }
 
@@ -135,8 +137,8 @@
       display: inline-block;
       width: 16px;
       height: 16px;
-      border: 2px solid #1f2940;
-      border-top-color: #2563eb;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       margin-right: 8px;
@@ -151,6 +153,10 @@
 <body>
   <div class="login-container">
     <div class="login-box">
+      <div class="admin-theme-actions"><button type="button" class="site-theme-toggle" data-theme-toggle>
+        <span class="theme-for-dark"><span aria-hidden="true">☀</span><span class="theme-label">Switch to light mode</span></span>
+        <span class="theme-for-light"><span aria-hidden="true">☾</span><span class="theme-label">Switch to dark mode</span></span>
+      </button></div>
       <div class="logo">
         <h1>Seraj Admin</h1>
         <p>Content & Analytics Hub</p>

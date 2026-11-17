@@ -16,7 +16,7 @@
 .public-community button.btn { font-family: inherit; cursor: pointer; }
 .public-community button.btn--ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .public-community-status { color: var(--text-dim); font-size: .75rem; }
-.public-community-status.is-open { color: #51cf66; }
+.public-community-status.is-open { color: var(--success); }
 .public-community-message { padding: 24px; color: var(--text-dim); border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius); }
 .public-community .section__intro { margin-bottom: 24px; }
 .public-community-guidelines { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); list-style: none; gap: 14px; }
@@ -42,10 +42,10 @@
 .public-community-consent a { color: var(--accent-2); }
 .public-community-form .btn { margin-top: 14px; cursor: pointer; font-family: inherit; border: 0; }
 .public-community button:disabled { opacity: .5; cursor: not-allowed; }
-.public-community-error { border: 1px solid rgba(255,107,107,.4); background: rgba(255,107,107,.08); padding: 20px; border-radius: 10px; color: #ff9b9b; margin-bottom: 20px; }
+.public-community-error { border: 1px solid var(--danger-border); background: var(--danger-surface); padding: 20px; border-radius: 10px; color: var(--danger); margin-bottom: 20px; }
 .public-community-error .btn { margin-top: 12px; }
-.public-community-success { padding: 40px; text-align: center; border: 1px solid rgba(81,207,102,.3); border-radius: var(--radius); background: var(--bg-card); }
-.public-community-success > span { display: grid; place-items: center; width: 52px; height: 52px; background: rgba(81,207,102,.1); border-radius: 50%; color: #51cf66; font-size: 1.8rem; margin: 0 auto 18px; }
+.public-community-success { padding: 40px; text-align: center; border: 1px solid var(--success-border); border-radius: var(--radius); background: var(--bg-card); }
+.public-community-success > span { display: grid; place-items: center; width: 52px; height: 52px; background: var(--success-surface); border-radius: 50%; color: var(--success); font-size: 1.8rem; margin: 0 auto 18px; }
 .public-community-success h3 { margin-bottom: 12px; font-size: 1.4rem; }
 .public-community-success p { color: var(--text-dim); margin-top: 12px; }
 .public-community-report-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; }

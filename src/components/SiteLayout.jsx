@@ -2,73 +2,88 @@ import { useState, useEffect, useRef } from 'react'
 import { profile, ui } from '../data.js'
 import { LangContext, useLang } from '../lang.js'
 import ChatWidget from '../ChatWidget.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 
-const PORTFOLIO_NAV = ['about', 'projects', 'experience', 'certifications']
-const MORE_NAV = ['skills', 'cloud-journey', 'education']
+const portfolioSections = ['about', 'skills', 'projects', 'cloud-journey', 'experience', 'education', 'certifications', 'contact']
 
 function Navbar({ page }) {
-  const { lang, setLang } = useLang(), t = ui[lang]
-  const [open, setOpen] = useState(false), [scrolled, setScrolled] = useState(false)
-  const moreMenu = useRef(null)
+  const { lang, setLang } = useLang()
+  const t = ui[lang]
+  const german = lang === 'de'
+  const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const header = useRef(null)
   const menuButton = useRef(null)
-  const [mobile, setMobile] = useState(() => window.matchMedia?.('(max-width: 960px)').matches || false)
-  useEffect(() => {
-    const media = window.matchMedia?.('(max-width: 960px)')
-    if (!media) return
-    const update = () => setMobile(media.matches)
-    media.addEventListener('change', update); return () => media.removeEventListener('change', update)
-  }, [])
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
-    onScroll(); window.addEventListener('scroll', onScroll)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-  const isPortfolio = page !== '/community' && page !== '/aws-practice'
-  const home = lang === 'de' ? 'Startseite' : 'Home'
-  const sectionUrl = id => (page === '/' ? '#' : '/#') + id
-  const links = page === '/community'
-    ? [['/', home], ['/community', 'Community'], ['#community-rules', lang === 'de' ? 'Regeln' : 'Rules'],
-      ['#join-request', lang === 'de' ? 'Beitritt anfragen' : 'Request to join']]
-    : page === '/aws-practice'
-      ? [['/', home], ['/blog', t.nav.blog], ['/tools', t.nav.tools], ['/aws-practice', 'AWS Practice Lab']]
-      : [...PORTFOLIO_NAV.map(id => [sectionUrl(id), t.nav[id]]), ['/blog', t.nav.blog], ['/tools', t.nav.tools], [sectionUrl('contact'), t.nav.contact]]
 
-  function closeMenu() {
-    if (moreMenu.current) moreMenu.current.open = false
-    setOpen(false)
+  useEffect(() => {
+    if (!open) return
+    function dismiss(event) {
+      if (!header.current?.contains(event.target)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', dismiss)
+    document.addEventListener('focusin', dismiss)
+    return () => {
+      document.removeEventListener('pointerdown', dismiss)
+      document.removeEventListener('focusin', dismiss)
+    }
+  }, [open])
+
+  const groups = [
+    {
+      title: 'Portfolio',
+      links: [['/', german ? 'Startseite' : 'Home'], ...portfolioSections.map(id => [
+        (page === '/' ? '#' : '/#') + id, t.nav[id],
+      ])],
+    },
+    {
+      title: german ? 'Entdecken' : 'Explore',
+      links: [['/blog', t.nav.blog], ['/tools', t.nav.tools], ['/aws-practice', 'AWS Practice Lab'], ['/community', 'Community']],
+    },
+  ]
+  if (page === '/community') {
+    groups[1].links.push(['#community-rules', german ? 'Regeln' : 'Rules'], ['#join-request', german ? 'Beitritt anfragen' : 'Request to join'])
   }
 
   function dismissOnEscape(event) {
-    if (event.key !== 'Escape') return
-    if (moreMenu.current?.open) {
-      moreMenu.current.open = false
-      moreMenu.current.querySelector('summary')?.focus()
-    } else if (open) {
+    if (event.key === 'Escape' && open) {
       setOpen(false)
       menuButton.current?.focus()
     }
   }
 
-  return <header className={`nav ${scrolled ? 'nav--scrolled' : ''}`} onKeyDown={dismissOnEscape}><div className="container nav__inner">
-    <a href={page === '/' ? '#top' : '/'} className="nav__brand"><img src={profile.logo} alt={profile.name} className="nav__logo" /></a>
-    <button ref={menuButton} className="nav__toggle" aria-label={lang === 'de' ? 'Menü' : 'Menu'} aria-expanded={open}
-      aria-controls="site-navigation" onClick={() => open ? closeMenu() : setOpen(true)}><span /><span /><span /></button>
-    <nav id="site-navigation" className={`nav__links ${open ? 'is-open' : ''}`} inert={mobile && !open ? '' : undefined}
-      aria-hidden={mobile && !open ? true : undefined} aria-label={lang === 'de' ? 'Hauptnavigation' : 'Main navigation'}>
-      {links.map(([href, label]) => <a key={href} href={href} aria-current={href === page ? 'page' : undefined} onClick={closeMenu}>{label}</a>)}
-      {isPortfolio && <details ref={moreMenu} className="nav__more" onBlur={event => {
-        if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false
-      }}>
-        <summary>{t.nav.more}</summary>
-        <div className="nav__more-links">
-          {MORE_NAV.map(id => <a key={id} href={sectionUrl(id)} onClick={closeMenu}>{t.nav[id]}</a>)}
-        </div>
-      </details>}
-      <button className="lang-toggle" onClick={() => setLang(lang === 'en' ? 'de' : 'en')}
-        aria-label={lang === 'de' ? 'Sprache wechseln' : 'Switch language'}>{t.switchTo}</button>
-    </nav>
-  </div></header>
+  return <header ref={header} className={`nav ${scrolled ? 'nav--scrolled' : ''}`} onKeyDown={dismissOnEscape}>
+    <div className="container nav__inner">
+      <a href={page === '/' ? '#top' : '/'} className="nav__brand"><img src={profile.logo} alt={profile.name} className="nav__logo" /></a>
+      <div className="nav__actions">
+        <button type="button" ref={menuButton} className="nav__toggle" aria-expanded={open} aria-controls="site-navigation"
+          onClick={() => setOpen(value => !value)}>
+          <span className="nav__menu-icon" aria-hidden="true"><i /><i /><i /></span>
+          {german ? 'Menü' : 'Menu'}
+        </button>
+        <nav id="site-navigation" className="nav__links" hidden={!open} inert={!open ? '' : undefined}
+          aria-label={german ? 'Hauptnavigation' : 'Main navigation'}>
+          {groups.map(group => <div key={group.title} className="nav__group">
+            <span>{group.title}</span>
+            <ul>{group.links.map(([href, label]) => <li key={href}>
+              <a href={href} aria-current={href === page ? 'page' : undefined} onClick={() => setOpen(false)}>{label}</a>
+            </li>)}</ul>
+          </div>)}
+        </nav>
+        <ThemeToggle lang={lang} />
+        <button type="button" className="lang-toggle" onClick={() => setLang(german ? 'en' : 'de')}
+          aria-label={german ? 'Sprache wechseln' : 'Switch language'}>{t.switchTo}</button>
+      </div>
+    </div>
+  </header>
 }
+
 function Footer() {
   const { lang } = useLang()
   return <footer className="footer"><div className="container"><p>© {new Date().getFullYear()} {profile.name}. {ui[lang].footerBuilt}</p>

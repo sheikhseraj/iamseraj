@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './admin.css'
+import ThemeToggle from '../components/ThemeToggle.jsx'
 
 export default function AdminLogin({ onLogin }) {
   const [email, setEmail] = useState('')
@@ -38,6 +39,7 @@ export default function AdminLogin({ onLogin }) {
     <div className="admin-login-page">
       <div className="admin-login-container">
         <div className="admin-login-box">
+          <div className="admin-theme-actions"><ThemeToggle /></div>
           <h1>Portfolio Admin</h1>
           <p>Sign in to manage your portfolio</p>
 

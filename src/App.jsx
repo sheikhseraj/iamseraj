@@ -5,6 +5,7 @@ import SiteLayout from './components/SiteLayout.jsx'
 import Connect from './Connect.jsx'
 
 const socialUrl = (social, lang) => typeof social.url === 'string' ? social.url : social.url[lang]
+const featuredBadge = cloudBadges.find(badge => badge.featured)
 
 function Hero() {
   const { lang } = useLang()
@@ -25,14 +26,10 @@ function Hero() {
           )}
         </div>
         </div>
-        <ul className="hero__credentials" aria-label={lang === 'de' ? 'AWS-Nachweise' : 'AWS credentials'}>
-          {cloudBadges.map(badge => <li key={badge.id}>
-            <a className="hero__credential" href={`#credential-${badge.id}`}>
-              <img src={badge.image} alt="" width="88" height="88" />
-              <span>{badge.name}<small>{lang === 'de' ? 'Nachweis ansehen' : 'View credential'}</small></span>
-            </a>
-          </li>)}
-        </ul>
+        {featuredBadge && <a className="hero__credential" href={`#credential-${featuredBadge.id}`}>
+          <img src={featuredBadge.image} alt="" width="112" height="112" />
+          <span>{featuredBadge.name}<small>{lang === 'de' ? 'Nachweis ansehen' : 'View credential'}</small></span>
+        </a>}
       </div>
     </section>
   )
@@ -357,7 +354,7 @@ function CloudBadge({ badge }) {
   return (
     <article className="cloud-badge" id={`credential-${badge.id}`}>
       <a className="cloud-badge__image" href={badge.url} target="_blank" rel="noreferrer">
-        <img src={badge.image} alt={badge.name} width="180" height="180" loading="lazy" />
+        <img src={badge.image} alt={badge.name} width="132" height="132" loading="lazy" />
       </a>
       <div className="cloud-badge__content">
         <span className="cloud-badge__status">{lang === 'de' ? 'Erhalten' : 'Earned'}</span>
@@ -380,6 +377,74 @@ function CloudBadge({ badge }) {
       </div>
     </article>
   )
+}
+
+function CloudBadgeCarousel() {
+  const { lang } = useLang()
+  const trackRef = useRef(null)
+  const [navigation, setNavigation] = useState({ index: 0, stops: [0] })
+
+  useEffect(() => {
+    const track = trackRef.current
+    function syncNavigation() {
+      const max = track.scrollWidth - track.clientWidth
+      const first = track.firstElementChild.getBoundingClientRect().left
+      const stops = [0]
+      for (const card of track.children) {
+        const offset = Math.round(Math.min(max, card.getBoundingClientRect().left - first))
+        if (offset - stops.at(-1) > 1) stops.push(offset)
+      }
+      const index = stops.reduce((nearest, offset, i) =>
+        Math.abs(track.scrollLeft - offset) < Math.abs(track.scrollLeft - stops[nearest]) ? i : nearest, 0)
+      setNavigation(previous => previous.index === index && previous.stops.join() === stops.join()
+        ? previous : { index, stops })
+    }
+    syncNavigation()
+    track.addEventListener('scroll', syncNavigation, { passive: true })
+    window.addEventListener('resize', syncNavigation)
+    const observer = window.ResizeObserver ? new window.ResizeObserver(syncNavigation) : null
+    observer?.observe(track)
+    return () => {
+      observer?.disconnect()
+      track.removeEventListener('scroll', syncNavigation)
+      window.removeEventListener('resize', syncNavigation)
+    }
+  }, [])
+
+  const { index, stops } = navigation
+  const scrollable = stops.length > 1
+  const labels = lang === 'de'
+    ? { group: 'AWS & Cloud-Badges', previous: 'Vorherige Badges', next: 'Nächste Badges', page: 'Badge-Seite' }
+    : { group: 'AWS & Cloud Badges', previous: 'Previous badges', next: 'Next badges', page: 'Badge page' }
+
+  function move(next) {
+    const left = stops[next]
+    if (left === undefined) return
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    trackRef.current.scrollTo({ left, behavior: reducedMotion ? 'instant' : 'smooth' })
+  }
+
+  return <div className="cloud-badge-carousel">
+    <div className="cloud-badge-carousel__header">
+      <h3 id="cloud-badge-heading" className="certs__group-title">{labels.group}</h3>
+      {scrollable && <div className="proj-arrows">
+        <button type="button" className="proj-arrow" aria-label={labels.previous}
+          aria-controls="cloud-badge-track" disabled={index === 0} onClick={() => move(index - 1)}>←</button>
+        <span className="proj-counter" aria-hidden="true">{index + 1} / {stops.length}</span>
+        <button type="button" className="proj-arrow" aria-label={labels.next}
+          aria-controls="cloud-badge-track" disabled={index === stops.length - 1} onClick={() => move(index + 1)}>→</button>
+      </div>}
+    </div>
+    <div id="cloud-badge-track" className="cloud-badges" ref={trackRef} role="region"
+      aria-labelledby="cloud-badge-heading" tabIndex={scrollable ? 0 : undefined}>
+      {cloudBadges.map(badge => <CloudBadge key={badge.id} badge={badge} />)}
+    </div>
+    {scrollable && <div className="cloud-badge-carousel__dots">
+      {stops.map((offset, i) => <button type="button" key={offset} aria-label={labels.page + ' ' + (i + 1)}
+        aria-controls="cloud-badge-track" aria-current={i === index ? 'true' : undefined}
+        onClick={() => move(i)} />)}
+    </div>}
+  </div>
 }
 
 function Certifications() {
@@ -415,10 +480,7 @@ function Certifications() {
 
   return (
     <Section id="certifications" title={t.titles.certifications}>
-      <h3 className="certs__group-title">{lang === 'de' ? 'AWS & Cloud-Badges' : 'AWS & Cloud Badges'}</h3>
-      <div className="cloud-badges">
-        {cloudBadges.map(badge => <CloudBadge key={badge.id} badge={badge} />)}
-      </div>
+      <CloudBadgeCarousel />
       <h3 className="certs__group-title">{t.certificationGroups.quality}</h3>
       <div className="certs">
         {certifications[lang].map((c, i) => (

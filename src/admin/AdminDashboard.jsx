@@ -6,6 +6,7 @@ import ExperienceManager from './ExperienceManager'
 import EducationManager from './EducationManager'
 import CertificationsManager from './CertificationsManager'
 import './admin.css'
+import ThemeToggle from '../components/ThemeToggle.jsx'
 const CommunityManager = lazy(() => import('./community/CommunityManager.jsx'))
 
 export default function AdminDashboard({ token, onLogout, onUnauthorized }) {
@@ -39,9 +40,10 @@ export default function AdminDashboard({ token, onLogout, onUnauthorized }) {
     <div className="admin-dashboard">
       <div className="admin-header">
         <h1>Portfolio Admin Dashboard</h1>
-        <button onClick={onLogout} className="btn-logout">
-          Logout
-        </button>
+        <div className="admin-theme-actions">
+          <ThemeToggle />
+          <button onClick={onLogout} className="btn-logout">Logout</button>
+        </div>
       </div>
 
       <div className="admin-tabs">
