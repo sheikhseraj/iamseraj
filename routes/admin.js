@@ -1,6 +1,7 @@
 import express from 'express'
 import { generateToken } from '../server/jwt.js'
 import { getTodaysContent } from '../server/db.js'
+import { sameOrigin, rateLimit } from '../server/community/security.js'
 
 const router = express.Router()
 
@@ -13,13 +14,16 @@ const requireAdmin = (req, res, next) => {
 }
 
 // Login API
-router.post('/api/login', (req, res) => {
-  const { password } = req.body
-  const correctPassword = process.env.ADMIN_PASSWORD || 'admin123'
+router.post('/api/login', sameOrigin, rateLimit({ limit: 10, windowMs: 900000 }), (req, res) => {
+  const { password } = req.body || {}
+  const correctPassword = process.env.ADMIN_PASSWORD || (process.env.NODE_ENV !== 'production' ? 'admin123' : null)
 
-  if (password === correctPassword) {
-    req.session.admin = true
-    res.json({ success: true })
+  if (correctPassword && password === correctPassword) {
+    req.session.regenerate(error => {
+      if (error) return res.status(500).json({ error: 'Login failed' })
+      req.session.admin = true
+      req.session.save(error => error ? res.status(500).json({ error: 'Login failed' }) : res.json({ success: true }))
+    })
   } else {
     res.status(401).json({ error: 'Invalid password' })
   }
@@ -35,16 +39,17 @@ router.get('/api/check-auth', (req, res) => {
 })
 
 // Logout API
-router.post('/api/logout', (req, res) => {
+router.post('/api/logout', sameOrigin, (req, res) => {
   req.session.destroy(() => {
     res.json({ success: true })
   })
 })
 
 // Generate JWT token for authenticated session
-router.post('/api/get-token', requireAdmin, (req, res) => {
+router.post('/api/get-token', sameOrigin, requireAdmin, (req, res) => {
   try {
-    const token = generateToken(1, 'admin@portfolio.local')
+    const token = generateToken(null, 'admin@portfolio.local', { actorKind: 'SHARED_ADMIN', sessionId: req.sessionID })
+    res.set('Cache-Control', 'no-store')
     res.json({ token, success: true })
   } catch (err) {
     console.error('Token generation error:', err)
@@ -62,14 +67,14 @@ router.post('/api/generate', requireAdmin, async (req, res) => {
 
   try {
     // Call backend route to generate content
-    const port = process.env.PORT || 3000
+    const port = process.env.PORT || 3001
     const url = `http://127.0.0.1:${port}/api/generate-content`
 
     console.log(`Fetching from: ${url}`)
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Cookie: req.get('cookie') || '' },
       body: JSON.stringify({ mode, topics, tone })
     })
 

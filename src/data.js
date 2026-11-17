@@ -469,7 +469,7 @@ export const projects = [
 // UI labels, buttons, section titles, and chat strings per language.
 export const ui = {
   en: {
-    nav: { about: 'About', skills: 'Cloud & Skills', projects: 'Projects', 'cloud-journey': 'Cloud Journey', experience: 'Experience', education: 'Education', certifications: 'Certifications', contact: 'Contact' },
+    nav: { about: 'About', skills: 'Cloud & Skills', projects: 'Projects', tools: 'Tools', 'cloud-journey': 'Cloud Journey', experience: 'Experience', education: 'Education', certifications: 'Certifications', contact: 'Contact' },
     hero: { eyebrow: 'Cloud infrastructure · automation · quality', viewProjects: 'View Cloud Projects', getInTouch: 'Contact Me', resume: 'Résumé' },
     titles: { about: 'About', skills: 'Cloud & Engineering Skills', projects: 'Cloud & Engineering Projects', cloudJourney: 'Building My AWS Cloud City', experience: 'Professional Engineering & Quality Experience', education: 'Education & Training', certifications: 'Certifications', connect: 'Connect', blog: 'Knowledge & Blog', contact: 'Contact', languages: 'Languages' },
     projects: { featured: '★ Cloud focus' },
@@ -494,7 +494,7 @@ export const ui = {
     },
   },
   de: {
-    nav: { about: 'Über mich', skills: 'Cloud & Skills', projects: 'Projekte', 'cloud-journey': 'Cloud Journey', experience: 'Erfahrung', education: 'Ausbildung', certifications: 'Zertifikate', contact: 'Kontakt' },
+    nav: { about: 'Über mich', skills: 'Cloud & Skills', projects: 'Projekte', tools: 'Tools', 'cloud-journey': 'Cloud Journey', experience: 'Erfahrung', education: 'Ausbildung', certifications: 'Zertifikate', contact: 'Kontakt' },
     hero: { eyebrow: 'Cloud-Infrastruktur · Automatisierung · Qualität', viewProjects: 'Cloud-Projekte ansehen', getInTouch: 'Kontakt aufnehmen', resume: 'Lebenslauf' },
     titles: { about: 'Über mich', skills: 'Cloud- & Engineering-Kenntnisse', projects: 'Cloud- & Engineering-Projekte', cloudJourney: 'Aufbau meiner AWS Cloud City', experience: 'Professionelle Engineering- & Quality-Erfahrung', education: 'Ausbildung & Weiterbildung', certifications: 'Zertifizierungen', connect: 'Profile', blog: 'Wissen & Blog', contact: 'Kontakt', languages: 'Sprachen' },
     projects: { featured: '★ Cloud-Fokus' },

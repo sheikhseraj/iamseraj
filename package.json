@@ -10,7 +10,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "node server.js",
-    "seed": "node server/seed.js"
+    "seed": "node server/seed.js",
+    "migrate:community": "node server/migrate.js",
+    "migrate:aws-practice": "node server/migrate.js aws-practice",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.68.0",

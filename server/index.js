@@ -4,10 +4,14 @@ import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
 import session from 'express-session'
+import { randomBytes } from 'node:crypto'
 import { initDb, isReady, findAnswer, saveAnswer, saveGeneratedContent } from './db.js'
 import { streamAnswer, hasKey } from './ai.js'
 import adminRouter from './admin.js'
 import contentAdminRouter from '../routes/admin.js'
+import communityPublicRouter from './community/public-router.js'
+import communityAdminRouter from './community/admin-router.js'
+import awsPracticeRouter from './aws-practice/router.js'
 
 console.log("Booting app...")
 
@@ -22,19 +26,31 @@ if (!hasKey()) {
 
 const app = express()
 app.use(cors())
-app.use(express.json())
+// Set only a known reverse-proxy hop count, never trust arbitrary forwarded headers.
+if (process.env.TRUST_PROXY_HOPS) {
+  const hops = Number(process.env.TRUST_PROXY_HOPS)
+  if (!Number.isInteger(hops) || hops < 1 || hops > 5) throw new Error('Invalid TRUST_PROXY_HOPS')
+  app.set('trust proxy', hops)
+}
 
 // Session middleware for content admin portal
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
+  secret: process.env.SESSION_SECRET || randomBytes(32).toString('hex'),
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000
   }
 }))
+
+// Community routers enforce their own JSON limits, origin checks, auth and errors.
+app.use('/api/community', communityPublicRouter)
+app.use('/api/admin/community', communityAdminRouter)
+app.use('/api/aws-practice', awsPracticeRouter)
+app.use(express.json())
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, db: isReady(), ai: hasKey() })

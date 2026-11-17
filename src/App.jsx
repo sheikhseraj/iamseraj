@@ -1,50 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { profile, socials, skills, experience, education, certifications, cloudBadges, languages, projects, cloudJourney, ui } from './data.js'
-import { LangContext, useLang } from './lang.js'
-import ChatWidget from './ChatWidget.jsx'
+import { useLang } from './lang.js'
+import SiteLayout from './components/SiteLayout.jsx'
 import Connect from './Connect.jsx'
 import Blog from './Blog.jsx'
 
-const NAV_IDS = ['about', 'skills', 'projects', 'cloud-journey', 'experience', 'education', 'certifications', 'contact']
 const socialUrl = (social, lang) => typeof social.url === 'string' ? social.url : social.url[lang]
-
-function Navbar() {
-  const { lang, setLang } = useLang()
-  const t = ui[lang]
-  const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  return (
-    <header className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
-      <div className="container nav__inner">
-        <a href="#top" className="nav__brand">
-          <img src={profile.logo} alt={profile.name} className="nav__logo" />
-        </a>
-        <button className="nav__toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-          <span /><span /><span />
-        </button>
-        <nav className={`nav__links ${open ? 'is-open' : ''}`}>
-          {NAV_IDS.map((id) => (
-            <a key={id} href={`#${id}`} onClick={() => setOpen(false)}>{t.nav[id]}</a>
-          ))}
-          <button
-            className="lang-toggle"
-            onClick={() => setLang(lang === 'en' ? 'de' : 'en')}
-            aria-label="Switch language"
-          >
-            {t.switchTo}
-          </button>
-        </nav>
-      </div>
-    </header>
-  )
-}
 
 function Hero() {
   const { lang } = useLang()
@@ -505,45 +466,27 @@ function Contact() {
   )
 }
 
-function Footer() {
+function Tools() {
   const { lang } = useLang()
-  return (
-    <footer className="footer">
-      <div className="container">
-        <p>© {new Date().getFullYear()} {profile.name}. {ui[lang].footerBuilt}</p>
-      </div>
-    </footer>
-  )
+  return <Section id="tools" title="Tools">
+    <div className="tools-grid">
+      <article className="tool-card">
+        <div>
+          <h3>AWS Cloud Practitioner Practice Lab</h3>
+          <p>{lang === 'de'
+            ? 'Übungsfragen, Probeklausuren und Lernkarten zur Vorbereitung auf die AWS-Zertifizierung CLF-C02.'
+            : 'Prepare for the AWS CLF-C02 certification with practice questions, mock exams, and flashcards.'}</p>
+        </div>
+        <a className="btn btn--primary" href="/aws-practice">AWS Practice Lab</a>
+      </article>
+    </div>
+  </Section>
 }
 
 export default function App() {
-  const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'en')
-
-  useEffect(() => {
-    localStorage.setItem('lang', lang)
-    document.documentElement.lang = lang
-  }, [lang])
-
-  return (
-    <LangContext.Provider value={{ lang, setLang }}>
-      <Navbar />
-      <main>
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <CloudJourney />
-        <div className="exp-edu-grid">
-          <Experience />
-          <Education />
-        </div>
-        <Certifications />
-        <Connect />
-        <Blog />
-        <Contact />
-      </main>
-      <Footer />
-      <ChatWidget />
-    </LangContext.Provider>
-  )
+  return <SiteLayout includeChat>
+    <Hero /><About /><Skills /><Projects /><Tools /><CloudJourney />
+    <div className="exp-edu-grid"><Experience /><Education /></div>
+    <Certifications /><Connect /><Blog /><Contact />
+  </SiteLayout>
 }

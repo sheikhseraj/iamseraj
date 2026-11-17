@@ -1,5 +1,25 @@
 # Admin Portal Deployment Checklist
 
+## WhatsApp Community backend and public/admin UI
+
+- [ ] Read `WhatsApp/COMMUNITY_IMPLEMENTATION.md`; UI/public launch are later phases.
+- [ ] Back up MySQL; verify users.id type, InnoDB and deployed schema/version.
+- [ ] Verify additive migration/workflows against a dedicated test database first.
+- [ ] Configure strong SESSION_SECRET, JWT_SECRET, ADMIN_PASSWORD and exact COMMUNITY_ORIGIN.
+- [ ] Verify proxy hops before setting TRUST_PROXY_HOPS; check production secure cookies.
+- [ ] Configure/preserve COMMUNITY_ENCRYPTION_KEY only if private invite storage is used.
+- [ ] Run `npm run migrate:community` against the intended database, never a reset/seed.
+- [ ] Run `npm test` and `npm run build`; deploy only Portfolio v02 and restart Node.
+- [ ] Verify original website/chat/admin login and community authorization.
+- [ ] Keep feature/applications off until privacy notice, dedicated MySQL verification and launch checks are complete.
+- [ ] Verify Phase 3 navigation at `/admin?section=community&view=overview` from both existing admin interfaces.
+- [ ] Verify session reuse, logout, 401 handling, confirmations and manual admission flow.
+- [ ] Verify Phase 4 `/community`, language switch, join acknowledgements, stale-version refresh and optional reporting.
+- [ ] Configure actual rules/privacy notice (bilingual if needed); synthetic preview text must not be used for launch.
+- [ ] Verify the homepage's original sections/chat/contact and footer community link after layout extraction.
+- [ ] Confirm synthetic preview fixtures/server are excluded from deployment entry points.
+- [ ] Roll back code/disable the feature if needed; preserve additive tables and history.
+
 ## Before Deploying
 
 - [ ] Read `ADMIN_SETUP.md` completely

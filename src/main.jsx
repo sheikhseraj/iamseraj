@@ -5,19 +5,24 @@ import './index.css'
 
 // Load the admin editor only when the admin page is opened.
 const Admin = lazy(() => import('./Admin.jsx'))
+const Community = lazy(() => import('./Community.jsx'))
+const AwsPractice = lazy(() => import('./aws-practice/AwsPractice.jsx'))
 
 function Router() {
-  const [isAdmin, setIsAdmin] = useState(window.location.pathname === '/admin')
+  const [pathname, setPathname] = useState(window.location.pathname.replace(/\/$/, '') || '/')
 
   useEffect(() => {
     const handlePopState = () => {
-      setIsAdmin(window.location.pathname === '/admin')
+      setPathname(window.location.pathname.replace(/\/$/, '') || '/')
     }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  return isAdmin ? <Suspense fallback={<p role="status">Loading admin…</p>}><Admin /></Suspense> : <App />
+  if (pathname === '/admin') return <Suspense fallback={<p role="status">Loading admin…</p>}><Admin /></Suspense>
+  if (pathname === '/community') return <Suspense fallback={<p role="status">Loading community…</p>}><Community /></Suspense>
+  if (pathname === '/aws-practice') return <Suspense fallback={<p role="status">Loading AWS Practice Lab…</p>}><AwsPractice /></Suspense>
+  return <App />
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(

@@ -71,12 +71,16 @@ export async function initDb() {
       waitForConnections: true,
       connectionLimit: 5,
     })
-    await pool.query(SCHEMA)
+    // Keep multi-statement execution disabled; run each fixed DDL statement separately.
+    for (const statement of SCHEMA.split(';').map(sql => sql.trim()).filter(Boolean)) {
+      await pool.query(statement)
+    }
     ready = true
     console.log('✅ MySQL connected — question cache active.')
     return true
   } catch (err) {
     console.error('⚠️  MySQL init failed — running AI-only:', err.message)
+    await pool?.end().catch(() => {})
     pool = null
     ready = false
     return false

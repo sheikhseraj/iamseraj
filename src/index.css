@@ -480,3 +480,19 @@ a { color: inherit; text-decoration: none; }
   .proj-filters { flex-wrap: nowrap; max-width: 100%; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
   .proj-filter { flex: 0 0 auto; }
 }
+
+/* Portfolio tools */
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(310px, 100%), 1fr)); gap: 16px; }
+.tool-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+}
+.tool-card h3 { margin-bottom: 5px; }
+.tool-card p { color: var(--text-dim); max-width: 62ch; }
