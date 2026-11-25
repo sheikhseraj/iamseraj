@@ -12,7 +12,7 @@
     body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); }
     .header { background: var(--bg-elev); border-bottom: 1px solid var(--border); padding: 20px; display: flex; justify-content: space-between; align-items: center; }
     .header h1 { font-size: 24px; font-weight: 700; }
-    .logout-btn { padding: 8px 16px; background: #9c2e43; color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+    .logout-btn { padding: 8px 16px; background: var(--danger-solid); color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
     .logout-btn:hover { background: var(--danger-border); }
     .tabs { background: var(--bg-elev); border-bottom: 1px solid var(--border); display: flex; gap: 0; overflow-x: auto; }
     .tab-btn { flex: 1; padding: 16px 20px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
@@ -31,21 +31,21 @@
     .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
     .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 14px; }
     .form-group textarea { resize: vertical; min-height: 100px; }
-    .btn { padding: 12px 24px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 600; transition: all 0.2s; }
+    .btn { padding: 12px 24px; background: var(--accent); color: var(--on-accent); border: none; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 600; transition: all 0.2s; }
     .btn:hover { background: var(--accent-hover); }
     .btn-secondary { background: var(--border); color: var(--text); margin-right: 10px; }
     .btn-secondary:hover { background: var(--input-border); }
-    .btn-success { background: var(--success); }
-    .btn-success:hover { background: var(--success); }
+    .btn-success { background: var(--success-solid); color: var(--on-status); }
+    .btn-success:hover { background: var(--success-solid); }
     .message { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; }
-    .message.success { background: #176142; color: white; }
-    .message.error { background: #9c2e43; color: white; }
+    .message.success { background: var(--success-solid); color: white; }
+    .message.error { background: var(--danger-solid); color: white; }
     .content-block { margin: 20px 0; padding: 20px; background: var(--border); border-radius: 8px; border-left: 3px solid var(--accent); }
     .content-block h4 { margin-bottom: 12px; color: var(--accent-text); }
     .content-block p { white-space: pre-wrap; font-size: 13px; line-height: 1.6; margin-bottom: 15px; }
     .hashtags { background: var(--bg-elev); padding: 12px; border-radius: 6px; margin-top: 12px; font-size: 12px; color: var(--accent-text); }
     .button-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-    .posted-badge { padding: 6px 12px; background: #176142; color: white; border-radius: 6px; font-size: 12px; font-weight: 600; margin-right: 10px; margin-bottom: 10px; }
+    .posted-badge { padding: 6px 12px; background: var(--success-solid); color: white; border-radius: 6px; font-size: 12px; font-weight: 600; margin-right: 10px; margin-bottom: 10px; }
     .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--accent); border-radius: 50%; border-top-color: transparent; animation: spin 0.6s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -818,7 +818,7 @@
 
       return `
         <div style="background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative;">
-          ${isTopPick ? '<div style="position: absolute; top: 10px; right: 10px; background: var(--warning); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">🎯 TOP PICK</div>' : ''}
+          ${isTopPick ? '<div style="position: absolute; top: 10px; right: 10px; background: var(--warning-surface); color: var(--warning); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">🎯 TOP PICK</div>' : ''}
 
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
             <div style="background: ${scoreColor}; color: white; padding: 10px 15px; border-radius: 8px; font-weight: 700; text-align: center; min-width: 60px;">

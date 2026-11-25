@@ -1,84 +1,97 @@
 :root {
   color-scheme: dark;
-  --bg: #0b101c;
-  --bg-elev: #111827;
-  --bg-card: #171f32;
-  --bg-hover: #202a43;
-  --text: #edf1fa;
-  --text-dim: #aab4ca;
-  --accent: #5755df;
-  --accent-hover: #4644c6;
-  --accent-text: #acadff;
-  --accent-2: #62dbe9;
-  --on-accent: #fff;
-  --border: #303a51;
-  --input-border: #596582;
-  --nav-bg: #0b101cec;
-  --accent-wash: #7774ff27;
-  --secondary-wash: #4dd7e020;
-  --accent-soft: #262845;
-  --accent-border: #5b5e9b;
-  --secondary-soft: #19313e;
-  --secondary-border: #426b77;
-  --feature-end: #222446;
-  --success: #91e5b9;
+  --bg: #1C1C1B;
+  --bg-elev: #2D2D2B;
+  --bg-card: #252524;
+  --bg-hover: #2D2D2B;
+  --text: #F1EEE7;
+  --heading: #F1EEE7;
+  --text-dim: #B4B0A7;
+  --accent: #D4AF57;
+  --accent-hover: #E2C379;
+  --accent-text: #D4AF57;
+  --accent-2: #D4AF57;
+  --on-accent: #17150F;
+  --border: #3B3B38;
+  --input-border: #55534E;
+  --nav-bg: #252524;
+  --accent-wash: rgba(212, 175, 87, 0.06);
+  --secondary-wash: rgba(212, 175, 87, 0.03);
+  --accent-soft: #2D2D2B;
+  --accent-border: #55534E;
+  --secondary-soft: #2D2D2B;
+  --secondary-border: #55534E;
+  --feature-end: #2D2D2B;
+  --success: #91E5B9;
   --success-surface: #193329;
   --success-border: #539177;
-  --danger: #ffadb8;
-  --danger-surface: #40252d;
-  --danger-border: #ab6874;
-  --warning: #f7d28c;
-  --warning-surface: #3b2f1c;
-  --warning-border: #9b7b42;
-  --chart-positive: #68d7a7;
-  --chart-negative: #d38396;
-  --side-bg: #121b2c;
-  --side-selected: #27354f;
-  --shadow: #060a13a0;
-  --overlay: #030712b3;
+  --danger: #FFADB8;
+  --danger-surface: #40252D;
+  --danger-border: #AB6874;
+  --warning: #F7D28C;
+  --warning-surface: #3B2F1C;
+  --warning-border: #9B7B42;
+  --chart-positive: #68D7A7;
+  --chart-negative: #D38396;
+  --side-bg: #252524;
+  --side-selected: #2D2D2B;
+  --shadow: rgba(0, 0, 0, 0.24);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --success-solid: #176142;
+  --danger-solid: #9C2E43;
+  --on-status: #FFFFFF;
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f6efe0;
-  --bg-elev: #faf4e8;
-  --bg-card: #fdfaf3;
-  --bg-hover: #eee4d1;
-  --text: #112347;
-  --text-dim: #425370;
-  --accent: #143257;
-  --accent-hover: #23476f;
-  --accent-text: #23476f;
-  --accent-2: #785b1a;
-  --on-accent: #fff;
-  --border: #d8c8ab;
-  --input-border: #9a8b73;
-  --nav-bg: #f8f1e4f5;
-  --accent-wash: #14325715;
-  --secondary-wash: #9d79241b;
-  --accent-soft: #e3e9f0;
-  --accent-border: #8095ab;
-  --secondary-soft: #efe3c6;
-  --secondary-border: #ac925a;
-  --feature-end: #f1e5ca;
+  --bg: #F8F1E3;
+  --bg-elev: #F3EADA;
+  --bg-card: #FFFCF5;
+  --bg-hover: #F3EADA;
+  --text: #0F1F47;
+  --heading: #0B2D52;
+  --text-dim: #546484;
+  --accent: #0B2D52;
+  --accent-hover: #173F65;
+  --accent-text: #0B2D52;
+  --accent-2: #796520;
+  --on-accent: #FFFCF5;
+  --border: #E0D5BE;
+  --input-border: #CFC0A2;
+  --nav-bg: #FFFCF5;
+  --accent-wash: rgba(121, 101, 32, 0.05);
+  --secondary-wash: rgba(121, 101, 32, 0.03);
+  --accent-soft: #F3EADA;
+  --accent-border: #CFC0A2;
+  --secondary-soft: #F3EADA;
+  --secondary-border: #CFC0A2;
+  --feature-end: #F3EADA;
   --success: #176142;
-  --success-surface: #e1efe5;
-  --success-border: #5d8b72;
+  --success-surface: #E1EFE5;
+  --success-border: #5D8B72;
   --danger: #912738;
-  --danger-surface: #f8e5e6;
-  --danger-border: #b87179;
-  --warning: #72500f;
-  --warning-surface: #f9ecd0;
-  --warning-border: #a88646;
-  --chart-positive: #33816a;
-  --chart-negative: #ad4258;
-  --side-bg: #efe5d2;
-  --side-selected: #e5d5b2;
-  --shadow: #604b232e;
-  --overlay: #162540a6;
+  --danger-surface: #F8E5E6;
+  --danger-border: #B87179;
+  --warning: #72500F;
+  --warning-surface: #F9ECD0;
+  --warning-border: #A88646;
+  --chart-positive: #33816A;
+  --chart-negative: #AD4258;
+  --side-bg: #F3EADA;
+  --side-selected: #E0D5BE;
+  --shadow: rgba(74, 58, 26, 0.14);
+  --overlay: rgba(15, 31, 71, 0.5);
 }
 
 html { background: var(--bg); color: var(--text); }
+h1, h2, h3, h4, h5, h6 { color: var(--heading); }
+:where(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+:where(input, select, textarea) { accent-color: var(--accent); }
+:where(input, textarea)::placeholder { color: var(--text-dim); opacity: 1; }
+:where(select, option) { color: var(--text); background: var(--bg-card); }
 
 .site-theme-toggle {
   display: inline-grid;

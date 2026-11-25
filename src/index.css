@@ -186,7 +186,7 @@ a { color: inherit; text-decoration: none; }
 .journey { overflow: hidden; padding-top: 8px; }
 .journey__track { display: flex; align-items: stretch; gap: 18px; transition: transform .35s cubic-bezier(.4,0,.2,1); }
 .journey__step { position: relative; min-width: 0; padding: 26px 22px 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); display: flex; flex: 0 0 calc((100% - 36px) / 3); flex-direction: column; transition: border-color .2s, transform .2s, box-shadow .2s; }
-.journey__step:hover { border-color: var(--accent-2); transform: translateY(-5px); box-shadow: 0 16px 32px rgba(0,0,0,.18); }
+.journey__step:hover { border-color: var(--accent-2); transform: translateY(-5px); box-shadow: 0 16px 32px var(--shadow); }
 .journey__node { width: 52px; height: 52px; margin: 0 0 16px; display: grid; place-items: center; border-radius: 14px; border: 1px solid var(--secondary-border); background: var(--secondary-soft); color: var(--accent-2); font-size: 1.35rem; }
 .journey__step--next .journey__node { border-style: dashed; border-color: var(--text-dim); color: var(--text-dim); }
 .journey__number { color: var(--accent-text); font: 700 .72rem monospace; letter-spacing: .08em; }
@@ -383,12 +383,12 @@ a { color: inherit; text-decoration: none; }
 .blog-modal__share { display: flex; flex-wrap: wrap; gap: 12px; flex-direction: column; }
 .share-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: .9rem; transition: all .2s; }
 .share-btn:hover { border-color: var(--text); }
-.share-btn.linkedin { border-color: #0A66C2; color: #0A66C2; }
-.share-btn.linkedin:hover { background: rgba(10,102,194,.1); }
-.share-btn.xing { border-color: #0698A0; color: #0698A0; }
-.share-btn.xing:hover { background: rgba(6,152,160,.1); }
-.share-btn.twitter { border-color: #1DA1F2; color: #1DA1F2; }
-.share-btn.twitter:hover { background: rgba(29,161,242,.1); }
+.share-btn.linkedin { border-color: var(--input-border); color: var(--accent-text); }
+.share-btn.linkedin:hover { background: var(--bg-hover); }
+.share-btn.xing { border-color: var(--input-border); color: var(--accent-text); }
+.share-btn.xing:hover { background: var(--bg-hover); }
+.share-btn.twitter { border-color: var(--input-border); color: var(--accent-text); }
+.share-btn.twitter:hover { background: var(--bg-hover); }
 
 /* Live profile cards (one per platform) — banner + header(avatar+icon) + body(name+headline+button) */
 .pcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }

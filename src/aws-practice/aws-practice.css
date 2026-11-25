@@ -1,5 +1,5 @@
 .aws-lab {
-  --lab-panel: var(--bg-elev);
+  --lab-panel: var(--bg-card);
   --lab-accent: var(--accent-text);
   --lab-accent-strong: var(--accent);
   --lab-muted: var(--text-dim);
