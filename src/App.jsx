@@ -7,6 +7,33 @@ import Connect from './Connect.jsx'
 const socialUrl = (social, lang) => typeof social.url === 'string' ? social.url : social.url[lang]
 const featuredBadge = cloudBadges.find(badge => badge.featured)
 
+// ISTQB certificate badge logo
+const ISTQBLogo = () => (
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+    {/* Outer dark circle (certificate base) */}
+    <circle cx="50" cy="50" r="48" fill="#1a3a52" opacity="0.9" />
+
+    {/* Gold/brass border ring (premium certificate look) */}
+    <circle cx="50" cy="50" r="48" fill="none" stroke="#d4a574" strokeWidth="2.5" />
+    <circle cx="50" cy="50" r="45" fill="none" stroke="#d4a574" strokeWidth="0.8" opacity="0.6" />
+
+    {/* White center circle (certificate paper) */}
+    <circle cx="50" cy="50" r="42" fill="#fafafa" />
+
+    {/* Subtle star/seal mark at top */}
+    <circle cx="50" cy="25" r="3.5" fill="#d4a574" />
+
+    {/* ISTQB text - main */}
+    <text x="50" y="47" fontSize="13" fontWeight="bold" fill="#0052cc" textAnchor="middle" fontFamily="Arial, sans-serif">ISTQB</text>
+
+    {/* Decorative line */}
+    <line x1="35" y1="55" x2="65" y2="55" stroke="#d4a574" strokeWidth="0.8" opacity="0.5" />
+
+    {/* Certificate text */}
+    <text x="50" y="68" fontSize="5" fill="#666" textAnchor="middle" fontFamily="Arial, sans-serif">CERTIFIED</text>
+  </svg>
+)
+
 function Hero() {
   const { lang } = useLang()
   const t = ui[lang]
@@ -26,10 +53,18 @@ function Hero() {
           )}
         </div>
         </div>
-        {featuredBadge && <a className="hero__credential" href={`#credential-${featuredBadge.id}`}>
-          <img src={featuredBadge.image} alt="" width="112" height="112" />
-          <span>{featuredBadge.name}<small>{lang === 'de' ? 'Nachweis ansehen' : 'View credential'}</small></span>
-        </a>}
+        <div className="hero__credentials" role="group" aria-label={lang === 'de' ? 'Nachweise' : 'Credentials'}>
+          {featuredBadge && <a className="hero__credential" href={`#credential-${featuredBadge.id}`}>
+            <img src={featuredBadge.image} alt="" width="96" height="96" />
+            <span>{featuredBadge.name}<small>{lang === 'de' ? 'Nachweis ansehen' : 'View credential'}</small></span>
+          </a>}
+          <a className="hero__credential" href="#istqb-advanced-test-manager">
+            <ISTQBLogo />
+            <span>ISTQB® Advanced Level<br />Test Manager (CTAL-TM)
+              <small>{lang === 'de' ? 'Nachweis ansehen' : 'View credential'}</small>
+            </span>
+          </a>
+        </div>
       </div>
     </section>
   )
@@ -451,40 +486,13 @@ function Certifications() {
   const { lang } = useLang()
   const t = ui[lang]
 
-  // ISTQB certificate badge logo
-  const ISTQBLogo = () => (
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-      {/* Outer dark circle (certificate base) */}
-      <circle cx="50" cy="50" r="48" fill="#1a3a52" opacity="0.9" />
-
-      {/* Gold/brass border ring (premium certificate look) */}
-      <circle cx="50" cy="50" r="48" fill="none" stroke="#d4a574" strokeWidth="2.5" />
-      <circle cx="50" cy="50" r="45" fill="none" stroke="#d4a574" strokeWidth="0.8" opacity="0.6" />
-
-      {/* White center circle (certificate paper) */}
-      <circle cx="50" cy="50" r="42" fill="#fafafa" />
-
-      {/* Subtle star/seal mark at top */}
-      <circle cx="50" cy="25" r="3.5" fill="#d4a574" />
-
-      {/* ISTQB text - main */}
-      <text x="50" y="47" fontSize="13" fontWeight="bold" fill="#0052cc" textAnchor="middle" fontFamily="Arial, sans-serif">ISTQB</text>
-
-      {/* Decorative line */}
-      <line x1="35" y1="55" x2="65" y2="55" stroke="#d4a574" strokeWidth="0.8" opacity="0.5" />
-
-      {/* Certificate text */}
-      <text x="50" y="68" fontSize="5" fill="#666" textAnchor="middle" fontFamily="Arial, sans-serif">CERTIFIED</text>
-    </svg>
-  )
-
   return (
     <Section id="certifications" title={t.titles.certifications}>
       <CloudBadgeCarousel />
       <h3 className="certs__group-title">{t.certificationGroups.quality}</h3>
       <div className="certs">
         {certifications[lang].map((c, i) => (
-          <div key={i} className="cert-card">
+          <div key={i} className="cert-card" id={c.id}>
             <div className="cert-card__logo">
               <ISTQBLogo />
             </div>

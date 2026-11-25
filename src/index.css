@@ -101,7 +101,7 @@ a { color: inherit; text-decoration: none; }
     radial-gradient(60% 50% at 20% 10%, var(--accent-wash), transparent),
     radial-gradient(50% 50% at 90% 30%, var(--secondary-wash), transparent);
 }
-.hero__inner { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 32px; align-items: center; }
+.hero__inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(270px, 320px); gap: 28px; align-items: center; }
 .hero__copy { min-width: 0; }
 .hero__eyebrow { color: var(--accent-2); font-family: monospace; margin-bottom: 14px; }
 .hero__name { font-size: clamp(2.3rem, 5.5vw, 3.6rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 16px; }
@@ -235,8 +235,10 @@ a { color: inherit; text-decoration: none; }
 .edu__school { color: var(--text-dim); font-size: .92rem; margin-top: 4px; }
 
 /* ---------- Certifications ---------- */
+.hero__credentials { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 12px; }
 .hero__credential { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 20px 12px; border: 1px solid var(--secondary-border); border-radius: 16px; background: var(--bg-card); font-size: .85rem; }
-.hero__credential img { flex-shrink: 0; object-fit: contain; border-radius: 6px; }
+.hero__credential img, .hero__credential > svg { flex-shrink: 0; width: 96px; height: 96px; object-fit: contain; border-radius: 6px; }
+.hero__credential > span { margin-top: auto; }
 .hero__credential small { display: block; color: var(--accent-2); margin-top: 2px; }
 .hero__credential:hover { border-color: var(--accent-2); }
 .cloud-badge-carousel { margin-bottom: 32px; }
@@ -288,7 +290,7 @@ a { color: inherit; text-decoration: none; }
 .cloud-badge__embed iframe { display: block; border: 0; border-radius: 10px; background: white; }
 .certs { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
 .certs__group-title { color: var(--accent-2); font-size: 1rem; margin-bottom: 14px; }
-.cert-card {
+.cert-card { scroll-margin-top: 82px;
   display: flex; flex-direction: row; align-items: center; gap: 20px;
   background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius); padding: 20px;
   transition: transform .2s, border-color .2s, box-shadow .2s;
@@ -513,8 +515,9 @@ a { color: inherit; text-decoration: none; }
   :root { --section-space: 28px; --heading-space: 20px; }
   .hero { padding: 112px 0 var(--section-space); }
   .hero__inner { grid-template-columns: 1fr; gap: 28px; }
-  .hero__credential { flex-direction: row; text-align: left; width: fit-content; padding: 12px 16px; }
-  .hero__credential img { width: 72px; height: 72px; }
+  .hero__credentials { max-width: 400px; }
+  .hero__credential { padding: 14px 10px; }
+  .hero__credential img, .hero__credential > svg { width: 72px; height: 72px; }
   .pcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 

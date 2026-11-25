@@ -14,8 +14,8 @@ export const profile = {
   resumeUrl: '', // optional: put a PDF in /public and set e.g. '/cv.pdf'
 
   role: {
-    en: 'AWS Cloud & Infrastructure Engineer',
-    de: 'AWS Cloud & Infrastructure Engineer',
+    en: 'Test Manager · AWS Cloud & Infrastructure Engineer',
+    de: 'Test Manager · AWS Cloud & Infrastructure Engineer',
   },
   tagline: {
     en: 'Reliable cloud infrastructure. Thoughtful automation. Built with a quality-engineering mindset.',
@@ -265,11 +265,11 @@ export const cloudBadges = [
 
 export const certifications = {
   en: [
-    { name: 'ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM)', year: '2024' },
+    { id: 'istqb-advanced-test-manager', name: 'ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM)', year: '2024' },
     { name: 'ISTQB® Certified Tester — Foundation Level v4.0', year: '2024' },
   ],
   de: [
-    { name: 'ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM)', year: '2024' },
+    { id: 'istqb-advanced-test-manager', name: 'ISTQB® Certified Tester — Advanced Level Test Manager (CTAL-TM)', year: '2024' },
     { name: 'ISTQB® Certified Tester — Foundation Level v4.0', year: '2024' },
   ],
 }
